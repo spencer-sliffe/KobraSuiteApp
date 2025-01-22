@@ -1,19 +1,20 @@
-# Kobra Suite Flutter Frontend
+
+# KobraSuite Flutter Frontend
 
 ## Install and Run
 
 1. **Install Flutter**: Download and install Flutter from [here](https://docs.flutter.dev/release/archive).
       
-2. **Clone the Repo**: Download and install Repository from [here](https://github.com/spencer-sliffe/KobraSuite).
+2. **Clone the Repo**: Download and install Repository from [here](https://github.com/spencer-sliffe/KobraSuiteApp).
     - **macOS/Linux**:
       ```bash
-      git clone https://github.com/spencer-sliffe/KobraSuite.git
-      cd KobraSuite/kobrasuite_app
+      git clone https://github.com/spencer-sliffe/KobraSuiteApp.git
+      cd KobraSuiteApp/kobrasuite_app
       ```
     - **Windows**:
       ```bash
-      git clone https://github.com/spencer-sliffe/KobraSuite.git
-      cd KobraSuite\kobrasuite_app
+      git clone https://github.com/spencer-sliffe/KobraSuiteApp.git
+      cd KobraSuiteApp\kobrasuite_app
       ```
 
 3. **Install Dependencies**:
