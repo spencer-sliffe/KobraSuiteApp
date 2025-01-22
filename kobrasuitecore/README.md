@@ -1,17 +1,17 @@
-# Kobra Suite Django Backend
+# KobraSuite Django Backend
 
 ## Install and Run
 
-1. **Clone the Repo**: Download and install Repository from [here](https://github.com/spencer-sliffe/KobraSuite).
+1. **Clone the Repo**: Download and install Repository from [here](https://github.com/spencer-sliffe/KobraSuiteApp).
    - **macOS/Linux**: 
      ```bash
      git clone https://github.com/spencer-sliffe/KobraSuite.git
-     cd KobraSuite/kobrasuitecore
+     cd KobraSuiteApp/kobrasuitecore
      ```
    - **Windows**:
      ```bash
      git clone https://github.com/spencer-sliffe/KobraSuite.git
-     cd KobraSuite\kobrasuitecore
+     cd KobraSuiteApp\kobrasuitecore
      ```
 
 2. **Start Venv**:
@@ -102,4 +102,3 @@
      docker buildx build --platform linux/arm64 -t my-kobrasuite:latest . --no-cache
      docker run -it --platform linux/arm64 my-kobrasuite:latest /bin/sh
      ```
-      
