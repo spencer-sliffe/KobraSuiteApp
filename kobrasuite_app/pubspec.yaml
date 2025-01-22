@@ -1,0 +1,94 @@
+name: kobrasuite_app
+description: "A Flutter project for Kobra Suite."
+
+# Prevent accidental publishing to pub.dev
+publish_to: 'none'
+
+# Application versioning
+version: 1.0.0+1
+
+# Dart and Flutter environment setup
+environment:
+  sdk: ">=3.6.0 <4.0.0"
+
+# Application dependencies
+dependencies:
+  file_picker: ^5.2.1
+  flutter:
+    sdk: flutter
+
+  # For iOS-style icons
+  cupertino_icons: ^1.0.8
+
+  # HTTP requests
+  http: ^1.2.2
+
+  path: ^1.9.0
+
+  # State management (add based on preference)
+  provider: ^6.1.2
+
+  # Flutter Secure Storage for securely storing session tokens
+  flutter_secure_storage: ^9.2.2
+
+  # JSON serialization
+  json_annotation: ^4.9.0
+
+  # Navigation (optional for routing)
+  go_router: ^14.6.2
+
+  # Form validation
+  flutter_form_builder: ^9.6.0
+
+  # Responsive UI
+  flutter_screenutil: ^5.9.3
+
+  # Dependency Injection (optional, if needed)
+  get_it: ^8.0.3
+
+  # Shared Preferences for storing simple key-value pairs
+  shared_preferences: ^2.0.15
+
+  google_fonts: ^6.2.1
+
+  dio: ^5.7.0
+
+  webview_flutter: ^4.10.0
+
+  webview_flutter_android: ^4.0.7
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # Recommended lint rules
+  flutter_lints: ^5.0.0
+
+  # Code generation tools (for JSON serialization)
+  build_runner: ^2.4.6
+  json_serializable: ^6.7.0
+
+# Flutter-specific configurations
+flutter:
+  uses-material-design: true
+
+  # Asset configurations
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/fonts/
+
+  # Fonts configuration (example)
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf
+        - asset: assets/fonts/Roboto-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Roboto-Italic.ttf
+          style: italic
+
+# Additional notes:
+# - Ensure your assets folder structure matches the paths in this file.
+# - Update version numbers in dependencies if newer versions are available.
+# - Remove unused dependencies for a cleaner setup.

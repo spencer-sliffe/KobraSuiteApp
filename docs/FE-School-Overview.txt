@@ -1,0 +1,148 @@
+Guide Lines for ChatGPT when coding the Flutter front end:
+1. General Principles:
+	•	Design First, Code Second:
+	•	Prioritize visually appealing, intuitive UIs that adhere to Material Design 3 (for Android) or Cupertino (for iOS).
+	•	Take inspiration from top-tier, modern applications. Aim for clean, minimalistic designs with smooth interactions.
+	•	Reference existing design components from the app for consistency. Enhance them when necessary rather than recreating from scratch.
+	•	Responsiveness by Default:
+	•	Ensure all UIs dynamically adjust across varying screen sizes, orientations, and devices.
+	•	Use LayoutBuilder, MediaQuery, Flexible, Expanded, and AspectRatio to achieve fluid layouts that scale properly for mobile, tablet, and web.
+	•	Consistency Across the App:
+	•	Use a central ThemeData to define consistent fonts, colors, paddings, and margins.
+	•	Match UI elements with the existing brand identity and ensure uniformity across the app.
+2. Code Structure:
+	•	Clean Code Structure: Follow the MVVM or Provider architecture for state management to ensure scalability.
+	•	Component Reusability: Use widget composition. Break down UI components into smaller, reusable widgets (StatelessWidget and StatefulWidget).
+3. UI Design Guidelines:
+	•	Adhere to Modern UI Practices: 
+	•	Use all the new fancy UI tools to make the user exerience as beauitful, enjoyable, and pleasing as possible
+	•	Leverage SliverAppBar, CustomScrollView, ClipPath, and dynamic ListView/GridView to create visually appealing, fluid designs.
+	•	Incorporate interactive design patterns such as bottom sheets, modal dialogs, and animated FABs.
+	•	Use rounded corners (BorderRadius) and subtle shadows (BoxShadow) for a soft, modern aesthetic.
+	•	User Delight:
+	•	Implement micro-interactions using flutter_animate, Hero transitions, and animated page routes.
+	•	Apply smooth animations to enhance perceived performance and engagement.
+4. Complete Feature Implementation (End-to-End):
+	•	Deliver Fully Functional Features, Not Partial Examples:
+	•	When generating features, ensure complete implementation, covering navigation, state management, API integration, and error handling.
+	•	Always integrate with Django APIs where applicable.
+	•	Example: When implementing login, ensure form validation, API calls to Django’s authentication endpoints, and navigation to the dashboard upon success.
+	•	Form Validation and User Feedback:
+	•	Use Form and TextFormField with validators to handle input validation.
+	•	Display contextual error messages and loading indicators during long-running processes.
+	•	Full Page Flows:
+	•	Ensure every feature, such as registration or profile updates, includes full UI-API integration, error states, and visual feedback loops.
+	•	Handle edge cases (e.g., empty API responses, slow network) with appropriate fallback UIs.
+5. State Management and Data Flow:
+	•	Reactive State Management: Use ChangeNotifier, Riverpod, or Bloc to manage app state efficiently.
+	•	Immutable Data Structures: Ensure data models are immutable. Use the freezed package or manually implement immutable classes.
+	•	API Integration: Implement Dio or http for network requests, with interceptors for logging and error handling.
+6. Responsiveness and Adaptability:
+	•	Adaptive Widgets: Use AdaptiveLayout, ResponsiveBuilder, or flutter_screenutil to make UIs responsive to screen sizes and platforms.
+	•	Grid and List Layouts: Use GridView.builder and ListView.builder for large, scrollable content with lazy loading.
+	•	Orientation Handling: Adjust layouts dynamically using MediaQuery.orientation and LayoutBuilder.
+7. Performance Optimization:
+	•	Avoid Rebuilding Widgets Unnecessarily: Use const constructors and memoization to minimize widget rebuilds.
+	•	Lazy Loading: Implement lazy loading for images using CachedNetworkImage.
+	•	Efficient Rendering: Use RepaintBoundary to avoid excessive repaints.
+8. Visual Polish and Interactions:
+	•	Interactive Elements:
+	•	Use GestureDetector and InkWell for tappable widgets with ripple effects.
+	•	Implement drag-and-drop, pull-to-refresh, and swipe-to-dismiss gestures.
+	•	Animations and Motion:
+	•	Utilize flutter_animate or rive for micro-interactions and smooth animations.
+	•	Implement Lottie for beautiful, lightweight animations.
+9. Handling Pre-Existing Code and Files:
+	•	Enhance and Improve:
+	•	Modify and improve pre-existing code to align with new requirements or design upgrades.
+	•	Reuse, refactor, and enhance existing components whenever possible to maintain consistency and reduce redundancy.
+	•	File and Directory Management:
+	•	Refactor and reorganize files/directories as needed to improve clarity and adhere to project structure standards.
+	•	Delete outdated files only if they are completely replaced by improved solutions.
+	•	New Files and Directories:
+	•	Create new files and directories when building new features. Ensure they align with the app’s architecture and Django backend integration.
+	•	Document newly added files to ensure team members understand their purpose.
+
+
+Flutter Front End Features to implement:
+	1)School Screen
+		1a) University Tab
+			1a.1) Search Universities (Visibility Toggleable)
+				1a.1.1) Intuitive and suggests best matches while the user is typing
+				1a.1.2) Search result items show Universities Name and location (linking to the corresponding University's page)
+			(IF user has set their University):
+			1a.2)  Show a button to pull up their University's chat
+			(ELSE):
+			1a.2)  Show no button to pull up their University's chat
+			(END IF)
+			[University SLUG])
+				SLUG.1) Display University's Details
+					SLUG.1a) Name
+					SLUG.1b) Location
+					SLUG.1c) Website
+					SLUG.1d) Number of students at the university using the app
+					SLUG.1e) Number of courses at the university represented in the app
+				SLUG.2) Display Universities Courses (sorted alphabetical by Course Code and Semester)
+					SLUG.2a) Items show Course Code, title and Semester (Do not link to the corresponding course's page)
+				SLUG.3) Allow User to Set University as their University in School Profile
+					SLUG.3a) Get confirmation for this action
+				SLUG.4) Allow User to Remove University as University in School Profile
+					SLUG.4a) Get confirmation for this action
+		1b) Courses Tab
+			(IF user has set the University they attend):
+			1b.1) Search Courses at their University (Visibility Toggleable)
+				1b.1.1) Intuitive and suggests best matches while the user is typing
+				1b.1.2) Search result items show Course's Code, title, and semester (linking to the corresponding Courses's page)
+				1b.1.2) If a valid Course Code is searched yet the Course been not been added to the University
+					1b.1.2.1) A button should appear to request adding the course
+					1b.1.2.2) The user should be prompted with the course's fields (Course Code, Professors last name, Etc.)
+					1b.1.2.3) Upon entering these fields, the course's existance will be validated and added to the University's courses
+			1b.2) Display the users current Courses 
+				1b.2.1) Show the Course code and title on each course item (linking to the corresponding course's page)	
+			(ELSE)
+			1b.1) Indicate that user must set their University(link to University tab) to use the tab
+			(END IF)
+			[COURSE SLUG])
+				SLUG.1) Display Course's Details
+					SLUG.1a) Code
+					SLUG.1b) Title
+					SLUG.1c) Professor
+					SLUG.1d) Semester
+					SLUG.1e) Number of students in the course represented in the app
+				SLUG.2) Display the Courses Assignments (Linked to the corresponding Assignment's Page)
+					SLUG.3a) Display the Assignment's name and Due date
+				SLUG.3) Display Courses Topics (Linked to the corresponding Topic's page)
+					SLUG.3a) Just need to Display the Topic's name
+				SLUG.4) Show a button to pull up the course's chat
+				SLUG.5) Show a button to create a new topic
+				SLUG.6) Show a button to create a new assignment
+			[TOPIC SLUG])
+				SLUG.1) Display Topic's Details
+					SLUG.1a) Course Code
+					SLUG.1b) Topic Name
+				SLUG.2) Display Topic Study Documents (Linking to view in a Document Viewer)
+				SLUG.3) Show a button to Upload Study Document 
+			[ASSIGNMENT SLUG])
+				SLUG.1) Display Assignment's Details
+					SLUG.1a) Course Code
+					SLUG.1b) Assignment Name
+					SLUG.1c) Assignment Due Date
+				SLUG.2) Display the Assignment's Answers
+					SLUG.2a) Show answer documents(Linking to a document viewer) & text answers sorted by when posted
+				SLUG.3) Show a button to submit an answer Document or Text
+				SLUG.4) Show a button to pull up the Assignment's Chat		
+		1c) Other components used (Used where applicable)
+			1c.1) Document Viewer
+				1c.1.1) Just a modern, industry standard document viewer that allows users to view and download documents
+			1c.2) Chats (University Chat, Course Chat, Assignment Chat)
+				1c.2.1) Chats should be modern and industry standard live chats
+				1c.2.2) Chats should handle their scopes properly
+					1c.2.2a) University -> Members of the university can chat
+					1c.2.2b) Course (Each course at Each University has a specific chat) -> Members of the University in that course can chat
+					1c.2.2c) Assignment (Each assignment of each course at each University has a specific chat) -> Members of the University in that course can chat
+			1c.3) Document Uploader
+				1c.3.1) Just a modern, industry standard document uploader
+
+
+
+			

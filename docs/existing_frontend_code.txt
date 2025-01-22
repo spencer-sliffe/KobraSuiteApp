@@ -1,0 +1,2795 @@
+lib/components/kobra_appbar.dart:
+
+import 'package:flutter/material.dart';
+
+class KobraAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final String title;
+  final List<Widget>? actions;
+
+  const KobraAppBar({
+    Key? key,
+    required this.title,
+    this.actions,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      title: Text(title),
+      actions: actions,
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}
+
+lib/components/kobra_dashboard_card.dart:
+
+// lib/components/kobra_dashboard_card.dart
+
+import 'package:flutter/material.dart';
+
+class KobraDashboardCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const KobraDashboardCard({
+    Key? key,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Card(
+        elevation: 3,
+        child: SizedBox(
+          width: 250,
+          height: 150,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(icon, size: 36, color: Theme.of(context).colorScheme.primary),
+                const SizedBox(height: 12),
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const Spacer(),
+                Text(subtitle, style: Theme.of(context).textTheme.bodyMedium),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+lib/components/kobra_drawer.dart:
+
+// lib/components/kobra_drawer.dart
+
+import 'package:flutter/material.dart';
+
+class KobraDrawer extends StatelessWidget {
+  final int selectedIndex;
+  final ValueChanged<int> onItemTap;
+
+  const KobraDrawer({
+    Key? key,
+    required this.selectedIndex,
+    required this.onItemTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final navItems = [
+      {'label': 'Dashboard', 'icon': Icons.dashboard},
+      {'label': 'Finances', 'icon': Icons.account_balance_wallet},
+      {'label': 'Homelife', 'icon': Icons.home},
+      {'label': 'Investing', 'icon': Icons.trending_up},
+      {'label': 'School', 'icon': Icons.school},
+      {'label': 'Work', 'icon': Icons.work},
+      {'label': 'Notifications', 'icon': Icons.notifications},
+    ];
+    return Drawer(
+      child: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 16),
+            const CircleAvatar(
+              radius: 40,
+              backgroundImage: AssetImage('assets/images/profile_placeholder.png'),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Welcome, User!',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const Divider(),
+            Expanded(
+              child: ListView.builder(
+                itemCount: navItems.length,
+                itemBuilder: (context, index) {
+                  final item = navItems[index];
+                  return ListTile(
+                    leading: Icon(item['icon'] as IconData),
+                    title: Text(item['label'] as String),
+                    selected: index == selectedIndex,
+                    onTap: () {
+                      onItemTap(index);
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              ),
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Settings'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/settings');
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+lib/components/kobra_nav_rail.dart:
+
+// lib/components/kobra_nav_rail.dart
+
+import 'package:flutter/material.dart';
+
+class KobraNavRail extends StatelessWidget {
+  final int selectedIndex;
+  final ValueChanged<int> onItemTap;
+
+  const KobraNavRail({
+    Key? key,
+    required this.selectedIndex,
+    required this.onItemTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final navItems = [
+      {'label': 'Dashboard', 'icon': Icons.dashboard},
+      {'label': 'Finances', 'icon': Icons.account_balance_wallet},
+      {'label': 'Homelife', 'icon': Icons.home},
+      {'label': 'Investing', 'icon': Icons.trending_up},
+      {'label': 'School', 'icon': Icons.school},
+      {'label': 'Work', 'icon': Icons.work},
+      {'label': 'Notifications', 'icon': Icons.notifications},
+    ];
+    return NavigationRail(
+      selectedIndex: selectedIndex,
+      onDestinationSelected: onItemTap,
+      labelType: NavigationRailLabelType.all,
+      destinations: navItems.map((item) {
+        return NavigationRailDestination(
+          icon: Icon(item['icon'] as IconData),
+          selectedIcon: Icon(item['icon'] as IconData, color: Theme.of(context).colorScheme.primary),
+          label: Text(item['label'] as String, style: const TextStyle(fontSize: 8.5)),
+        );
+      }).toList(),
+    );
+  }
+}
+
+lib/models/course.dart:
+
+// lib/models/course.dart
+
+class Course {
+  final int id;
+  final int externalCourseId;
+  final String title;
+  final String? description;
+  final DateTime startDate;
+  final DateTime? endDate;
+  final String? department;
+  final String? universityName;
+
+  Course({
+    required this.id,
+    required this.externalCourseId,
+    required this.title,
+    this.description,
+    required this.startDate,
+    this.endDate,
+    this.department,
+    this.universityName,
+  });
+
+  factory Course.fromJson(Map<String, dynamic> json) {
+    return Course(
+      id: json['id'],
+      externalCourseId: json['external_course_id'] ?? 0,
+      title: json['title'],
+      description: json['description'],
+      startDate: json['start_date'] != null ? DateTime.parse(json['start_date']) : DateTime.now(),
+      endDate: json['end_date'] != null ? DateTime.parse(json['end_date']) : null,
+      department: json['department'],
+      universityName: json['university'] is Map<String, dynamic> ? json['university']['name'] : null,
+    );
+  }
+}
+
+lib/models/university.dart:
+
+// lib/models/university.dart
+
+class University {
+  final int id;
+  final String name;
+  final String country;
+  final String domain;
+
+  University({
+    required this.id,
+    required this.name,
+    required this.country,
+    required this.domain,
+  });
+
+  factory University.fromJson(Map<String, dynamic> json) {
+    return University(
+      id: json['id'],
+      name: json['name'],
+      country: json['country'],
+      domain: json['domain'],
+    );
+  }
+}
+
+lib/models/user_model.dart:
+
+// lib/models/user_model.dart
+
+class UserModel {
+  final int id;
+  final String username;
+  final String email;
+  final String firstName;
+  final String lastName;
+  final String? lastLogin;
+
+  UserModel({
+    required this.id,
+    required this.username,
+    required this.email,
+    required this.firstName,
+    required this.lastName,
+    this.lastLogin,
+  });
+
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      id: json['id'],
+      username: json['username'] ?? '',
+      email: json['email'] ?? '',
+      firstName: json['first_name'] ?? '',
+      lastName: json['last_name'] ?? '',
+      lastLogin: json['last_login'],
+    );
+  }
+}
+
+lib/providers/course_provider.dart:
+
+// lib/providers/course_provider.dart
+
+import 'package:flutter/material.dart';
+import '../services/school_service.dart';
+import '../models/course.dart';
+
+class CourseProvider with ChangeNotifier {
+  List<Course> _courses = [];
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  List<Course> get courses => _courses;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+
+  Future<void> fetchCourses() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+    try {
+      final data = await SchoolService.getCourses();
+      _courses = data.map((e) => Course.fromJson(e)).toList();
+    } catch (e) {
+      _errorMessage = 'Failed to load courses.';
+    }
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<bool> addCourse(int courseId) async {
+    _isLoading = true;
+    notifyListeners();
+    final success = await SchoolService.addCourse({'course_id': courseId});
+    _isLoading = false;
+    if (success) {
+      await fetchCourses();
+      return true;
+    } else {
+      _errorMessage = 'Failed to add course.';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> deleteCourse(int courseId) async {
+    _isLoading = true;
+    notifyListeners();
+    final success = await SchoolService.deleteCourse(courseId);
+    _isLoading = false;
+    if (success) {
+      await fetchCourses();
+      return true;
+    } else {
+      _errorMessage = 'Failed to delete course.';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> addNewCourse({
+    required String courseCode,
+    required String courseTitle,
+    required String professor,
+    String? description,
+  }) async {
+    _isLoading = true;
+    notifyListeners();
+    final payload = {
+      'course_code': courseCode,
+      'title': courseTitle,
+      'professor_last_name': professor,
+      'description': description ?? '',
+    };
+    final success = await SchoolService.addNewCourse(payload);
+    _isLoading = false;
+    if (success) {
+      await fetchCourses();
+      return true;
+    } else {
+      _errorMessage = 'Failed to create course.';
+      notifyListeners();
+      return false;
+    }
+  }
+}
+
+lib/providers/theme_notifier.dart:
+
+import 'package:flutter/material.dart';
+
+class ThemeNotifier with ChangeNotifier {
+  ThemeMode _themeMode = ThemeMode.light;
+  ThemeMode get themeMode => _themeMode;
+  bool get isDarkMode => _themeMode == ThemeMode.dark;
+
+  void toggleTheme() {
+    if (_themeMode == ThemeMode.dark) {
+      _themeMode = ThemeMode.light;
+    } else {
+      _themeMode = ThemeMode.dark;
+    }
+    notifyListeners();
+  }
+}
+
+lib/providers/university_provider.dart:
+
+// lib/providers/university_provider.dart
+
+import 'package:flutter/material.dart';
+import '../services/school_service.dart';
+import '../models/university.dart';
+
+class UniversityProvider with ChangeNotifier {
+  University? _currentUniversity;
+  List<University> _searchResults = [];
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  University? get currentUniversity => _currentUniversity;
+  List<University> get searchResults => _searchResults;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+
+  Future<void> loadUserProfile(int userId) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+    try {
+      final profile = await SchoolService.getUserProfile(userId);
+      _currentUniversity = profile?['school_profile']?['university_detail'] != null
+          ? University.fromJson(profile!['school_profile']['university_detail'])
+          : null;
+    } catch (e) {
+      _errorMessage = 'Failed to load user profile.';
+    }
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> searchUniversities(String query) async {
+    if (query.trim().isEmpty) return;
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+    try {
+      final results = await SchoolService.searchUniversities(name: query);
+      _searchResults = results.map((e) => University.fromJson(e)).toList();
+    } catch (e) {
+      _errorMessage = 'Failed to search universities.';
+    }
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<bool> setUniversity(int userId, University uni) async {
+    _isLoading = true;
+    notifyListeners();
+    final response = await SchoolService.setUserUniversity(
+      userId: userId,
+      universityId: uni.id,
+    );
+    _isLoading = false;
+    if (response['success'] == true) {
+      _currentUniversity = uni;
+      notifyListeners();
+      return true;
+    } else {
+      _errorMessage = response['errors']?['detail'] ??
+          response['errors']?['school_profile']?['university'] is List
+          ? (response['errors']?['school_profile']?['university'] as List).join(' ')
+          : response['errors']?['school_profile']?['university'] ??
+          'Failed to set university.';
+      notifyListeners();
+      return false;
+    }
+  }
+}
+
+lib/screens/assignment/assignment_multistep_form.dart:
+
+// lib/screens/assignment/assignment_multistep_form.dart
+
+import 'package:flutter/material.dart';
+import 'package:kobrasuite_app/services/school_service.dart';
+
+class AssignmentMultistepForm extends StatefulWidget {
+  const AssignmentMultistepForm({Key? key}) : super(key: key);
+
+  @override
+  State<AssignmentMultistepForm> createState() => _AssignmentMultistepFormState();
+}
+
+class _AssignmentMultistepFormState extends State<AssignmentMultistepForm> {
+  int _currentStep = 0;
+  final _courseIdCtrl = TextEditingController();
+  final _titleCtrl = TextEditingController();
+  final _descCtrl = TextEditingController();
+  final _dueCtrl = TextEditingController();
+  bool _isSubmitting = false;
+  String? _error;
+
+  List<Step> get _steps => [
+    Step(
+      title: const Text('Course'),
+      content: TextField(
+        controller: _courseIdCtrl,
+        decoration: const InputDecoration(
+          labelText: 'Course ID',
+        ),
+      ),
+      isActive: _currentStep >= 0,
+    ),
+    Step(
+      title: const Text('Details'),
+      content: Column(
+        children: [
+          TextField(
+            controller: _titleCtrl,
+            decoration: const InputDecoration(labelText: 'Assignment Title'),
+          ),
+          TextField(
+            controller: _descCtrl,
+            decoration: const InputDecoration(labelText: 'Description'),
+          ),
+        ],
+      ),
+      isActive: _currentStep >= 1,
+    ),
+    Step(
+      title: const Text('Due Date'),
+      content: TextField(
+        controller: _dueCtrl,
+        decoration: const InputDecoration(labelText: 'Due Date (YYYY-MM-DD HH:MM)'),
+      ),
+      isActive: _currentStep >= 2,
+    ),
+  ];
+
+  void _next() {
+    if (_currentStep < _steps.length - 1) {
+      setState(() => _currentStep += 1);
+    }
+  }
+
+  void _prev() {
+    if (_currentStep > 0) {
+      setState(() => _currentStep -= 1);
+    }
+  }
+
+  Future<void> _submit() async {
+    final courseId = _courseIdCtrl.text.trim();
+    final title = _titleCtrl.text.trim();
+    final description = _descCtrl.text.trim();
+    final dueDate = _dueCtrl.text.trim();
+
+    if (courseId.isEmpty || title.isEmpty || dueDate.isEmpty) {
+      setState(() => _error = 'Course ID, Title, and Due Date are required.');
+      return;
+    }
+    setState(() {
+      _isSubmitting = true;
+      _error = null;
+    });
+    final payload = {
+      'course': courseId,
+      'title': title,
+      'description': description,
+      'due_date': dueDate,
+    };
+    final success = await SchoolService.addAssignment(payload);
+    if (!mounted) return;
+    setState(() => _isSubmitting = false);
+    if (success) {
+      Navigator.pop(context, true);
+    } else {
+      setState(() => _error = 'Failed to add assignment. Check data.');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('New Assignment Wizard'),
+      ),
+      body: Stepper(
+        steps: _steps,
+        currentStep: _currentStep,
+        onStepContinue: _onStepContinue,
+        onStepCancel: _onStepCancel,
+      ),
+    );
+  }
+
+  void _onStepContinue() {
+    if (_currentStep == _steps.length - 1) {
+      _submit();
+    } else {
+      _next();
+    }
+  }
+
+  void _onStepCancel() {
+    if (_currentStep == 0) {
+      Navigator.pop(context);
+    } else {
+      _prev();
+    }
+  }
+}
+
+lib/screens/school/tabs/school_courses_tab.dart:
+
+// lib/screens/school/tabs/school_courses_tab.dart
+
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../providers/course_provider.dart';
+import '../../../widgets/course_card.dart';
+
+class SchoolCoursesTab extends StatefulWidget {
+  const SchoolCoursesTab({Key? key}) : super(key: key);
+
+  @override
+  State<SchoolCoursesTab> createState() => _SchoolCoursesTabState();
+}
+
+class _SchoolCoursesTabState extends State<SchoolCoursesTab> {
+  final TextEditingController _courseSearchCtrl = TextEditingController();
+  final TextEditingController _newCourseCodeCtrl = TextEditingController();
+  final TextEditingController _newCourseTitleCtrl = TextEditingController();
+  final TextEditingController _newCourseProfessorCtrl = TextEditingController();
+  final TextEditingController _newCourseDescCtrl = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    final courseProvider = Provider.of<CourseProvider>(context, listen: false);
+    courseProvider.fetchCourses();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<CourseProvider>(
+      builder: (context, provider, child) {
+        return Stack(
+          children: [
+            if (provider.isLoading)
+              const Center(child: CircularProgressIndicator())
+            else if (provider.errorMessage != null)
+              Center(
+                child: Text(
+                  provider.errorMessage!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              )
+            else
+              RefreshIndicator(
+                onRefresh: provider.fetchCourses,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _courseSearchCtrl,
+                              decoration: const InputDecoration(
+                                labelText: 'Search Course ID or Title',
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton(
+                            onPressed: () => _searchCourse(provider),
+                            child: const Text('Search'),
+                          ),
+                        ],
+                      ),
+                    ),
+                    provider.courses.isEmpty
+                        ? const Expanded(child: Center(child: Text('No courses found.')))
+                        : Expanded(
+                      child: ListView.builder(
+                        itemCount: provider.courses.length,
+                        itemBuilder: (ctx, index) {
+                          final course = provider.courses[index];
+                          return CourseCard(
+                            course: course,
+                            onDelete: () => provider.deleteCourse(course.id),
+                            onTap: () {},
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            Positioned(
+              bottom: 16,
+              right: 16,
+              child: FloatingActionButton(
+                onPressed: _showAddNewCourseDialog,
+                child: const Icon(Icons.add),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _searchCourse(CourseProvider provider) async {
+    final query = _courseSearchCtrl.text.trim();
+    if (query.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a course ID or title to search.')),
+      );
+      return;
+    }
+    provider.fetchCourses().then((_) {
+      final matching = provider.courses.where((c) {
+        final courseIdMatches = c.id.toString() == query;
+        final titleMatches = c.title.toLowerCase().contains(query.toLowerCase());
+        return courseIdMatches || titleMatches;
+      }).toList();
+      if (matching.isEmpty) {
+        _askToCreateNewCourse();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Found ${matching.length} matching course(s).')),
+        );
+      }
+    });
+  }
+
+  void _askToCreateNewCourse() async {
+    final create = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Course Not Found'),
+        content: const Text('No course was found matching your search. Would you like to create it?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
+    if (create == true) {
+      _showAddNewCourseDialog();
+    }
+  }
+
+  void _showAddNewCourseDialog() {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Add New Course'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _newCourseCodeCtrl,
+                decoration: const InputDecoration(labelText: 'Course Code'),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _newCourseTitleCtrl,
+                decoration: const InputDecoration(labelText: 'Course Title'),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _newCourseProfessorCtrl,
+                decoration: const InputDecoration(labelText: 'Professor Last Name'),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _newCourseDescCtrl,
+                decoration: const InputDecoration(labelText: 'Description'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: _handleAddCourse,
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleAddCourse() async {
+    final code = _newCourseCodeCtrl.text.trim();
+    final title = _newCourseTitleCtrl.text.trim();
+    final prof = _newCourseProfessorCtrl.text.trim();
+    final desc = _newCourseDescCtrl.text.trim();
+    if (code.isEmpty || title.isEmpty || prof.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill out Course Code, Title, and Professor.')),
+      );
+      return;
+    }
+    Navigator.pop(context);
+    final courseProvider = Provider.of<CourseProvider>(context, listen: false);
+    final success = await courseProvider.addNewCourse(
+      courseCode: code,
+      courseTitle: title,
+      professor: prof,
+      description: desc,
+    );
+    if (success) {
+      _newCourseCodeCtrl.clear();
+      _newCourseTitleCtrl.clear();
+      _newCourseProfessorCtrl.clear();
+      _newCourseDescCtrl.clear();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Course created and added to profile.')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to create course.')),
+      );
+    }
+  }
+}
+
+lib/screens/school/tabs/school_university_tab.dart:
+
+// lib/screens/school/tabs/school_university_tab.dart
+
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../providers/university_provider.dart';
+import '../../../models/university.dart';
+import '../../../widgets/university_card.dart';
+import '../../university/university_detail_screen.dart';
+
+class SchoolUniversityTab extends StatefulWidget {
+  final int userId;
+  const SchoolUniversityTab({Key? key, required this.userId}) : super(key: key);
+
+  @override
+  State<SchoolUniversityTab> createState() => _SchoolUniversityTabState();
+}
+
+class _SchoolUniversityTabState extends State<SchoolUniversityTab> {
+  final TextEditingController _searchController = TextEditingController();
+  bool _isSearchOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final provider = Provider.of<UniversityProvider>(context, listen: false);
+    provider.loadUserProfile(widget.userId);
+  }
+
+  void _toggleSearch() {
+    setState(() {
+      _isSearchOpen = !_isSearchOpen;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<UniversityProvider>(
+      builder: (context, provider, child) {
+        return Column(
+          children: [
+            if (_isSearchOpen)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: const InputDecoration(
+                    labelText: 'Search University',
+                    prefixIcon: Icon(Icons.search),
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (query) {
+                    provider.searchUniversities(query);
+                  },
+                ),
+              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const SizedBox(width: 12),
+                ElevatedButton.icon(
+                  onPressed: _toggleSearch,
+                  icon: Icon(_isSearchOpen ? Icons.close : Icons.search),
+                  label: Text(_isSearchOpen ? 'Close Search' : 'Open Search'),
+                ),
+                const SizedBox(width: 12),
+              ],
+            ),
+            if (provider.currentUniversity != null)
+              UniversityCard(
+                university: provider.currentUniversity!,
+              ),
+            if (provider.isLoading)
+              const LinearProgressIndicator(),
+            if (provider.searchResults.isNotEmpty)
+              Expanded(
+                child: ListView.builder(
+                  itemCount: provider.searchResults.length,
+                  itemBuilder: (context, index) {
+                    final uni = provider.searchResults[index];
+                    return UniversityCard(
+                      university: uni,
+                      // The check icon for onSelect
+                      onSelect: () async {
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text('Set University'),
+                            content: Text('Set "${uni.name}" as your university?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx, false),
+                                child: const Text('No'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx, true),
+                                child: const Text('Yes'),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (confirmed == true) {
+                          provider.setUniversity(widget.userId, uni);
+                        }
+                      },
+                      trailingIcon: Icons.check,
+                      // Tapping the row navigates to a detail screen
+                      onTapRow: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => UniversityDetailScreen(university: uni),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+lib/screens/school/school_screen.dart:
+
+// lib/screens/school/school_screen.dart
+
+import 'package:flutter/material.dart';
+import 'package:kobrasuite_app/services/auth_service.dart';
+import 'tabs/school_university_tab.dart';
+import 'tabs/school_courses_tab.dart';
+
+class SchoolScreen extends StatefulWidget {
+  const SchoolScreen({Key? key}) : super(key: key);
+
+  @override
+  State<SchoolScreen> createState() => _SchoolScreenState();
+}
+
+class _SchoolScreenState extends State<SchoolScreen> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    if (AuthService.loggedInUserId == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context, '/login');
+      });
+    }
+    _tabController = TabController(length: 5, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _refreshAll() async {
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final userId = AuthService.loggedInUserId;
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('School Module'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _refreshAll,
+          ),
+        ],
+        bottom: TabBar(
+          controller: _tabController,
+          isScrollable: true,
+          tabs: const [
+            Tab(text: 'My University'),
+            Tab(text: 'Courses'),
+          ],
+        ),
+      ),
+      body: (userId == null)
+          ? const Center(child: CircularProgressIndicator())
+          : TabBarView(
+        controller: _tabController,
+        children: [
+          SchoolUniversityTab(userId: userId),
+          const SchoolCoursesTab(),
+        ],
+      ),
+    );
+  }
+}
+
+lib/screens/submission/upload_answer_screen.dart:
+
+// lib/screens/submission/upload_answer_screen.dart
+
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import '../../services/assignment_upload_service.dart';
+
+class UploadAnswerScreen extends StatefulWidget {
+  final int submissionId;
+  const UploadAnswerScreen({Key? key, required this.submissionId}) : super(key: key);
+
+  @override
+  State<UploadAnswerScreen> createState() => _UploadAnswerScreenState();
+}
+
+class _UploadAnswerScreenState extends State<UploadAnswerScreen> {
+  bool _isUploading = false;
+  String? _error;
+  File? _selectedFile;
+
+  Future<void> _pickFile() async {
+    final result = await FilePicker.platform.pickFiles(type: FileType.any);
+    if (result != null && result.files.isNotEmpty) {
+      setState(() => _selectedFile = File(result.files.single.path!));
+    }
+  }
+
+  Future<void> _upload() async {
+    if (_selectedFile == null) {
+      setState(() => _error = 'No file selected');
+      return;
+    }
+    setState(() {
+      _isUploading = true;
+      _error = null;
+    });
+    final success = await AssignmentUploadService.uploadAnswer(widget.submissionId, _selectedFile!);
+    setState(() => _isUploading = false);
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('File uploaded successfully')));
+      Navigator.pop(context);
+    } else {
+      setState(() => _error = 'Upload failed');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Upload Answer'),
+      ),
+      body: Center(
+        child: _isUploading
+            ? const CircularProgressIndicator()
+            : Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+            ElevatedButton(
+              onPressed: _pickFile,
+              child: const Text('Select File'),
+            ),
+            const SizedBox(height: 16),
+            if (_selectedFile != null) Text('Selected: ${_selectedFile!.path}'),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _upload,
+              child: const Text('Upload'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+lib/screens/university/university_detail_screen.dart:
+
+// lib/screens/university/university_detail_screen.dart
+
+import 'package:flutter/material.dart';
+import 'package:kobrasuite_app/models/university.dart';
+import 'package:kobrasuite_app/widgets/university_chat_widget.dart';
+
+class UniversityDetailScreen extends StatelessWidget {
+  final University university;
+  const UniversityDetailScreen({Key? key, required this.university}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(university.name),
+      ),
+      body: Column(
+        children: [
+          ListTile(
+            title: Text('Domain: ${university.domain}'),
+            subtitle: Text('Country: ${university.country}'),
+          ),
+          const Divider(),
+          // The "Undefined method" error typically means Dart can't find the class
+          Expanded(
+            child: UniversityChatWidget(university: university),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+lib/screens/account_screen.dart:
+
+// lib/screens/account_screen.dart
+
+import 'package:flutter/material.dart';
+import 'package:kobrasuite_app/services/auth_service.dart';
+
+class AccountScreen extends StatefulWidget {
+  const AccountScreen({Key? key}) : super(key: key);
+
+  @override
+  State<AccountScreen> createState() => _AccountScreenState();
+}
+
+class _AccountScreenState extends State<AccountScreen> {
+  String username = '';
+  String email = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAccountData();
+  }
+
+  Future<void> _loadAccountData() async {
+    final whoami = await AuthService.whoami();
+    if (whoami['success'] == true) {
+      setState(() {
+        username = whoami['username'];
+      });
+    }
+    // Optionally fetch more user details
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('My Account'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Text('Username: $username'),
+            Text('Email: $email'),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () async {
+                final result = await AuthService.logout();
+                if (result['success'] == true) {
+                  if (!mounted) return;
+                  Navigator.pushReplacementNamed(context, '/login');
+                }
+              },
+              child: const Text('Logout'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+lib/screens/finances_screen.dart:
+
+//Exists but not working on it right now so excluded
+
+lib/screens/home_dashboard_screen.dart:
+
+// lib/screens/home_dashboard_screen.dart
+
+import 'package:flutter/material.dart';
+import '../components/kobra_dashboard_card.dart';
+
+class HomeDashboardScreen extends StatelessWidget {
+  final Function(int) onModuleSelected;
+  const HomeDashboardScreen({Key? key, required this.onModuleSelected}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Wrap(
+        spacing: 16,
+        runSpacing: 16,
+        children: [
+          KobraDashboardCard(
+            icon: Icons.account_balance_wallet,
+            title: 'Finances',
+            subtitle: 'Manage budgets, transactions, bills',
+            onTap: () => onModuleSelected(1),
+          ),
+          KobraDashboardCard(
+            icon: Icons.home,
+            title: 'Homelife',
+            subtitle: 'Chores, events, grocery list',
+            onTap: () => onModuleSelected(2),
+          ),
+          KobraDashboardCard(
+            icon: Icons.trending_up,
+            title: 'Investing',
+            subtitle: 'Portfolios, assets, trades',
+            onTap: () => onModuleSelected(3),
+          ),
+          KobraDashboardCard(
+            icon: Icons.school,
+            title: 'School',
+            subtitle: 'Courses, assignments, study groups',
+            onTap: () => onModuleSelected(4),
+          ),
+          KobraDashboardCard(
+            icon: Icons.work,
+            title: 'Work',
+            subtitle: 'Projects, tasks, teams',
+            onTap: () => onModuleSelected(5),
+          ),
+          KobraDashboardCard(
+            icon: Icons.notifications_active,
+            title: 'Notifications',
+            subtitle: 'Manage alerts, preferences',
+            onTap: () => onModuleSelected(6),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+lib/screens/home_screen.dart:
+
+// lib/screens/home_screen.dart
+
+import 'package:flutter/material.dart';
+import 'finances_screen.dart';
+import 'homelife_screen.dart';
+import 'investing_screen.dart';
+import 'school/school_screen.dart';
+import 'work_screen.dart';
+import 'notifications_screen.dart';
+import 'home_dashboard_screen.dart';
+import 'account_screen.dart';
+import 'settings_screen.dart';
+import '../components/kobra_drawer.dart';
+import '../components/kobra_nav_rail.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _selectedIndex = 0;
+  late final List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      HomeDashboardScreen(onModuleSelected: _onModuleSelected),
+      const FinancesScreen(),
+      const HomelifeScreen(),
+      const InvestingScreen(),
+      const SchoolScreen(),
+      const WorkScreen(),
+      const NotificationsScreen(),
+    ];
+  }
+
+  void _onModuleSelected(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  void _goToAccountScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const AccountScreen()),
+    );
+  }
+
+  void _goToSettingsScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const SettingsScreen()),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isLargeScreen = MediaQuery.of(context).size.width >= 800;
+    return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(right: 8.0),
+              child: FlutterLogo(size: 30),
+            ),
+            const Text('Kobra Suite'),
+          ],
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.account_circle),
+            onPressed: _goToAccountScreen,
+          ),
+        ],
+      ),
+      drawer: isLargeScreen
+          ? null
+          : KobraDrawer(
+        selectedIndex: _selectedIndex,
+        onItemTap: (index) {
+          if (index == -1) {
+            _goToSettingsScreen();
+          } else {
+            setState(() => _selectedIndex = index);
+          }
+        },
+      ),
+      body: Row(
+        children: [
+          if (isLargeScreen)
+            Container(
+              width: 80,
+              color: Theme.of(context).colorScheme.surface,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: KobraNavRail(
+                      selectedIndex: _selectedIndex,
+                      onItemTap: (index) {
+                        setState(() => _selectedIndex = index);
+                      },
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.settings),
+                    onPressed: _goToSettingsScreen,
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
+          Expanded(
+            child: _screens[_selectedIndex],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+lib/screens/homelife_screen.dart:
+
+//Exists but not working on it right now so excluded
+
+lib/screens/investing_screen.dart
+
+//Exists but not working on it right now so excluded
+
+lib/screens/login_screen.dart:
+
+// lib/screens/login_screen.dart
+
+import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({Key? key}) : super(key: key);
+
+  @override
+  LoginScreenState createState() => LoginScreenState();
+}
+
+class LoginScreenState extends State<LoginScreen> {
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  String _errorMessage = '';
+  bool _isLoading = false;
+
+  Future<void> _login() async {
+    if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
+      setState(() {
+        _errorMessage = 'Please enter both username/email and password';
+      });
+      return;
+    }
+    setState(() {
+      _errorMessage = '';
+      _isLoading = true;
+    });
+    try {
+      final result = await AuthService.login(
+        username: _usernameController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+      if (result['success'] == true) {
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        setState(() {
+          _errorMessage =
+              result['errors']?.toString() ?? 'Invalid credentials.';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'An error occurred: $e';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF2A2D3E), Color(0xFF212332)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final cardWidth = (constraints.maxWidth > 500)
+                    ? 400.0
+                    : constraints.maxWidth * 0.90;
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const FlutterLogo(size: 80),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Welcome to KobraSuite',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 40),
+                    Card(
+                      elevation: 6,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 24.0, horizontal: 20.0),
+                        width: cardWidth,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Login',
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            const SizedBox(height: 16),
+                            TextField(
+                              controller: _usernameController,
+                              decoration: const InputDecoration(
+                                labelText: 'Username or Email',
+                                prefixIcon: Icon(Icons.person),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            TextField(
+                              controller: _passwordController,
+                              decoration: const InputDecoration(
+                                labelText: 'Password',
+                                prefixIcon: Icon(Icons.lock),
+                              ),
+                              obscureText: true,
+                            ),
+                            const SizedBox(height: 20),
+                            if (_errorMessage.isNotEmpty)
+                              Text(
+                                _errorMessage,
+                                style: const TextStyle(color: Colors.red),
+                              ),
+                            const SizedBox(height: 20),
+                            ElevatedButton(
+                              onPressed: _isLoading ? null : _login,
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 40,
+                                  vertical: 14,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: _isLoading
+                                  ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                                  : const Text('Login'),
+                            ),
+                            const SizedBox(height: 12),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  '/register',
+                                );
+                              },
+                              child: const Text(
+                                "Don't have an account? Register here",
+                                style: TextStyle(fontSize: 14),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+lib/screens/notifications_screen.dart:
+
+//Exists but not working on it right now so excluded
+
+lib/screens/register_screen.dart:
+
+// lib/screens/register_screen.dart
+
+import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
+import 'login_screen.dart';
+
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({Key? key}) : super(key: key);
+
+  @override
+  State<RegisterScreen> createState() => RegisterScreenState();
+}
+
+class RegisterScreenState extends State<RegisterScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  bool _isLoading = false;
+  String? _errorText;
+
+  Future<void> _register() async {
+    if (_usernameController.text.isEmpty ||
+        _emailController.text.isEmpty ||
+        _passwordController.text.isEmpty ||
+        _confirmPasswordController.text.isEmpty) {
+      setState(() {
+        _errorText = 'Please fill out all required fields';
+      });
+      return;
+    }
+    setState(() {
+      _isLoading = true;
+      _errorText = null;
+    });
+    try {
+      final result = await AuthService.register(
+        username: _usernameController.text.trim(),
+        email: _emailController.text.trim(),
+        phoneNumber: _phoneNumberController.text.trim(),
+        password: _passwordController.text.trim(),
+        confirmPassword: _confirmPasswordController.text.trim(),
+      );
+      if (result['success'] == true) {
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        setState(() {
+          _errorText = result['errors']?.toString() ?? 'Unknown error';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorText = 'An unexpected error occurred: $e';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _emailController.dispose();
+    _phoneNumberController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF1B1F32), Color(0xFF2A2D3E)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final cardWidth = (constraints.maxWidth > 500)
+                    ? 400.0
+                    : constraints.maxWidth * 0.90;
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const FlutterLogo(size: 80),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Create Account',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 30),
+                    Card(
+                      elevation: 6,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Container(
+                        width: cardWidth,
+                        padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Sign Up',
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _usernameController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Username',
+                                  prefixIcon: Icon(Icons.person),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              TextFormField(
+                                controller: _emailController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Email',
+                                  prefixIcon: Icon(Icons.email),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              TextFormField(
+                                controller: _phoneNumberController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Phone',
+                                  prefixIcon: Icon(Icons.phone),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              TextFormField(
+                                controller: _passwordController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Password',
+                                  prefixIcon: Icon(Icons.lock),
+                                ),
+                                obscureText: true,
+                              ),
+                              const SizedBox(height: 12),
+                              TextFormField(
+                                controller: _confirmPasswordController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Confirm Password',
+                                  prefixIcon: Icon(Icons.lock_reset),
+                                ),
+                                obscureText: true,
+                              ),
+                              const SizedBox(height: 20),
+                              if (_errorText != null)
+                                Text(
+                                  _errorText!,
+                                  style: const TextStyle(color: Colors.red),
+                                ),
+                              const SizedBox(height: 20),
+                              ElevatedButton(
+                                onPressed: _isLoading ? null : _register,
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 40,
+                                    vertical: 14,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: _isLoading
+                                    ? const CircularProgressIndicator(color: Colors.white)
+                                    : const Text('Register'),
+                              ),
+                              const SizedBox(height: 12),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const LoginScreen(),
+                                    ),
+                                  );
+                                },
+                                child: const Text(
+                                  'Go to Login',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+lib/screens/settings_screen.dart:
+
+// lib/screens/settings_screen.dart
+
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/theme_notifier.dart';
+
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Settings')),
+      body: ListView(
+        children: [
+          SwitchListTile(
+            title: const Text('Dark Mode'),
+            value: themeNotifier.isDarkMode,
+            onChanged: (val) {
+              themeNotifier.toggleTheme();
+            },
+          ),
+          const Divider(),
+          // Other settings
+          ListTile(
+            leading: const Icon(Icons.color_lens),
+            title: const Text('Primary Color'),
+            onTap: () {
+              // Future color picking logic
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+lib/screens/work_screen.dart:
+
+//Exists but not working on it right now so excluded
+
+lib/services/assignment_upload_service.dart:
+
+// lib/services/assignment_upload_service.dart
+
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as p;
+import '../services/auth_service.dart';
+import '../config.dart';
+
+class AssignmentUploadService {
+  static String get baseUrl => Config.baseUrl;
+
+  static Future<bool> uploadAnswer(int submissionId, File file) async {
+    final url = Uri.parse('$baseUrl/api/submissions/$submissionId/upload-answer/');
+    final request = http.MultipartRequest('POST', url);
+
+    request.headers.addAll({
+      'Authorization': 'Bearer ${AuthService.accessToken ?? ''}',
+    });
+
+    final fileStream = http.ByteStream(file.openRead());
+    final length = await file.length();
+    final multipartFile = http.MultipartFile('answer_file', fileStream, length,
+      filename: p.basename(file.path),
+    );
+    request.files.add(multipartFile);
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+    return response.statusCode == 200;
+  }
+}
+
+lib/services/auth_service.dart:
+
+// lib/services/auth_service.dart
+
+import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import '../config.dart';
+
+class AuthService {
+  static String get baseUrl => Config.baseUrl;
+  static final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  static String? accessToken;
+  static String? refreshToken;
+  static int? loggedInUserId;
+  static String? loggedInUsername;
+
+  static Future<void> initialize() async {
+    accessToken = await _secureStorage.read(key: 'accessToken');
+    refreshToken = await _secureStorage.read(key: 'refreshToken');
+    final userIdString = await _secureStorage.read(key: 'loggedInUserId');
+    loggedInUserId = userIdString != null ? int.tryParse(userIdString) : null;
+    loggedInUsername = await _secureStorage.read(key: 'loggedInUsername');
+  }
+
+  static Future<bool> isLoggedIn() async {
+    return accessToken != null;
+  }
+
+  static Future<Map<String, dynamic>> register({
+    required String username,
+    required String email,
+    required String phoneNumber,
+    required String password,
+    required String confirmPassword,
+  }) async {
+    final url = Uri.parse('$baseUrl/api/auth/register/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'username': username,
+        'email': email,
+        'phone_number': phoneNumber,
+        'password': password,
+        'confirm_password': confirmPassword,
+      }),
+    );
+    final data = jsonDecode(response.body);
+    if (response.statusCode == 201) {
+      accessToken = data['access'];
+      refreshToken = data['refresh'];
+      loggedInUserId = data['user']['id'];
+      loggedInUsername = data['user']['username'];
+      await saveTokens(access: accessToken!, refresh: refreshToken!);
+      await _secureStorage.write(key: 'loggedInUserId', value: loggedInUserId.toString());
+      await _secureStorage.write(key: 'loggedInUsername', value: loggedInUsername!);
+      return {'success': true, 'message': data['message'] ?? 'Registered successfully'};
+    } else {
+      return {'success': false, 'errors': data};
+    }
+  }
+
+  static Future<Map<String, dynamic>> login({
+    required String username,
+    required String password,
+  }) async {
+    final url = Uri.parse('$baseUrl/api/auth/login/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'username': username, 'password': password}),
+    );
+    final data = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      accessToken = data['access'];
+      refreshToken = data['refresh'];
+      loggedInUserId = data['user']['id'];
+      loggedInUsername = data['user']['username'];
+      await saveTokens(access: accessToken!, refresh: refreshToken!);
+      await _secureStorage.write(key: 'loggedInUserId', value: loggedInUserId.toString());
+      await _secureStorage.write(key: 'loggedInUsername', value: loggedInUsername!);
+      return {'success': true, 'message': data['message'] ?? 'Logged in successfully'};
+    } else {
+      return {'success': false, 'errors': data};
+    }
+  }
+
+  static Future<Map<String, dynamic>> whoami() async {
+    final url = Uri.parse('$baseUrl/api/auth/whoami/');
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        if (accessToken != null) 'Authorization': 'Bearer $accessToken',
+      },
+    );
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final user = data['user'] ?? {};
+      loggedInUserId = user['id'];
+      loggedInUsername = user['username'];
+      await _secureStorage.write(key: 'loggedInUserId', value: loggedInUserId.toString());
+      await _secureStorage.write(key: 'loggedInUsername', value: loggedInUsername!);
+      return {'success': true, 'id': user['id'], 'username': user['username']};
+    } else {
+      return {'success': false};
+    }
+  }
+
+  static Future<Map<String, dynamic>> logout() async {
+    final url = Uri.parse('$baseUrl/api/auth/logout/');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        if (accessToken != null) 'Authorization': 'Bearer $accessToken',
+      },
+      body: jsonEncode({'refresh': refreshToken}),
+    );
+    if (response.statusCode == 200) {
+      accessToken = null;
+      refreshToken = null;
+      loggedInUserId = null;
+      loggedInUsername = null;
+      await clearTokens();
+      return {'success': true, 'message': 'Logged out successfully'};
+    } else {
+      return {'success': false, 'errors': jsonDecode(response.body)};
+    }
+  }
+
+  static Future<void> saveTokens({required String access, required String refresh}) async {
+    await _secureStorage.write(key: 'accessToken', value: access);
+    await _secureStorage.write(key: 'refreshToken', value: refresh);
+  }
+
+  static Future<void> clearTokens() async {
+    await _secureStorage.delete(key: 'accessToken');
+    await _secureStorage.delete(key: 'refreshToken');
+    await _secureStorage.delete(key: 'loggedInUserId');
+    await _secureStorage.delete(key: 'loggedInUsername');
+  }
+}
+
+lib/services/realtime_service.dart:
+
+// lib/services/realtime_service.dart
+
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import '../services/auth_service.dart';
+
+class RealtimeService extends ChangeNotifier {
+  WebSocketChannel? _channel;
+  String? scopeType;
+  String? scopeId;
+  List<Map<String, dynamic>> messages = [];
+  bool connected = false;
+
+  void connect(String scopeType, String scopeId) {
+    this.scopeType = scopeType;
+    this.scopeId = scopeId;
+    final wsUrl = _buildWsUrl(scopeType, scopeId);
+    _channel = WebSocketChannel.connect(Uri.parse(wsUrl));
+    connected = true;
+    notifyListeners();
+
+    _channel?.stream.listen((event) {
+      final data = event as String;
+      final msgMap = _parseMessage(data);
+      if (msgMap != null) {
+        messages.add(msgMap);
+        notifyListeners();
+      }
+    }, onDone: () {
+      connected = false;
+      notifyListeners();
+    }, onError: (error) {
+      connected = false;
+      notifyListeners();
+    });
+  }
+
+  void sendMessage(String content) {
+    if (_channel == null || !connected) return;
+    final authorId = AuthService.loggedInUserId ?? 1;
+    final body = {
+      'author_id': authorId,
+      'content': content,
+    };
+    _channel?.sink.add(_encodeMessage(body));
+  }
+
+  void disconnect() {
+    _channel?.sink.close();
+    connected = false;
+    notifyListeners();
+  }
+
+  String _buildWsUrl(String scopeType, String scopeId) {
+    // For local dev: 'ws://127.0.0.1:8000/ws/school-chat/<scopeType>/<scopeId>/'
+    // In production, this may be 'wss://example.com/...'
+    final scheme = 'ws';
+    final host = '127.0.0.1:8000';
+    return '$scheme://$host/ws/school-chat/$scopeType/$scopeId/';
+  }
+
+  Map<String, dynamic>? _parseMessage(String data) {
+    try {
+      return Map<String, dynamic>.from(_decodeMessage(data));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String _encodeMessage(Map<String, dynamic> data) {
+    return jsonEncode(data);
+  }
+
+  dynamic _decodeMessage(String data) {
+    try {
+      return jsonDecode(data);
+    } catch (_) {
+      return null;
+    }
+  }
+}
+
+lib/services/school_service.dart:
+
+// lib/services/school_service.dart
+
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../config.dart';
+import 'auth_service.dart';
+
+class SchoolService {
+  static String get baseUrl => Config.baseUrl;
+
+  // -----------------------------
+  //  Assignments
+  // -----------------------------
+  static Future<List<Map<String, dynamic>>> getAssignments() async {
+    final uri = Uri.parse('$baseUrl/api/assignments/');
+    final response = await http.get(uri, headers: _headers());
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body) as List;
+      return data.map((e) => e as Map<String, dynamic>).toList();
+    }
+    return [];
+  }
+
+  static Future<bool> addAssignment(Map<String, dynamic> assignmentData) async {
+    final uri = Uri.parse('$baseUrl/api/assignments/');
+    final response = await http.post(
+      uri,
+      headers: _headers(),
+      body: jsonEncode(assignmentData),
+    );
+    // 201 => Created
+    return response.statusCode == 201;
+  }
+
+  static Future<bool> deleteAssignment(int assignmentId) async {
+    final uri = Uri.parse('$baseUrl/api/assignments/$assignmentId/');
+    final response = await http.delete(uri, headers: _headers());
+    // 204 => No Content
+    return response.statusCode == 204;
+  }
+
+  // -----------------------------
+  //  Documents
+  // -----------------------------
+  static Future<List<Map<String, dynamic>>> getDocuments() async {
+    final uri = Uri.parse('$baseUrl/api/study-documents/');
+    final response = await http.get(uri, headers: _headers());
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body) as List;
+      return data.map((e) => e as Map<String, dynamic>).toList();
+    }
+    return [];
+  }
+
+  static Future<bool> addDocument(Map<String, dynamic> docData) async {
+    final uri = Uri.parse('$baseUrl/api/study-documents/');
+    final response = await http.post(
+      uri,
+      headers: _headers(),
+      body: jsonEncode(docData),
+    );
+    return response.statusCode == 201;
+  }
+
+  static Future<bool> deleteDocument(int docId) async {
+    final uri = Uri.parse('$baseUrl/api/study-documents/$docId/');
+    final response = await http.delete(uri, headers: _headers());
+    return response.statusCode == 204;
+  }
+
+  // -----------------------------
+  //  Lecture Videos
+  // -----------------------------
+  static Future<List<Map<String, dynamic>>> getVideos() async {
+    final uri = Uri.parse('$baseUrl/api/lecture-videos/');
+    final response = await http.get(uri, headers: _headers());
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body) as List;
+      return data.map((e) => e as Map<String, dynamic>).toList();
+    }
+    return [];
+  }
+
+  static Future<bool> addVideo(Map<String, dynamic> videoData) async {
+    final uri = Uri.parse('$baseUrl/api/lecture-videos/');
+    final response = await http.post(
+      uri,
+      headers: _headers(),
+      body: jsonEncode(videoData),
+    );
+    return response.statusCode == 201;
+  }
+
+  static Future<bool> deleteVideo(int videoId) async {
+    final uri = Uri.parse('$baseUrl/api/lecture-videos/$videoId/');
+    final response = await http.delete(uri, headers: _headers());
+    return response.statusCode == 204;
+  }
+
+  // -----------------------------
+  //  Courses
+  // -----------------------------
+  static Future<List<Map<String, dynamic>>> getCourses() async {
+    // The Python code uses url_path='search_local' => so it’s /api/course/search_local
+    final uri = Uri.parse('$baseUrl/api/course/search_local');
+    final response = await http.get(uri, headers: _headers());
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body) as List;
+      return data.map((e) => e as Map<String, dynamic>).toList();
+    }
+    return [];
+  }
+
+  static bool courseCodeIsValid(String code) {
+    final regex = RegExp(r'^[A-Za-z]{2,4}\d{3,4}$');
+    return regex.hasMatch(code);
+  }
+
+  static Future<bool> addCourse(Map<String, dynamic> courseData) async {
+    // add_to_profile => /api/course/add_to_profile
+    final uri = Uri.parse('$baseUrl/api/course/add_to_profile');
+    final response = await http.post(
+      uri,
+      headers: _headers(),
+      body: jsonEncode(courseData),
+    );
+    return (response.statusCode == 201 || response.statusCode == 200);
+  }
+
+  static Future<bool> deleteCourse(int courseId) async {
+    // remove-course => /api/course/remove-course
+    final uri = Uri.parse('$baseUrl/api/course/remove-course');
+    final response = await http.post(
+      uri,
+      headers: _headers(),
+      body: jsonEncode({'course_id': courseId}),
+    );
+    // 200 => "Course removed."
+    return response.statusCode == 200;
+  }
+
+  static Future<bool> addNewCourse(Map<String, dynamic> courseData) async {
+    // add_new_course => /api/course/add_new_course
+    final uri = Uri.parse('$baseUrl/api/course/add_new_course/');
+    final response = await http.post(
+      uri,
+      headers: _headers(),
+      body: jsonEncode(courseData),
+    );
+    // either 200 or 201 means success
+    return (response.statusCode == 200 || response.statusCode == 201);
+  }
+
+  // -----------------------------
+  //  University
+  // -----------------------------
+  static Future<List<Map<String, dynamic>>> searchUniversities({
+    String? name,
+    String? country,
+  }) async {
+    // search_universities => /api/university/search_universities
+    final queryParams = <String, String>{};
+    if (name != null && name.isNotEmpty) {
+      queryParams['name'] = name;
+    }
+    if (country != null && country.isNotEmpty) {
+      queryParams['country'] = country;
+    }
+    final uri = Uri.parse('$baseUrl/api/university/search_universities')
+        .replace(queryParameters: queryParams);
+
+    final response = await http.get(uri, headers: _headers());
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body) as List;
+      return data.map((e) => e as Map<String, dynamic>).toList();
+    }
+    return [];
+  }
+
+  static Future<Map<String, dynamic>> setUserUniversity({
+    required int userId,
+    required int universityId,
+  }) async {
+    final uri = Uri.parse('$baseUrl/api/users/$userId/');
+    final body = jsonEncode({
+      'school_profile': {
+        'university': universityId,
+      },
+    });
+    final response = await http.patch(
+      uri,
+      headers: _headers(),
+      body: body,
+    );
+    if (response.statusCode == 200) {
+      return {'success': true, 'data': jsonDecode(response.body)};
+    } else {
+      try {
+        final errorData = jsonDecode(response.body) as Map<String, dynamic>;
+        return {'success': false, 'errors': errorData};
+      } catch (_) {
+        return {
+          'success': false,
+          'errors': {'detail': 'Failed to connect to the server.'}
+        };
+      }
+    }
+  }
+
+  static Future<Map<String, dynamic>?> getUserProfile(int userId) async {
+    final uri = Uri.parse('$baseUrl/api/users/$userId/');
+    final response = await http.get(uri, headers: _headers());
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    }
+    return null;
+  }
+
+  // -----------------------------
+  //  Discussion Threads & Posts
+  // -----------------------------
+  static Future<List<Map<String, dynamic>>> getDiscussionThreads({
+    required String scope,
+    required String scopeId,
+  }) async {
+    // /api/discussion-threads/by_scope?scope=SOMESCOPE&scope_id=123
+    final uri = Uri.parse(
+      '$baseUrl/api/discussion-threads/by_scope?scope=$scope&scope_id=$scopeId',
+    );
+    final response = await http.get(uri, headers: _headers());
+    if (response.statusCode == 200) {
+      return (jsonDecode(response.body) as List)
+          .map((e) => e as Map<String, dynamic>)
+          .toList();
+    }
+    return [];
+  }
+
+  static Future<int?> createDiscussionThread({
+    required String scope,
+    required int scopeId,
+    required String title,
+  }) async {
+    final uri = Uri.parse('$baseUrl/api/discussion-threads/');
+    final body = {
+      'scope': scope,
+      'scope_id': scopeId,
+      'title': title,
+      'created_by': AuthService.loggedInUserId ?? 1,
+    };
+    final response = await http.post(
+      uri,
+      headers: _headers(),
+      body: jsonEncode(body),
+    );
+    if (response.statusCode == 201) {
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      return data['id'];
+    }
+    return null;
+  }
+
+  static Future<List<Map<String, dynamic>>> getDiscussionPosts(int threadId) async {
+    // /api/discussion-posts/for_thread?thread_id=XYZ
+    final uri = Uri.parse('$baseUrl/api/discussion-posts/for_thread?thread_id=$threadId');
+    final response = await http.get(uri, headers: _headers());
+    if (response.statusCode == 200) {
+      return (jsonDecode(response.body) as List)
+          .map((e) => e as Map<String, dynamic>)
+          .toList();
+    }
+    return [];
+  }
+
+  static Future<bool> addDiscussionPost(int threadId, String content) async {
+    final uri = Uri.parse('$baseUrl/api/discussion-posts/');
+    final body = {
+      'thread': threadId,
+      'author': AuthService.loggedInUserId ?? 1,
+      'content': content,
+    };
+    final response = await http.post(
+      uri,
+      headers: _headers(),
+      body: jsonEncode(body),
+    );
+    return response.statusCode == 201;
+  }
+
+  // -----------------------------
+  //  Helpers
+  // -----------------------------
+  static Map<String, String> _headers() {
+    return {
+      'Content-Type': 'application/json',
+      if (AuthService.accessToken != null)
+        'Authorization': 'Bearer ${AuthService.accessToken}',
+    };
+  }
+}
+
+lib/widgets/course_card.dart:
+
+// lib/widgets/course_card.dart
+
+import 'package:flutter/material.dart';
+import '../models/course.dart';
+
+class CourseCard extends StatelessWidget {
+  final Course course;
+  final VoidCallback? onDelete;
+  final VoidCallback? onTap;
+
+  const CourseCard({
+    Key? key,
+    required this.course,
+    this.onDelete,
+    this.onTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 3,
+      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      child: ListTile(
+        title: Text(
+          course.title,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (course.department != null)
+              Text('Department: ${course.department}'),
+            if (course.universityName != null)
+              Text('University: ${course.universityName}'),
+            Text('Duration: ${_formatDate(course.startDate)} - '
+                '${course.endDate != null ? _formatDate(course.endDate!) : 'Ongoing'}'),
+          ],
+        ),
+        isThreeLine: true,
+        trailing: IconButton(
+          icon: const Icon(Icons.delete, color: Colors.red),
+          onPressed: onDelete,
+        ),
+        onTap: onTap,
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.year}-${_twoDigits(date.month)}-${_twoDigits(date.day)}';
+  }
+
+  String _twoDigits(int n) {
+    return n.toString().padLeft(2, '0');
+  }
+}
+
+lib/widgets/realtime_chat_widget.dart:
+
+// lib/widgets/realtime_chat_widget.dart
+
+import 'package:flutter/material.dart';
+import 'package:kobrasuite_app/services/realtime_service.dart';
+import 'package:provider/provider.dart';
+
+class RealtimeChatWidget extends StatefulWidget {
+  final String scopeType;
+  final String scopeId;
+  const RealtimeChatWidget({Key? key, required this.scopeType, required this.scopeId}) : super(key: key);
+
+  @override
+  State<RealtimeChatWidget> createState() => _RealtimeChatWidgetState();
+}
+
+class _RealtimeChatWidgetState extends State<RealtimeChatWidget> {
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    final realtimeService = Provider.of<RealtimeService>(context, listen: false);
+    realtimeService.connect(widget.scopeType, widget.scopeId);
+  }
+
+  @override
+  void dispose() {
+    final realtimeService = Provider.of<RealtimeService>(context, listen: false);
+    realtimeService.disconnect();
+    super.dispose();
+  }
+
+  void _send() {
+    final text = _controller.text.trim();
+    if (text.isEmpty) return;
+    Provider.of<RealtimeService>(context, listen: false).sendMessage(text);
+    _controller.clear();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<RealtimeService>(
+      builder: (context, realtimeService, child) {
+        return Column(
+          children: [
+            if (!realtimeService.connected)
+              const Center(child: Text('Connecting...')),
+            Expanded(
+              child: ListView.builder(
+                itemCount: realtimeService.messages.length,
+                itemBuilder: (ctx, index) {
+                  final m = realtimeService.messages[index];
+                  return ListTile(
+                    title: Text(m['content'] ?? ''),
+                    subtitle: Text('User: ${m['author']}'),
+                  );
+                },
+              ),
+            ),
+            SafeArea(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _controller,
+                      decoration: const InputDecoration(
+                        hintText: 'Type a message...',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.send),
+                    onPressed: _send,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+lib/widgets/university_card.dart:
+
+// lib/widgets/university_card.dart
+
+import 'package:flutter/material.dart';
+import '../models/university.dart';
+
+class UniversityCard extends StatelessWidget {
+  final University university;
+  final VoidCallback? onSelect;    // For check-mark usage
+  final VoidCallback? onTapRow;    // For row usage
+  final IconData? trailingIcon;    // Optional trailing icon if needed
+
+  const UniversityCard({
+    Key? key,
+    required this.university,
+    this.onSelect,
+    this.onTapRow,
+    this.trailingIcon,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 3,
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      child: ListTile(
+        title: Text(
+          university.name,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        subtitle: Text(
+          'Country: ${university.country}\nDomain: ${university.domain}',
+        ),
+        isThreeLine: true,
+        trailing: (onSelect != null || trailingIcon != null)
+            ? IconButton(
+          icon: Icon(trailingIcon ?? Icons.check, color: Colors.green),
+          onPressed: onSelect,
+        )
+            : null,
+        onTap: onTapRow,
+      ),
+    );
+  }
+}
+
+lib/widgets/university_chat_widget.dart:
+
+// lib/widgets/university_chat_widget.dart
+
+import 'package:flutter/material.dart';
+import 'package:kobrasuite_app/models/university.dart';
+
+class UniversityChatWidget extends StatefulWidget {
+  final University university;
+  const UniversityChatWidget({Key? key, required this.university}) : super(key: key);
+
+  @override
+  State<UniversityChatWidget> createState() => _UniversityChatWidgetState();
+}
+
+class _UniversityChatWidgetState extends State<UniversityChatWidget> {
+  // Example internal state
+  bool _isLoading = false;
+  List<Map<String, dynamic>> _posts = [];
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Possibly load existing chat messages or do something here
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        if (_isLoading) const LinearProgressIndicator(),
+        Expanded(
+          child: ListView.builder(
+            itemCount: _posts.length,
+            itemBuilder: (context, i) {
+              final post = _posts[i];
+              return ListTile(
+                title: Text(post['content'] ?? ''),
+                subtitle: Text('by user ${post['author'] ?? 'unknown'}'),
+              );
+            },
+          ),
+        ),
+        SafeArea(
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _controller,
+                  decoration: const InputDecoration(
+                    hintText: 'Type something...',
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.send),
+                onPressed: () {
+                  // handle sending
+                },
+              )
+            ],
+          ),
+        )
+      ],
+    );
+  }
+}
+
+lib/config.dart:
+
+// config.dart
+// lib/config.dart
+
+import 'package:flutter/foundation.dart';
+
+/// Simple class that decides which base URL to use, local vs. production.
+class Config {
+  /// Toggle this flag to switch between local dev and production.
+  static String get baseUrl {
+    if (kDebugMode) {
+      return 'http://127.0.0.1:8000';
+    } else {
+      return 'https://kobrasuite-backend.azurewebsites.net';
+    }
+  }
+}
+
+lib/main.dart:
+
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:kobrasuite_app/services/auth_service.dart';
+import 'package:kobrasuite_app/providers/university_provider.dart';
+import 'package:kobrasuite_app/providers/course_provider.dart';
+import 'package:kobrasuite_app/providers/theme_notifier.dart';
+import 'screens/login_screen.dart';
+import 'screens/register_screen.dart';
+import 'screens/home_screen.dart';
+import 'screens/settings_screen.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AuthService.initialize();
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UniversityProvider()),
+        ChangeNotifierProvider(create: (_) => CourseProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeNotifier()),
+      ],
+      child: const KobraSuiteApp(),
+    ),
+  );
+}
+
+class KobraSuiteApp extends StatelessWidget {
+  const KobraSuiteApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
+
+    return MaterialApp(
+      title: 'KobraSuite',
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      themeMode: themeNotifier.themeMode,
+      home: FutureBuilder<bool>(
+        future: AuthService.isLoggedIn(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          } else {
+            if (snapshot.data == true) {
+              return const HomeScreen();
+            } else {
+              return const LoginScreen();
+            }
+          }
+        },
+      ),
+      routes: {
+        '/login': (context) => const LoginScreen(),
+        '/register': (context) => const RegisterScreen(),
+        '/home': (context) => const HomeScreen(),
+        '/settings': (context) => const SettingsScreen(),
+      },
+    );
+  }
+}
+
