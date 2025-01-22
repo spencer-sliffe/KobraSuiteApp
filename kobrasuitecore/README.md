@@ -89,12 +89,14 @@
      ```
 
 7. **Swagger UI/Admin**:
-   ```bash
+   ```plaintext
      http://0.0.0.0:8000/swagger
      http://0.0.0.0:8000/admin
    ```
 
-8. **To use Docker**
+
+
+**To build and run with Docker**
    - **macOS/Linux**: 
      ```bash
 	 test -z "$(docker ps -q 2>/dev/null)" && osascript -e 'quit app "Docker"'
