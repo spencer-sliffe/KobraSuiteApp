@@ -104,7 +104,7 @@
      ```
       
 
-# Kobra Suite Flutter Frontend
+# KobraSuite Flutter Frontend
 
 ## Install and Run
 
@@ -151,5 +151,3 @@
       ```bash
       flutter run
       ```
-
-
