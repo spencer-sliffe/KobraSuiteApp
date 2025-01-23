@@ -91,7 +91,7 @@ class CourseViewSet(viewsets.ModelViewSet):
             logger.error(f"Error in adding course: {e}")
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, methods=['get'], url_path='search_courses')
+    @action(detail=False, methods=['get'], url_path='search', name='search_course')
     def search_courses(self, request, university_pk=None, user_pk=None, school_profile_pk=None):
         university = get_object_or_404(University, pk=university_pk)
         query = request.query_params.get('query', '')

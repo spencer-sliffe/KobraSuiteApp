@@ -2,8 +2,6 @@
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:kobrasuite_app/services/general/auth_service.dart';
 import 'package:kobrasuite_app/services/service_locator.dart';
 import '../../config.dart';
@@ -50,7 +48,7 @@ class DioClient {
               'RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}');
           return handler.next(response);
         },
-        onError: (DioError error, handler) async {
+        onError: (DioException error, handler) async {
           debugPrint(
               'ERROR[${error.response?.statusCode}] => PATH: ${error.requestOptions.path}');
 

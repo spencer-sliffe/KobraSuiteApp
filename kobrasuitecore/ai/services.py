@@ -86,6 +86,54 @@ def verify_course_existence(university_name, course_code, course_title, professo
     )
 
     output_expectations = (
+        "Verify the professor exists at the university first. "
+        "Verify the code and department second. "
+        "Verify the course's title correctness third."
+        "Then verify the semester type fourth."
+        "Return the result as a JSON object. Follow these rules:\n"
+        "1. If an exact match is found, return it with the appropriate professor last name:\n"
+        '   {"foundExactMatch": true, "correctedCourseData": {"course_code": "<course_code>", ...}}\n'
+        "2. If a partial match is found, return it with the appropriate fields corrected:\n"
+        '   {"foundExactMatch": false, "correctedCourseData": {"course_code": "<corrected_course_code>", ...}}\n'
+        'This is important for API accuracy: if you do find a partial match, please do submit the corrected details with:'
+        '   {"foundExactMatch": false, "correctedCourseData": {"course_code": "<corrected_course_code>", ...}}\n'
+
+        "details that do not match the course identified by the other "
+        "details provided in 'correctedCourseData' if applicable."
+    )
+
+    notes = (
+        "Ensure the 'department' is formatted as an abbreviation (e.g., EECS, BUS, WGSS).\n"
+        "Use standard JSON formatting with double quotes. This is essential to API functionality.\n"
+        "Do not explain how to verify the course; instead, directly provide the requested JSON response."
+    )
+
+    prompt = f"{context}\n\n{inputs}\n\n{output_expectations}\n\n{notes}"
+
+    response_text = communicate_with_openai(prompt, [])
+
+    print("Raw ChatGPT-like response:\n", response_text)
+
+    return _parse_chatgpt_response(response_text)
+
+
+def verify_course_existence(university_name, course_code, course_title, professor_last_name, department, semester_type):
+    context = (
+        "You are an assistant tasked with verifying whether a specific course is offered at a university. "
+        "You have access to web search tools and university course catalogs to retrieve accurate information."
+        "You have access to web search tools and university course catalogs to retrieve accurate information."
+    )
+
+    inputs = (
+        f"University Name: {university_name}\n"
+        f"Course Code: {course_code}\n"
+        f"Course Title: {course_title}\n"
+        f"Department: {department}\n"
+        f"Professor Last Name: {professor_last_name}\n"
+        f"Semester Type: {semester_type}\n"
+    )
+
+    output_expectations = (
         "Verify the code and department first. Then verify the title. Then verify the professor. "
         "Then verify the semester type."
         "Return the result as a JSON object. Follow these rules:\n"

@@ -13,7 +13,7 @@ import 'package:kobrasuite_app/widgets/nav/kobra_drawer.dart';
 import 'package:kobrasuite_app/widgets/nav/kobra_nav_rail.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();

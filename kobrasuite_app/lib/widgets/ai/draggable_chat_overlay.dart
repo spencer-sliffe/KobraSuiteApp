@@ -7,7 +7,7 @@ import '../../../services/service_locator.dart';
 
 class DraggableChatOverlay extends StatefulWidget {
   final VoidCallback onClose;
-  const DraggableChatOverlay({Key? key, required this.onClose}) : super(key: key);
+  const DraggableChatOverlay({super.key, required this.onClose});
 
   @override
   DraggableChatOverlayState createState() => DraggableChatOverlayState();

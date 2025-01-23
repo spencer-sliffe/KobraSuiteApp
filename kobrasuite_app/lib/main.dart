@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:kobrasuite_app/providers/general/work_profile_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:kobrasuite_app/services/service_locator.dart';
 import 'package:kobrasuite_app/services/general/auth_service.dart';
@@ -51,6 +52,13 @@ void main() async {
           update: (_, authProvider, schoolProfileProvider) {
             schoolProfileProvider!.update(authProvider.userPk, authProvider.schoolProfilePk);
             return schoolProfileProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, WorkProfileProvider>(
+          create: (_) => WorkProfileProvider(userPk: 0, workProfilePk: 0),
+          update: (_, authProvider, workProfileProvider) {
+            workProfileProvider!.update(authProvider.userPk, authProvider.userProfilePk);
+            return workProfileProvider;
           },
         ),
         ChangeNotifierProxyProvider<SchoolProfileProvider, UniversityProvider>(
@@ -134,7 +142,7 @@ void main() async {
 }
 
 class KobraSuiteApp extends StatelessWidget {
-  const KobraSuiteApp({Key? key}) : super(key: key);
+  const KobraSuiteApp({super.key});
 
   ThemeMode _getThemeMode(ThemeNotifier themeNotifier) {
     switch (themeNotifier.currentTheme) {

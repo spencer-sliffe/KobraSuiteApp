@@ -30,7 +30,7 @@ final ThemeData blueDarkTheme = ThemeData(
       fontSize: 14,
     ),
     titleLarge: TextStyle(
-      color: const Color(0xFF2A9D8F),
+      color: Color(0xFF2A9D8F),
       fontSize: 20,
       fontWeight: FontWeight.w600,
     ),
@@ -59,20 +59,20 @@ final ThemeData blueDarkTheme = ThemeData(
     ),
   ),
   iconTheme: const IconThemeData(
-    color: const Color(0xFF2A9D8F),
+    color: Color(0xFF2A9D8F),
     size: 24,
   ),
   inputDecorationTheme: InputDecorationTheme(
     filled: true,
     fillColor: const Color(0xFF1E1E1E),
     hintStyle: const TextStyle(color: Colors.white60),
-    labelStyle: const TextStyle(color: const Color(0xFF2A9D8F)),
+    labelStyle: const TextStyle(color: Color(0xFF2A9D8F)),
     enabledBorder: OutlineInputBorder(
       borderSide: const BorderSide(color: Colors.white30),
       borderRadius: BorderRadius.circular(12),
     ),
     focusedBorder: OutlineInputBorder(
-      borderSide: const BorderSide(color: const Color(0xFF264653), width: 2),
+      borderSide: const BorderSide(color: Color(0xFF264653), width: 2),
       borderRadius: BorderRadius.circular(12),
     ),
     errorBorder: OutlineInputBorder(
@@ -95,7 +95,7 @@ final ThemeData blueDarkTheme = ThemeData(
   navigationRailTheme: NavigationRailThemeData(
     backgroundColor: const Color(0xFF121212),
     selectedIconTheme: const IconThemeData(
-      color: const Color(0xFF2A9D8F),
+      color: Color(0xFF2A9D8F),
       size: 28,
     ),
     unselectedIconTheme: const IconThemeData(
@@ -103,7 +103,7 @@ final ThemeData blueDarkTheme = ThemeData(
       size: 24,
     ),
     selectedLabelTextStyle: const TextStyle(
-      color: const Color(0xFF2A9D8F),
+      color: Color(0xFF2A9D8F),
       fontWeight: FontWeight.w600,
     ),
     unselectedLabelTextStyle: const TextStyle(

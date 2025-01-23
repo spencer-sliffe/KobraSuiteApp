@@ -4,6 +4,8 @@
 //    we parse the "course" key for a successful 200/201 response.
 
 /// lib/services/school/course_service.dart
+library;
+
 import 'package:dio/dio.dart';
 import '../../models/school/course.dart';
 

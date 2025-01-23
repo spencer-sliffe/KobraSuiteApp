@@ -3,7 +3,6 @@
 import 'package:dio/dio.dart';
 import '../../models/school/discussion_thread.dart';
 import '../../models/school/discussion_post.dart';
-import '../dio_client.dart';
 import '../general/auth_service.dart';
 
 class DiscussionService {

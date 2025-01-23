@@ -105,6 +105,17 @@ class SchoolProfile(models.Model):
         return f"School Profile of {self.user.username}"
 
 
+class WorkProfile(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='work_profile'
+    )
+
+    def __str__(self):
+        return f"Work profile of {self.user.username}"
+
+
 class SecureDocument(models.Model):
     user = models.ForeignKey(
         User,

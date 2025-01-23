@@ -1,9 +1,3 @@
-// File location: lib/providers/school/course_provider.dart
-// - We now ensure a loading indicator is shown during the entire
-//   "add course to university + add to profile" flow
-// - We refresh the user's course list after success or failure.
-
-/// lib/providers/school/course_provider.dart
 import 'package:flutter/material.dart';
 import '../../models/school/course.dart';
 import '../../services/school/course_service.dart';
@@ -31,6 +25,8 @@ class CourseProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   Course? get currentCourse => _currentCourse;
+  int get userPk => _schoolProfileProvider.userPk;
+  int get schoolProfilePk => _schoolProfileProvider.schoolProfilePk;
 
   void update(SchoolProfileProvider s, UniversityProvider u) {
     _schoolProfileProvider = s;
@@ -52,17 +48,16 @@ class CourseProvider with ChangeNotifier {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
+
     try {
-      final userPk = _schoolProfileProvider.userPk;
-      final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
       final universityPk = _universityProvider.currentUniversity!.id;
-      final fetchedCourses = await _courseService.searchCoursesInUniversity(
-        userPk: userPk,
-        schoolProfilePk: schoolProfilePk,
-        universityPk: universityPk,
-        query: '',
+      final results = await _courseService.searchCoursesInUniversity(
+          userPk: userPk,
+          schoolProfilePk: schoolProfilePk,
+          universityPk: universityPk,
+          query: '',
       );
-      _courses = fetchedCourses;
+      _courses = results;
     } catch (e) {
       _errorMessage = 'Failed to load courses: $e';
       _courses = [];
@@ -140,7 +135,6 @@ class CourseProvider with ChangeNotifier {
     required String department,
     required String semesterType,
   }) async {
-    // This remains unchanged, as requested, for the verification process
     if (_universityProvider.currentUniversity == null) {
       return {
         'foundExactMatch': false,
@@ -151,11 +145,9 @@ class CourseProvider with ChangeNotifier {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
-
     final userPk = _schoolProfileProvider.userPk;
     final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
     final universityPk = _universityProvider.currentUniversity!.id;
-
     try {
       final result = await _courseService.verifyCourse(
         userPk: userPk,
@@ -183,9 +175,6 @@ class CourseProvider with ChangeNotifier {
     }
   }
 
-  /// Creates or reuses a course in the current university, then ensures
-  /// it's added to the user's school profile.  If successful, we re-fetch
-  /// the user's courses so the UI updates.
   Future<bool> addNewCourse({
     required String courseCode,
     required String title,
@@ -202,11 +191,9 @@ class CourseProvider with ChangeNotifier {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
-
     final userPk = _schoolProfileProvider.userPk;
     final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
     final universityPk = _universityProvider.currentUniversity!.id;
-
     final payload = {
       'course_code': courseCode,
       'title': title,
@@ -215,16 +202,14 @@ class CourseProvider with ChangeNotifier {
       'semester_type': semesterType,
       'semester_year': semesterYear,
     };
-
     try {
-      final newCourse = await _courseService.createCourseInUniversity(
+      await _courseService.createCourseInUniversity(
         userPk: userPk,
         schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         courseData: payload,
       );
       await fetchCourses();
-
       _isLoading = false;
       notifyListeners();
       return true;

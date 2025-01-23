@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 class MessageInput extends StatefulWidget {
   final void Function(String message) onSend;
 
-  const MessageInput({Key? key, required this.onSend}) : super(key: key);
+  const MessageInput({super.key, required this.onSend});
 
   @override
   State<MessageInput> createState() => _MessageInputState();

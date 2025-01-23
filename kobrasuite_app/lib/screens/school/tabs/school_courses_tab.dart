@@ -1,4 +1,3 @@
-// File location: lib/screens/school/school_courses_tab.dart
 import 'dart:async';
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +15,7 @@ enum _AddCourseDialogState {
 }
 
 class SchoolCoursesTab extends StatefulWidget {
-  const SchoolCoursesTab({Key? key}) : super(key: key);
+  const SchoolCoursesTab({super.key});
 
   @override
   State<SchoolCoursesTab> createState() => _SchoolCoursesTabState();
@@ -209,8 +208,7 @@ class _SchoolCoursesTabState extends State<SchoolCoursesTab> {
                   child: Text('Course added successfully.'),
                 );
               } else {
-                final readOnly =
-                    dialogState == _AddCourseDialogState.verified;
+                final readOnly = dialogState == _AddCourseDialogState.verified;
                 return SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,

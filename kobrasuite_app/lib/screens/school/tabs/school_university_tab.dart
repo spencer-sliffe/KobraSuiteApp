@@ -4,11 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/school/university_provider.dart';
 import '../../../widgets/cards/university_card.dart';
-import '../university/university_detail_screen.dart';
 
 class SchoolUniversityTab extends StatefulWidget {
   final int userId;
-  const SchoolUniversityTab({Key? key, required this.userId}) : super(key: key);
+  const SchoolUniversityTab({super.key, required this.userId});
 
   @override
   State<SchoolUniversityTab> createState() => _SchoolUniversityTabState();

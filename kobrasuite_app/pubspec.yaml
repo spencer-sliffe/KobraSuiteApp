@@ -57,6 +57,8 @@ dependencies:
 
   webview_flutter_android: ^4.0.7
 
+  async: any
+  web_socket_channel: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

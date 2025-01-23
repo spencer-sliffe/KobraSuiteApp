@@ -10,10 +10,10 @@ class ChatWidget extends StatefulWidget {
   final String scopeId;
 
   const ChatWidget({
-    Key? key,
+    super.key,
     required this.scopeType,
     required this.scopeId,
-  }) : super(key: key);
+  });
 
   @override
   State<ChatWidget> createState() => _ChatWidgetState();

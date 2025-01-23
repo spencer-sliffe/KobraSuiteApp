@@ -7,11 +7,11 @@ class UniversityCard extends StatelessWidget {
   final Future<void> Function() onSetAsCurrent;
 
   const UniversityCard({
-    Key? key,
+    super.key,
     required this.university,
     required this.onTap,
     required this.onSetAsCurrent,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

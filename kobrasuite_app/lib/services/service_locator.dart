@@ -8,6 +8,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'general/auth_service.dart';
 import 'general/user_profile_service.dart';
 import 'general/school_profile_service.dart';
+import 'general/work_profile_service.dart';
 import 'school/university_service.dart';
 import 'school/course_service.dart';
 import 'school/assignment_service.dart';
@@ -41,6 +42,11 @@ Future<void> setupServiceLocator() async {
   // Register UserProfileService as a singleton (depends on Dio)
   serviceLocator.registerLazySingleton<UserProfileService>(
         () => UserProfileService(serviceLocator<Dio>()),
+  );
+
+  // Register WorkProfileService as a singleton (depends on Dio)
+  serviceLocator.registerLazySingleton<WorkProfileService>(
+        () => WorkProfileService(serviceLocator<Dio>()),
   );
 
   // Register SchoolProfileService as a singleton (depends on Dio)

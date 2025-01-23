@@ -6,7 +6,7 @@ import '../../providers/general/theme_notifier.dart';
 import '../../models/general/app_theme.dart';
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -2,7 +2,7 @@
 from rest_framework_nested import routers
 
 from customer.views.auth_views import AuthViewSet
-from customer.views.profile_views import SchoolProfileViewSet, UserProfileViewSet
+from customer.views.profile_views import SchoolProfileViewSet, UserProfileViewSet, WorkProfileViewSet
 from customer.views.user_views import UserViewSet, RoleViewSet
 from homelife.views import HouseholdViewSet, ChoreViewSet, SharedCalendarEventViewSet
 from finances.views import BankAccountViewSet, BudgetViewSet, TransactionViewSet
@@ -34,10 +34,11 @@ router.register(r'discussion-posts', DiscussionPostViewSet, basename='discussion
 router.register(r'notifications', NotificationViewSet, basename='notifications')
 router.register(r'chatbot', ChatBotViewSet, basename='chatbot')
 
-# Nested routers for User -> SchoolProfile
+# Nested routers for User -> Profile
 user_router = routers.NestedDefaultRouter(router, r'users', lookup='user')
 user_router.register(r'school_profile', SchoolProfileViewSet, basename='school_profile')
 user_router.register(r'user_profile', UserProfileViewSet, basename='user_profile')
+user_router.register(r'work_profile', WorkProfileViewSet, basename='work_profile')
 
 # Nested routers for SchoolProfile -> Universities
 school_profile_router = routers.NestedDefaultRouter(user_router, r'school_profile', lookup='school_profile')
@@ -59,6 +60,9 @@ assignment_router.register(r'submissions', SubmissionViewSet, basename='submissi
 
 # Nested routers for Topics -> StudyDocuments
 topic_router = routers.NestedDefaultRouter(course_router, r'topics', lookup='topic')
+
+# Nested routers for WorkProfile -> ...
+work_profile_router = routers.NestedDefaultRouter(user_router, r'work_profile', lookup='work_profile')
 
 urlpatterns = [
     *router.urls,

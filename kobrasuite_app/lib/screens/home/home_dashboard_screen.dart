@@ -3,7 +3,7 @@ import '../../widgets/cards/kobra_dashboard_card.dart';
 
 class HomeDashboardScreen extends StatelessWidget {
   final Function(int) onModuleSelected;
-  const HomeDashboardScreen({Key? key, required this.onModuleSelected}) : super(key: key);
+  const HomeDashboardScreen({super.key, required this.onModuleSelected});
 
   @override
   Widget build(BuildContext context) {

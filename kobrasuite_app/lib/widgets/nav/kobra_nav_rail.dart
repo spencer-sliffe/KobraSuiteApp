@@ -5,10 +5,10 @@ class KobraNavRail extends StatelessWidget {
   final ValueChanged<int> onItemTap;
 
   const KobraNavRail({
-    Key? key,
+    super.key,
     required this.selectedIndex,
     required this.onItemTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

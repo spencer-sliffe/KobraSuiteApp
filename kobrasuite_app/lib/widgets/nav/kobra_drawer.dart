@@ -5,10 +5,10 @@ class KobraDrawer extends StatelessWidget {
   final ValueChanged<int> onItemTap;
 
   const KobraDrawer({
-    Key? key,
+    super.key,
     required this.selectedIndex,
     required this.onItemTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

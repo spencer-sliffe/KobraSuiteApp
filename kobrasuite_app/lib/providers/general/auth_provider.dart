@@ -10,6 +10,7 @@ class AuthProvider extends ChangeNotifier {
   int? _userPk;
   int? _schoolProfilePk;
   int? _userProfilePk;
+  int? _workProfilePk;
 
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
@@ -17,6 +18,7 @@ class AuthProvider extends ChangeNotifier {
   int get userPk => _userPk ?? 0;
   int get schoolProfilePk => _schoolProfilePk ?? 0;
   int get userProfilePk => _userProfilePk ?? 0;
+  int get workProfilePk => _workProfilePk ?? 0;
 
   AuthProvider() : _authService = serviceLocator<AuthService>() {
     _initialize();
@@ -46,6 +48,9 @@ class AuthProvider extends ChangeNotifier {
       _userProfilePk = userData['profile'] != null
           ? (userData['profile']['id'] ?? 0)
           : 0;
+      _workProfilePk = userData['work_profile'] != null
+          ? (userData['work_profile']['id'] ?? 0)
+          : 0;
     } else {
       _errorMessage = result['errors']?.toString() ?? 'Failed to confirm login.';
     }
@@ -71,6 +76,9 @@ class AuthProvider extends ChangeNotifier {
             : 0;
         _userProfilePk = userData['profile'] != null
             ? userData['profile']['id']
+            : 0;
+        _workProfilePk = userData['work_profile'] != null
+            ? userData['work_profile']['id']
             : 0;
         _isLoading = false;
         notifyListeners();
@@ -112,6 +120,9 @@ class AuthProvider extends ChangeNotifier {
         _userProfilePk = userData['profile'] != null
             ? userData['profile']['id']
             : 0;
+        _workProfilePk = userData['work_profile'] != null
+            ? userData['work_profile']['id']
+            : 0;
         _isLoading = false;
         notifyListeners();
         return true;
@@ -141,6 +152,7 @@ class AuthProvider extends ChangeNotifier {
         _userPk = null;
         _schoolProfilePk = null;
         _userProfilePk = null;
+        _workProfilePk = null;
         _isLoading = false;
         notifyListeners();
         return true;

@@ -6,7 +6,7 @@ import '../../widgets/buttons/primary_button.dart';
 import '../../widgets/inputs/rounded_text_field.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({Key? key}) : super(key: key);
+  const RegisterScreen({super.key});
 
   @override
   State<RegisterScreen> createState() => RegisterScreenState();

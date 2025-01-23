@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:dio/dio.dart';
@@ -73,7 +72,7 @@ class AuthService extends ChangeNotifier {
           'errors': 'Invalid response status: ${response.statusCode}',
         };
       }
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       if (e.response != null) {
         return {
           'success': false,
@@ -141,7 +140,7 @@ class AuthService extends ChangeNotifier {
           'errors': 'Invalid response status: ${response.statusCode}',
         };
       }
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       if (e.response != null) {
         return {
           'success': false,
@@ -188,7 +187,7 @@ class AuthService extends ChangeNotifier {
           'errors': 'Invalid response status: ${response.statusCode}'
         };
       }
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       if (e.response != null) {
         return {
           'success': false,
@@ -228,7 +227,7 @@ class AuthService extends ChangeNotifier {
           'errors': 'Invalid response status: ${response.statusCode}'
         };
       }
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       if (e.response != null) {
         return {
           'success': false,
@@ -268,7 +267,7 @@ class AuthService extends ChangeNotifier {
         return true;
       }
       return false;
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       debugPrint('Token refresh failed: ${e.message}');
       return false;
     } catch (e) {

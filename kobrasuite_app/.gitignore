@@ -49,3 +49,6 @@ node_modules/
 /windows/runner/
 
 .idea
+
+# FVM Version Cache
+.fvm/

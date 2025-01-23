@@ -4,7 +4,7 @@ import '../../../widgets/chat/chat_widget.dart';
 class AssignmentChatScreen extends StatelessWidget {
   final String assignmentId;
 
-  const AssignmentChatScreen({Key? key, required this.assignmentId}) : super(key: key);
+  const AssignmentChatScreen({super.key, required this.assignmentId});
 
   @override
   Widget build(BuildContext context) {
