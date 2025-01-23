@@ -1,4 +1,4 @@
-// lib/models/school/university.dart
+// File location: lib/models/school/university.dart
 
 class University {
   final int id;
@@ -23,11 +23,11 @@ class University {
 
   factory University.fromJson(Map<String, dynamic> json) {
     return University(
-      id: json['id'] as int,
-      name: json['name'] as String,
-      country: json['country'] as String,
-      domain: json['domain'] as String,
-      website: json['website'] as String,
+      id: json['id'] is int ? json['id'] as int : 0,
+      name: (json['name'] ?? '') as String,
+      country: (json['country'] ?? '') as String,
+      domain: (json['domain'] ?? '') as String,
+      website: (json['website'] ?? '') as String,
       stateProvince: json['state_province'] as String?,
       studentCount: json['student_count'] as int?,
       courseCount: json['course_count'] as int?,
