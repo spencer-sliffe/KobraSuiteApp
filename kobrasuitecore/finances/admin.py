@@ -6,11 +6,13 @@ from .models import (
     Bill, Debt, SavingsGoal
 )
 
+
 @admin.register(BankAccount)
 class BankAccountAdmin(admin.ModelAdmin):
     list_display = ('account_name', 'user', 'balance', 'currency', 'last_synced')
     search_fields = ('account_name', 'user__username', 'institution_name')
     list_filter = ('currency',)
+
 
 @admin.register(Budget)
 class BudgetAdmin(admin.ModelAdmin):
@@ -18,10 +20,12 @@ class BudgetAdmin(admin.ModelAdmin):
     search_fields = ('name', 'user__username')
     list_filter = ('is_active',)
 
+
 @admin.register(BudgetCategory)
 class BudgetCategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'budget', 'allocated_amount')
     search_fields = ('name', 'budget__name')
+
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
@@ -29,17 +33,20 @@ class TransactionAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'description')
     list_filter = ('transaction_type', 'date', 'created_at')
 
+
 @admin.register(Bill)
 class BillAdmin(admin.ModelAdmin):
     list_display = ('name', 'amount', 'user', 'due_date', 'recurring_interval', 'is_auto_pay_enabled')
     search_fields = ('name', 'user__username')
     list_filter = ('recurring_interval', 'due_date', 'is_auto_pay_enabled')
 
+
 @admin.register(Debt)
 class DebtAdmin(admin.ModelAdmin):
     list_display = ('name', 'user', 'remaining_balance', 'debt_type', 'due_date', 'created_at')
     search_fields = ('name', 'user__username')
     list_filter = ('debt_type', 'created_at')
+
 
 @admin.register(SavingsGoal)
 class SavingsGoalAdmin(admin.ModelAdmin):

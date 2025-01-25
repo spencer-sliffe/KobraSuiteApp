@@ -51,23 +51,15 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'], url_path='add_new_course')
     def add_new_course(self, request, university_pk=None, user_pk=None, school_profile_pk=None):
-        """
-        Creates (or reuses) a course under a specified university,
-        then ensures it is added to the user's SchoolProfile.
-        Returns a JSON response containing 'detail' and 'course' keys.
-        """
         serializer = AddNewCourseSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         course_data = serializer.validated_data
 
-        # 1) Confirm the university exists
         university = get_object_or_404(University, pk=university_pk)
 
         try:
-            # 2) Create or fetch existing course in the DB for this university
             course, created = create_course_in_university(university, course_data)
 
-            # 3) Add this course to the user's SchoolProfile
             school_profile = getattr(request.user, 'school_profile', None)
             if not school_profile:
                 return Response(
