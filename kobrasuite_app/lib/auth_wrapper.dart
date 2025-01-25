@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:kobrasuite_app/screens/auth/login_screen.dart';
-import 'package:kobrasuite_app/screens/home/home_screen.dart';
+import 'package:kobrasuite_app/UI/screens/auth/login_screen.dart';
+import 'package:kobrasuite_app/UI/screens/home/home_screen.dart';
 import 'package:provider/provider.dart';
 import '../../providers/general/auth_provider.dart';
 

@@ -52,7 +52,7 @@ class CourseService {
       queryParameters['query'] = query;
     }
     final uri = '/api/users/$userPk/school_profile/$schoolProfilePk'
-        '/universities/$universityPk/courses/search_courses/';
+        '/universities/$universityPk/courses/search/';
     try {
       final response = await _dio.get(uri, queryParameters: queryParameters);
       if (response.statusCode == 200) {
