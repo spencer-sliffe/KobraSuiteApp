@@ -15,7 +15,6 @@ from work.views import TeamViewSet, ProjectViewSet, WorkTaskViewSet
 from notifications.views import NotificationViewSet
 from ai.views import ChatBotViewSet, VerifyCourseViewSet
 
-# Initialized Default router
 router = routers.DefaultRouter()
 router.register(r'auth', AuthViewSet, basename='auth')
 router.register(r'users', UserViewSet, basename='users')
