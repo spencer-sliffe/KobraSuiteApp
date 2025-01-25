@@ -17,7 +17,6 @@ class KobraNavRail extends StatelessWidget {
       {'label': 'Dashboard', 'icon': Icons.dashboard},
       {'label': 'Finances', 'icon': Icons.account_balance_wallet},
       {'label': 'Homelife', 'icon': Icons.home},
-      {'label': 'Investing', 'icon': Icons.trending_up},
       {'label': 'School', 'icon': Icons.school},
       {'label': 'Work', 'icon': Icons.work},
       {'label': 'Notifications', 'icon': Icons.notifications},

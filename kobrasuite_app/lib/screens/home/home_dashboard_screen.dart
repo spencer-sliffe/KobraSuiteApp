@@ -33,12 +33,6 @@ class HomeDashboardScreen extends StatelessWidget {
                 onTap: () => onModuleSelected(2),
               ),
               KobraDashboardCard(
-                icon: Icons.trending_up,
-                title: 'Investing',
-                subtitle: 'Portfolios, assets, trades',
-                onTap: () => onModuleSelected(3),
-              ),
-              KobraDashboardCard(
                 icon: Icons.school,
                 title: 'School',
                 subtitle: 'Courses, assignments, study groups',
