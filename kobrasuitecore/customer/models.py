@@ -1,10 +1,9 @@
-# school/models.py
-
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Permission
 from django.core.validators import RegexValidator
 from django.utils import timezone
 
+from work.models import WorkPlace
 from .types import MFAType
 from school.models import University, Course
 
@@ -106,11 +105,8 @@ class SchoolProfile(models.Model):
 
 
 class WorkProfile(models.Model):
-    user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        related_name='work_profile'
-    )
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='work_profile')
+    work_places = models.ManyToManyField(WorkPlace, related_name='work_profiles', blank=True)
 
     def __str__(self):
         return f"Work profile of {self.user.username}"

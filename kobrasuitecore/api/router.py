@@ -11,9 +11,9 @@ from school.views.course_views import CourseViewSet
 from school.views.topic_views import TopicViewSet
 from school.views.assignment_views import AssignmentViewSet, SubmissionViewSet
 from school.views.discussion_views import DiscussionThreadViewSet, DiscussionPostViewSet
-from work.views import TeamViewSet, ProjectViewSet, WorkTaskViewSet
 from notifications.views import NotificationViewSet
 from ai.views import ChatBotViewSet, VerifyCourseViewSet
+from work.views.workplace_views import WorkPlaceViewSet
 
 router = routers.DefaultRouter()
 router.register(r'auth', AuthViewSet, basename='auth')
@@ -25,9 +25,6 @@ router.register(r'shared-events', SharedCalendarEventViewSet, basename='sharedca
 router.register(r'bank-accounts', BankAccountViewSet, basename='bankaccounts')
 router.register(r'budgets', BudgetViewSet, basename='budgets')
 router.register(r'transactions', TransactionViewSet, basename='transactions')
-router.register(r'teams', TeamViewSet, basename='teams')
-router.register(r'projects', ProjectViewSet, basename='projects')
-router.register(r'worktasks', WorkTaskViewSet, basename='worktasks')
 router.register(r'discussion-threads', DiscussionThreadViewSet, basename='discussionthreads')
 router.register(r'discussion-posts', DiscussionPostViewSet, basename='discussionposts')
 router.register(r'notifications', NotificationViewSet, basename='notifications')
@@ -60,8 +57,11 @@ assignment_router.register(r'submissions', SubmissionViewSet, basename='submissi
 # Nested routers for Topics -> StudyDocuments
 topic_router = routers.NestedDefaultRouter(course_router, r'topics', lookup='topic')
 
-# Nested routers for WorkProfile -> ...
+# Nested routers for WorkProfile -> WorkPlace...
 work_profile_router = routers.NestedDefaultRouter(user_router, r'work_profile', lookup='work_profile')
+work_profile_router.register(r'work_place', WorkPlaceViewSet, basename='work_place')
+
+work_place_router = routers.NestedDefaultRouter(work_profile_router, r'work_place', lookup='work_place')
 
 urlpatterns = [
     *router.urls,
