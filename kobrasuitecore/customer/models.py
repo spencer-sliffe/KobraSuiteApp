@@ -112,6 +112,14 @@ class WorkProfile(models.Model):
         return f"Work profile of {self.user.username}"
 
 
+class FinanceProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='finance_profile')
+    budget = models.FloatField(default=0.0)
+
+    def __str__(self):
+        return f"Finance Profile of {self.user.username}"
+
+
 class SecureDocument(models.Model):
     user = models.ForeignKey(
         User,

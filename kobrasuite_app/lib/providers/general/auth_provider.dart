@@ -11,6 +11,8 @@ class AuthProvider extends ChangeNotifier {
   int? _schoolProfilePk;
   int? _userProfilePk;
   int? _workProfilePk;
+  int? _financeProfilePk;
+
 
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
@@ -19,6 +21,7 @@ class AuthProvider extends ChangeNotifier {
   int get schoolProfilePk => _schoolProfilePk ?? 0;
   int get userProfilePk => _userProfilePk ?? 0;
   int get workProfilePk => _workProfilePk ?? 0;
+  int get financeProfilePk => _financeProfilePk ?? 0;
 
   AuthProvider() : _authService = serviceLocator<AuthService>() {
     _initialize();
@@ -51,6 +54,9 @@ class AuthProvider extends ChangeNotifier {
       _workProfilePk = userData['work_profile'] != null
           ? (userData['work_profile']['id'] ?? 0)
           : 0;
+      _financeProfilePk = userData['finance_profile'] != null
+          ? (userData['finance_profile']['id'] ?? 0)
+          : 0;
     } else {
       _errorMessage = result['errors']?.toString() ?? 'Failed to confirm login.';
     }
@@ -79,6 +85,9 @@ class AuthProvider extends ChangeNotifier {
             : 0;
         _workProfilePk = userData['work_profile'] != null
             ? userData['work_profile']['id']
+            : 0;
+        _financeProfilePk = userData['finance_profile'] != null
+            ? userData['finance_profile']['id']
             : 0;
         _isLoading = false;
         notifyListeners();
@@ -123,6 +132,9 @@ class AuthProvider extends ChangeNotifier {
         _workProfilePk = userData['work_profile'] != null
             ? userData['work_profile']['id']
             : 0;
+        _financeProfilePk = userData['finance_profile'] != null
+            ? userData['finance_profile']['id']
+            : 0;
         _isLoading = false;
         notifyListeners();
         return true;
@@ -153,6 +165,7 @@ class AuthProvider extends ChangeNotifier {
         _schoolProfilePk = null;
         _userProfilePk = null;
         _workProfilePk = null;
+        _financeProfilePk = null;
         _isLoading = false;
         notifyListeners();
         return true;
