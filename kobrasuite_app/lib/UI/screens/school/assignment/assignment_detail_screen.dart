@@ -1,6 +1,6 @@
 // import 'package:flutter/material.dart';
 // import 'package:kobrasuite_app/models/school/assignment.dart';
-// import '../submission/assignment_submissions_screen.dart';
+// import '../../widgets/document/uploadersassignment_submissions_screen.dart';
 // import 'assignment_chat_screen.dart';
 //
 // class AssignmentDetailScreen extends StatelessWidget {
