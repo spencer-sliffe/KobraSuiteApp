@@ -45,7 +45,8 @@ class AssignmentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         university_pk = self.kwargs.get('university_pk')
         course_pk = self.kwargs.get('course_pk')
-        return Assignment.objects.filter(course__id=course_pk, course__university__id=university_pk).select_related('course').prefetch_related('submissions')
+        return (Assignment.objects.filter(course__id=course_pk, course__university__id=university_pk)
+                .select_related('course').prefetch_related('submissions'))
 
     def perform_create(self, serializer):
         # Access the parent course

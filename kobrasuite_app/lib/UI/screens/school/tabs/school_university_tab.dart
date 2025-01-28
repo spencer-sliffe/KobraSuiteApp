@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../providers/school/university_provider.dart';
 import '../../../widgets/cards/university_card.dart';
+import '../university/university_detail_screen.dart';
 
 class SchoolUniversityTab extends StatefulWidget {
   final int userId;
@@ -103,10 +104,10 @@ class _SchoolUniversityTabState extends State<SchoolUniversityTab> {
               return UniversityCard(
                 university: uni,
                 onTap: () {
-                //  Navigator.push(
-                   // context,
-                   // MaterialPageRoute(builder: (_) => UniversityDetailScreen(university: uni)),
-                 // );
+                 Navigator.push(
+                   context,
+                   MaterialPageRoute(builder: (_) => UniversityDetailScreen(university: uni)),
+                 );
                 },
                 onSetAsCurrent: () async {
                   final success = await provider.setUniversity(uni);

@@ -22,16 +22,32 @@ def search_universities(name=None, country=None):
         state_province = uni_data.get('state-province') or ''
         domain_str = domains[0] if domains else ''
         website_str = websites[0] if websites else ''
-        external_unis.append({
-            "id": 0,
-            "name": uni_name,
-            "country": country_str,
-            "domain": domain_str,
-            "website": website_str,
-            "state_province": state_province,
-            "student_count": 0,
-            "course_count": 0,
-        })
+        id_value = University.objects.filter(name__icontains=uni_name).values_list('id', flat=True).first()
+        if id_value:
+            student_count = University.objects.filter(name__icontains=uni_name).first().student_count
+            course_count = University.objects.filter(name__icontains=uni_name).first().course_count
+            external_unis.append({
+                "id": id_value,
+                "name": uni_name,
+                "country": country_str,
+                "domain": domain_str,
+                "website": website_str,
+                "state_province": state_province,
+                "student_count": student_count,
+                "course_count": course_count,
+            })
+        else:
+            external_unis.append({
+                "id": 0,
+                "name": uni_name,
+                "country": country_str,
+                "domain": domain_str,
+                "website": website_str,
+                "state_province": state_province,
+                "student_count": 0,
+                "course_count": 0,
+            })
+
     return external_unis, status.HTTP_200_OK
 
 
