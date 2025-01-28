@@ -1,0 +1,107 @@
+name: Build and deploy Node.js app to Azure Web App - kobrasuite-frontend
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.0'
+
+      - name: Get dependencies
+        run: |
+          cd ./kobrasuite_app
+          flutter pub get
+
+      - name: Install Node.js dependencies
+        run: |
+          cd ./kobrasuite_app
+          npm install --production
+
+      - name: Build for web
+        run: |
+          cd ./kobrasuite_app
+          flutter build web --dart-define=BASE_URL=${{ secrets.BASE_URL }}
+
+      - name: Zip artifact for deployment
+        run: |
+          zip -r release.zip kobrasuite_app kobrasuitecore \
+            -x ".github/*" \
+            -x ".git/*" \
+            -x "venv/*" \
+            -x ".DS_Store"
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-app
+          path: release.zip
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment: Production
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: node-app
+
+      - name: Unzip artifact for deployment
+        run: unzip ./release.zip
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_81541AC136FA4B749D2C0017BE1F60CD }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_649382B575D04D37A4DC4EB0A15A2793 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_6E763AD720E4446EB25B89D3BFD7FDE5 }}
+
+      # --- Django migration steps, now that kobrasuitecore exists ---
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'  
+
+      - name: Virtual environment and Migrations
+        working-directory: ./kobrasuitecore
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          python manage.py makemigrations
+          python manage.py migrate
+          # If you need static collection:
+          # python manage.py collectstatic --noinput
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DEBUG: ${{ secrets.DEBUG }}
+          ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
+          CSRF_TRUSTED_ORIGINS: ${{ secrets.CSRF_TRUSTED_ORIGINS }}
+          SECURE_SSL_REDIRECT: ${{ secrets.SECURE_SSL_REDIRECT }}
+          DBNAME: ${{ secrets.DBNAME }}
+          DBHOST: ${{ secrets.DBHOST }}
+          DBUSER: ${{ secrets.DBUSER }}
+          DBPASS: ${{ secrets.DBPASS }}
+          CORS_ALLOWED_ORIGINS: ${{ secrets.CORS_ALLOWED_ORIGINS }}
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'kobrasuite-frontend'
+          slot-name: 'Production'
+          package: ./kobrasuite_app
