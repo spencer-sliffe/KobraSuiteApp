@@ -1,9 +1,8 @@
 from rest_framework_nested import routers
 
 from customer.views.auth_views import AuthViewSet
-from customer.views.profile_views import (
+from hq.views.profile_views import (
     SchoolProfileViewSet,
-    UserProfileViewSet,
     WorkProfileViewSet,
     FinanceProfileViewSet
 )
@@ -22,6 +21,7 @@ from finances.views.stock_views import (
 )
 from finances.views.misc_invest_views import MiscInvestViewSet
 from homelife.views import HouseholdViewSet, ChoreViewSet, SharedCalendarEventViewSet
+from hq.views.user_profile_views import UserProfileViewSet
 from school.views.university_views import UniversityViewSet
 from school.views.course_views import CourseViewSet
 from school.views.topic_views import TopicViewSet

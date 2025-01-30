@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import User, Role, MFAConfig, UserProfile, SecureDocument
+
+from hq.models import UserProfile
+from .models import User, Role, MFAConfig, SecureDocument
 
 
 @admin.register(User)

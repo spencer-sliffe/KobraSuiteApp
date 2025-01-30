@@ -21,7 +21,8 @@ Collaborators: Spencer Sliffe
 
 from django.db import models
 from django.utils import timezone
-from customer.models import FinanceProfile
+
+from hq.models import FinanceProfile
 
 
 class StockPortfolio(models.Model):

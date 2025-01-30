@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_datetime
 
 from customer.permissions import IsOwnerOrAdmin
-from customer.models import FinanceProfile
+from hq.models import FinanceProfile
 from finances.models import StockPortfolio, PortfolioStock, FavoriteStock, WatchlistStock
 from finances.serializers.stock_serializers import (
     StockPortfolioSerializer,

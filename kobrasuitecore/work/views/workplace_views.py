@@ -9,7 +9,8 @@ from work.models import WorkPlace
 from work.serializers.workplace_serializers import WorkPlaceSerializer
 from customer.permissions import IsOwnerOrAdmin
 from work.filters import WorkplaceMemberFilter
-from customer.models import WorkProfile, User
+from hq.models import WorkProfile
+from customer.models import User
 
 
 @extend_schema(

@@ -3,22 +3,24 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
-from .models import UserProfile, SchoolProfile, WorkProfile, FinanceProfile
+
+from hq.models import UserProfile, SchoolProfile, WorkProfile, FinanceProfile
 
 User = get_user_model()
 
 
 @receiver(post_save, sender=User)
 def create_profiles(sender, instance, created, **kwargs):
+    p1=None
     if created:
-        if not SchoolProfile.objects.filter(user=instance).exists():
-            SchoolProfile.objects.create(user=instance)
         if not UserProfile.objects.filter(user=instance).exists():
-            UserProfile.objects.create(user=instance)
+            p1=UserProfile.objects.create(user=instance)
+        if not SchoolProfile.objects.filter(user=instance).exists():
+            SchoolProfile.objects.create(user=instance, profile=p1)
         if not WorkProfile.objects.filter(user=instance).exists():
-            WorkProfile.objects.create(user=instance)
+            WorkProfile.objects.create(user=instance, profile=p1)
         if not FinanceProfile.objects.filter(user=instance).exists():
-            FinanceProfile.objects.create(user=instance)
+            FinanceProfile.objects.create(user=instance, profile=p1)
 
 
 @receiver(post_save, sender=User)

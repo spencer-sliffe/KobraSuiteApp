@@ -4,7 +4,6 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 from customer.permissions import IsOwnerOrAdmin
-from customer.models import FinanceProfile
 from finances.models import CryptoPortfolio, PortfolioCrypto, FavoriteCrypto, WatchlistCrypto
 from finances.serializers.crypto_serializers import (
     CryptoPortfolioSerializer,
@@ -19,6 +18,7 @@ from finances.services.crypto_services import (
     get_portfolio_cryptos
 )
 from finances.utils.crypto_utils import get_crypto_data
+from hq.models import FinanceProfile
 
 
 class CryptoPortfolioViewSet(viewsets.ModelViewSet):

@@ -6,9 +6,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
-from customer.models import SchoolProfile, UserProfile, WorkProfile, FinanceProfile
-from customer.serializers.profile_serializers import SchoolProfileSerializer, UserProfileSerializer, \
-    WorkProfileSerializer, FinanceProfileSerializer
+
+from hq.models import SchoolProfile, WorkProfile, FinanceProfile
+from hq.serializers.profile_serializers import SchoolProfileSerializer, WorkProfileSerializer, FinanceProfileSerializer
 from school.models import University
 from school.serializers.university_serializers import SetUniversitySerializer
 from asgiref.sync import async_to_sync
@@ -71,24 +71,6 @@ class SchoolProfileViewSet(viewsets.ModelViewSet):
 
         profile_serializer = self.get_serializer(profile)
         return Response(profile_serializer.data, status=status.HTTP_200_OK)
-
-
-class UserProfileViewSet(viewsets.ModelViewSet):
-    queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
-
-    def get_queryset(self):
-        user_pk = self.kwargs.get('user_pk')
-        return self.queryset.filter(user__id=user_pk)
-
-    def perform_create(self, serializer):
-        user_pk = self.kwargs.get('user_pk')
-        user = get_object_or_404(get_user_model(), pk=user_pk)
-        serializer.save(user=user)
-
-    def perform_update(self, serializer):
-        serializer.save(user=self.get_object().user)
 
 
 class WorkProfileViewSet(viewsets.ModelViewSet):

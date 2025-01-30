@@ -3,8 +3,10 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
-from .profile_serializers import UserProfileSerializer, SchoolProfileSerializer
-from ..models import Role, UserProfile, SchoolProfile
+from hq.models import SchoolProfile, UserProfile
+from hq.serializers.profile_serializers import SchoolProfileSerializer
+from hq.serializers.user_profile_serializers import UserProfileSerializer
+from ..models import Role
 
 User = get_user_model()
 

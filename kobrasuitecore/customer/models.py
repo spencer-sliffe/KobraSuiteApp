@@ -3,9 +3,7 @@ from django.contrib.auth.models import AbstractUser, Permission
 from django.core.validators import RegexValidator
 from django.utils import timezone
 
-from work.models import WorkPlace
 from .types import MFAType
-from school.models import University, Course
 
 
 class User(AbstractUser):
@@ -60,64 +58,6 @@ class MFAConfig(models.Model):
 
     def __str__(self):
         return f"MFAConfig for {self.user.username}"
-
-
-class UserProfile(models.Model):
-    user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        related_name='profile'
-    )
-    date_of_birth = models.DateField(null=True, blank=True)
-    address = models.TextField(null=True, blank=True)
-    profile_picture = models.ImageField(
-        upload_to='profile_pics/',
-        null=True,
-        blank=True
-    )
-    preferences = models.JSONField(null=True, blank=True)
-
-    def __str__(self):
-        return f"Profile of {self.user.username}"
-
-
-class SchoolProfile(models.Model):
-    user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        related_name='school_profile'
-    )
-    university = models.ForeignKey(
-        University,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name='school_profiles'
-    )
-    courses = models.ManyToManyField(
-        Course,
-        related_name='school_profiles',
-        blank=True
-    )
-
-    def __str__(self):
-        return f"School Profile of {self.user.username}"
-
-
-class WorkProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='work_profile')
-    work_places = models.ManyToManyField(WorkPlace, related_name='work_profiles', blank=True)
-
-    def __str__(self):
-        return f"Work profile of {self.user.username}"
-
-
-class FinanceProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='finance_profile')
-    budget = models.FloatField(default=0.0)
-
-    def __str__(self):
-        return f"Finance Profile of {self.user.username}"
 
 
 class SecureDocument(models.Model):

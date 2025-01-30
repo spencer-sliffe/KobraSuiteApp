@@ -1,20 +1,13 @@
 # customer/serializers/profile_serializers.py
 from django.contrib.auth import get_user_model
+
+from hq.models import SchoolProfile, WorkProfile, FinanceProfile
 from school.models import Course
 from school.serializers.university_serializers import UniversitySerializer
 from rest_framework import serializers
 
-from ..models import UserProfile, SchoolProfile, WorkProfile, FinanceProfile
 
 User = get_user_model()
-
-
-class UserProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserProfile
-        fields = [
-            'id', 'date_of_birth', 'address', 'profile_picture', 'preferences',
-        ]
 
 
 class SchoolProfileSerializer(serializers.ModelSerializer):

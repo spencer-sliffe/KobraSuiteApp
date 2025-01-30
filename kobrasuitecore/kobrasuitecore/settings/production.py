@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'customer',
     'finances',
     'homelife',
+    'hq',
     'notifications',
     'school',
     'work',
