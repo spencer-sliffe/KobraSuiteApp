@@ -4,7 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
 
-from hq.models import UserProfile, SchoolProfile, WorkProfile, FinanceProfile
+from hq.models import UserProfile, SchoolProfile, WorkProfile, FinanceProfile, HomeLifeProfile
 
 User = get_user_model()
 
@@ -21,6 +21,8 @@ def create_profiles(sender, instance, created, **kwargs):
             WorkProfile.objects.create(user=instance, profile=p1)
         if not FinanceProfile.objects.filter(user=instance).exists():
             FinanceProfile.objects.create(user=instance, profile=p1)
+        if not HomeLifeProfile.objects.filter(user=instance).exists():
+            HomeLifeProfile.objects.create(user=instance, profile=p1)
 
 
 @receiver(post_save, sender=User)
@@ -33,3 +35,5 @@ def save_profiles(sender, instance, **kwargs):
         instance.work_profile.save()
     if hasattr(instance, 'finance_profile'):
         instance.finance_profile.save()
+    if hasattr(instance, 'homelife_profile'):
+        instance.homelife_profile.save()

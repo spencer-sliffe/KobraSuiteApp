@@ -4,7 +4,7 @@ from customer.views.auth_views import AuthViewSet
 from hq.views.profile_views import (
     SchoolProfileViewSet,
     WorkProfileViewSet,
-    FinanceProfileViewSet
+    FinanceProfileViewSet, HomeLifeProfileViewSet
 )
 from customer.views.user_views import UserViewSet, RoleViewSet
 from finances.views.crypto_views import (
@@ -20,7 +20,6 @@ from finances.views.stock_views import (
     FavoriteStockViewSet
 )
 from finances.views.misc_invest_views import MiscInvestViewSet
-from homelife.views import HouseholdViewSet, ChoreViewSet, SharedCalendarEventViewSet
 from hq.views.user_profile_views import UserProfileViewSet
 from school.views.university_views import UniversityViewSet
 from school.views.course_views import CourseViewSet
@@ -35,9 +34,6 @@ router = routers.DefaultRouter()
 router.register(r'auth', AuthViewSet, basename='auth')
 router.register(r'users', UserViewSet, basename='users')
 router.register(r'roles', RoleViewSet, basename='roles')
-router.register(r'households', HouseholdViewSet, basename='households')
-router.register(r'chores', ChoreViewSet, basename='chores')
-router.register(r'shared-events', SharedCalendarEventViewSet, basename='sharedcalendar')
 router.register(r'discussion-threads', DiscussionThreadViewSet, basename='discussionthreads')
 router.register(r'discussion-posts', DiscussionPostViewSet, basename='discussionposts')
 router.register(r'chatbot', ChatBotViewSet, basename='chatbot')
@@ -48,6 +44,10 @@ user_router.register(r'school_profile', SchoolProfileViewSet, basename='school_p
 user_router.register(r'user_profile', UserProfileViewSet, basename='user_profile')
 user_router.register(r'work_profile', WorkProfileViewSet, basename='work_profile')
 user_router.register(r'finance_profile', FinanceProfileViewSet, basename='finance_profile')
+user_router.register(r'homelife_profile', HomeLifeProfileViewSet, basename='homelife_profile')
+
+# HomeLifeProfile -> University
+homelife_profile_router = routers.NestedDefaultRouter(user_router, r'homelife_profile', lookup='homelife_profile')
 
 # SchoolProfile -> University
 school_profile_router = routers.NestedDefaultRouter(user_router, r'school_profile', lookup='school_profile')
@@ -108,4 +108,5 @@ urlpatterns = [
     *finance_profile_router.urls,
     *stock_portfolio_router.urls,
     *crypto_portfolio_router.urls,
+    *homelife_profile_router.urls,
 ]
