@@ -4,7 +4,7 @@ from school.models import University, Course
 from school.serializers.university_serializers import UniversitySerializer
 from rest_framework import serializers
 
-from ..models import UserProfile, SchoolProfile
+from ..models import UserProfile, SchoolProfile, HomeLifeProfile
 
 User = get_user_model()
 
@@ -14,6 +14,14 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = [
             'id', 'date_of_birth', 'address', 'profile_picture', 'preferences',
+        ]
+
+
+class HomeLifeProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HomeLifeProfile
+        fields = [
+            'id', 'user',
         ]
 
 

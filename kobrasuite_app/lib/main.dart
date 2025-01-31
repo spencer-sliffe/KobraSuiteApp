@@ -46,6 +46,13 @@ void main() async {
             return userProfileProvider;
           },
         ),
+        ChangeNotifierProxyProvider<AuthProvider, HomeLifeProfileProvider>(
+          create: (_) => HomeLifeProfileProvider(userPk: 0, homLifeProfilePk: 0),
+          update: (_, authProvider, homeLifeProfileProvider) {
+            homeLifeProfileProvider!.update(authProvider.userPk, authProvider.homeLifeProfilePk);
+            return homeLifeProfileProvider;
+          },
+        ),
         ChangeNotifierProxyProvider<AuthProvider, SchoolProfileProvider>(
           create: (_) => SchoolProfileProvider(userPk: 0, schoolProfilePk: 0),
           update: (_, authProvider, schoolProfileProvider) {

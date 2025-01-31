@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractUser, Permission
 from django.core.validators import RegexValidator
 from django.utils import timezone
 
+from homelife.models import Household
 from .types import MFAType
 from school.models import University, Course
 
@@ -103,6 +104,22 @@ class SchoolProfile(models.Model):
 
     def __str__(self):
         return f"School Profile of {self.user.username}"
+
+
+class HomeLifeProfile(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='homelife_profile'
+    )
+    household = models.ForeignKey(
+        Household,
+        on_delete=models.SET_NULL,
+        related_name='homelife_profiles',
+    )
+
+    def __str__(self):
+        return f"HomeLife Profile of {self.user.username}"
 
 
 class SecureDocument(models.Model):

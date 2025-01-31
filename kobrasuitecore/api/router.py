@@ -2,7 +2,7 @@
 from rest_framework_nested import routers
 
 from customer.views.auth_views import AuthViewSet
-from customer.views.profile_views import SchoolProfileViewSet, UserProfileViewSet
+from customer.views.profile_views import SchoolProfileViewSet, UserProfileViewSet, HomeLifeProfileViewSet
 from customer.views.user_views import UserViewSet, RoleViewSet
 from homelife.views import HouseholdViewSet, ChoreViewSet, SharedCalendarEventViewSet
 from finances.views import BankAccountViewSet, BudgetViewSet, TransactionViewSet
@@ -38,6 +38,7 @@ router.register(r'chatbot', ChatBotViewSet, basename='chatbot')
 user_router = routers.NestedDefaultRouter(router, r'users', lookup='user')
 user_router.register(r'school_profile', SchoolProfileViewSet, basename='school_profile')
 user_router.register(r'user_profile', UserProfileViewSet, basename='user_profile')
+user_router.register(r'homelife_profile', HomeLifeProfileViewSet, basename='homelife_profile')
 
 # Nested routers for SchoolProfile -> Universities
 school_profile_router = routers.NestedDefaultRouter(user_router, r'school_profile', lookup='school_profile')
@@ -60,6 +61,10 @@ assignment_router.register(r'submissions', SubmissionViewSet, basename='submissi
 # Nested routers for Topics -> StudyDocuments
 topic_router = routers.NestedDefaultRouter(course_router, r'topics', lookup='topic')
 
+
+homelife_profile_router = routers.NestedDefaultRouter(user_router, r'homelife_profile', lookup='homelife_profile')
+homelife_profile_router.register(r'household', HouseholdViewSet, basename='household')
+
 urlpatterns = [
     *router.urls,
     *user_router.urls,
@@ -68,4 +73,5 @@ urlpatterns = [
     *course_router.urls,
     *assignment_router.urls,
     *topic_router.urls,
+    *homelife_profile_router.urls,
 ]

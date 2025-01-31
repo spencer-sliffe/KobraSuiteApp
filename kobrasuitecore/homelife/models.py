@@ -12,12 +12,6 @@ class Household(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
-    members = models.ManyToManyField(
-        settings.AUTH_USER_MODEL,
-        related_name='households',
-        blank=True
-    )
-
     def __str__(self):
         return self.name
 

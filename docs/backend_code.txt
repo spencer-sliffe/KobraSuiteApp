@@ -8,7 +8,7 @@ from rest_framework_nested import routers
 from customer.views import AuthViewSet, UserViewSet, RoleViewSet
 
 # Homelife
-from homelife.views import HouseholdViewSet, ChoreViewSet, SharedCalendarEventViewSet
+from homeLife.views import HouseholdViewSet, ChoreViewSet, SharedCalendarEventViewSet
 
 # Finances
 from finances.views import BankAccountViewSet, BudgetViewSet, TransactionViewSet

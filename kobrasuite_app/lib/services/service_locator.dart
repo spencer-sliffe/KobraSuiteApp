@@ -43,6 +43,11 @@ Future<void> setupServiceLocator() async {
         () => UserProfileService(serviceLocator<Dio>()),
   );
 
+    // Register HomeLifeProfileService as a singleton (depends on Dio)
+  serviceLocator.registerLazySingleton<HomeLifeProfileService>(
+        () => HomeLifeProfileService(serviceLocator<Dio>()),
+  );
+
   // Register SchoolProfileService as a singleton (depends on Dio)
   serviceLocator.registerLazySingleton<SchoolProfileService>(
         () => SchoolProfileService(serviceLocator<Dio>()),
