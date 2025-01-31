@@ -12,6 +12,7 @@ class AuthProvider extends ChangeNotifier {
   int? _userProfilePk;
   int? _workProfilePk;
   int? _financeProfilePk;
+  int? _homeLifeProfilePk;
 
 
   bool get isLoading => _isLoading;
@@ -22,6 +23,7 @@ class AuthProvider extends ChangeNotifier {
   int get userProfilePk => _userProfilePk ?? 0;
   int get workProfilePk => _workProfilePk ?? 0;
   int get financeProfilePk => _financeProfilePk ?? 0;
+  int get homeLifeProfilePk => _homeLifeProfilePk ?? 0;
 
   AuthProvider() : _authService = serviceLocator<AuthService>() {
     _initialize();

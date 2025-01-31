@@ -13,6 +13,7 @@ import 'finance/stock_portfolio_service.dart';
 import 'finance/stock_service.dart';
 import 'general/auth_service.dart';
 import 'general/finance_profile_service.dart';
+import 'general/homelife_profile_service.dart';
 import 'general/user_profile_service.dart';
 import 'general/school_profile_service.dart';
 import 'general/work_profile_service.dart';
@@ -64,6 +65,11 @@ Future<void> setupServiceLocator() async {
   // Register SchoolProfileService as a singleton (depends on Dio)
   serviceLocator.registerLazySingleton<SchoolProfileService>(
         () => SchoolProfileService(serviceLocator<Dio>()),
+  );
+
+  // Register HomeLifeProfileService as a singleton (depends on Dio)
+  serviceLocator.registerLazySingleton<HomeLifeProfileService>(
+        () => HomeLifeProfileService(serviceLocator<Dio>()),
   );
 
   // Register UniversityService as a singleton (depends on Dio)

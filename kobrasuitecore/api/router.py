@@ -27,7 +27,6 @@ from school.views.course_views import CourseViewSet
 from school.views.topic_views import TopicViewSet
 from school.views.assignment_views import AssignmentViewSet, SubmissionViewSet
 from school.views.discussion_views import DiscussionThreadViewSet, DiscussionPostViewSet
-from notifications.views import NotificationViewSet
 from ai.views import ChatBotViewSet, VerifyCourseViewSet
 from work.views.workplace_views import WorkPlaceViewSet
 
@@ -41,7 +40,6 @@ router.register(r'chores', ChoreViewSet, basename='chores')
 router.register(r'shared-events', SharedCalendarEventViewSet, basename='sharedcalendar')
 router.register(r'discussion-threads', DiscussionThreadViewSet, basename='discussionthreads')
 router.register(r'discussion-posts', DiscussionPostViewSet, basename='discussionposts')
-router.register(r'notifications', NotificationViewSet, basename='notifications')
 router.register(r'chatbot', ChatBotViewSet, basename='chatbot')
 
 # User-level nested router

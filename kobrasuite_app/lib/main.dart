@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:kobrasuite_app/providers/finance/crypto_news_provider.dart';
 import 'package:kobrasuite_app/providers/finance/stock_news_provider.dart';
+import 'package:kobrasuite_app/providers/general/homelife_profile_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:kobrasuite_app/services/service_locator.dart';
 import 'package:kobrasuite_app/services/general/auth_service.dart';
@@ -87,6 +88,13 @@ void main() async {
               authProvider.financeProfilePk,
             );
             return financeProfileProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, HomeLifeProfileProvider>(
+          create: (_) => HomeLifeProfileProvider(userPk: 0, homeLifeProfilePk: 0),
+          update: (_, authProvider, homeLifeProfileProvider) {
+            homeLifeProfileProvider!.update(authProvider.userPk, authProvider.homeLifeProfilePk);
+            return homeLifeProfileProvider;
           },
         ),
         ChangeNotifierProxyProvider<SchoolProfileProvider, UniversityProvider>(

@@ -1,3 +1,5 @@
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 from customer.models import User
@@ -78,7 +80,38 @@ class FinanceProfile(models.Model):
         on_delete=models.CASCADE,
         related_name='finance_profile'
     )
-    budget = models.FloatField(default=0.0)
 
     def __str__(self):
         return f"Finance Profile of {self.user.username}"
+
+
+class Multiplier(models.Model):
+    profile = models.ForeignKey(
+        UserProfile,
+        on_delete=models.CASCADE,
+        related_name='multipliers'
+    )
+    multiplier_profile_content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        related_name='multiplier_profiles'
+    )
+    multiplier_profile_object_id = models.PositiveIntegerField()
+    multiplier_profile = GenericForeignKey(
+        'multiplier_profile_content_type',
+        'multiplier_profile_object_id'
+    )
+    multiplier_obj_content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        related_name='multiplier_objects'
+    )
+    multiplier_obj_object_id = models.PositiveIntegerField()
+    multiplier_obj = GenericForeignKey(
+        'multiplier_obj_content_type',
+        'multiplier_obj_object_id'
+    )
+    multiplier = models.FloatField(default=0.0)
+
+    def __str__(self):
+        return f"Multiplier for {self.profile.user.username}"
