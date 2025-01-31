@@ -1,6 +1,7 @@
 from rest_framework_nested import routers
 
 from customer.views.auth_views import AuthViewSet
+from hq.views.homelife_profile_views import HomeLifeProfileViewSet
 from hq.views.profile_views import (
     SchoolProfileViewSet,
     WorkProfileViewSet,
@@ -94,6 +95,11 @@ crypto_portfolio_router.register(r'portfolio_cryptos', PortfolioCryptoViewSet, b
 crypto_portfolio_router.register(r'watchlist_cryptos', WatchlistCryptoViewSet, basename='watchlist_crypto')
 crypto_portfolio_router.register(r'favorite_cryptos', FavoriteCryptoViewSet, basename='favorite_crypto')
 
+# Homelife
+user_router.register(r'homelife_profile', HomeLifeProfileViewSet, basename='homelife_profile')
+homelife_profile_router = routers.NestedDefaultRouter(user_router, r'homelife_profile', lookup='homelife_profile')
+homelife_profile_router.register(r'household', HouseholdViewSet, basename='household')
+
 # Top-level route for misc investing features (stock/crypto data, charts, news, predictions)
 router.register(r'misc_invest', MiscInvestViewSet, basename='misc_invests')
 
@@ -110,4 +116,5 @@ urlpatterns = [
     *finance_profile_router.urls,
     *stock_portfolio_router.urls,
     *crypto_portfolio_router.urls,
+    homelife_profile_router.urls,
 ]

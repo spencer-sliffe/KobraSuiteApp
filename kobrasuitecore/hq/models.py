@@ -1,6 +1,7 @@
 from django.db import models
 
 from customer.models import User
+from homelife.models import Household
 from school.models import Course, University
 from work.models import WorkPlace
 
@@ -79,6 +80,28 @@ class FinanceProfile(models.Model):
         related_name='finance_profile'
     )
     budget = models.FloatField(default=0.0)
+
+class HomeLifeProfile(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='homelife_profile'
+    )
+    profile = models.ForeignKey(
+        UserProfile,
+        null=False,
+        blank=False,
+        on_delete=models.CASCADE,
+        related_name='homelife_profile'
+    )
+    household = models.ForeignKey(
+        Household,
+        on_delete=models.SET_NULL,
+        related_name='homelife_profiles',
+    )
+
+    def str(self):
+        return f"HomeLife Profile of {self.user.username}"
 
     def __str__(self):
         return f"Finance Profile of {self.user.username}"
