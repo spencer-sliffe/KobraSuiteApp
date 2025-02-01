@@ -1,7 +1,7 @@
 # customer/serializers/profile_serializers.py
 from django.contrib.auth import get_user_model
 
-from hq.models import SchoolProfile, WorkProfile, FinanceProfile
+from hq.models import SchoolProfile, WorkProfile, FinanceProfile, HomeLifeProfile
 from school.models import Course
 from school.serializers.university_serializers import UniversitySerializer
 from rest_framework import serializers
@@ -54,4 +54,12 @@ class FinanceProfileSerializer(serializers.ModelSerializer):
             'budget',
             'default_stock_portfolio',
             'default_crypto_portfolio'
+        ]
+
+
+class HomeLifeProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HomeLifeProfile
+        fields = [
+            'id', 'user',
         ]
