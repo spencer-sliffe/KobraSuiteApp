@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from school.serializers.university_serializers import UniversitySerializer
-from .models import ChatLog
+from ai.models import ChatLog
 
 
 class ChatRequestSerializer(serializers.Serializer):

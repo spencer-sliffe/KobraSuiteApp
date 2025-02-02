@@ -1,4 +1,4 @@
-# customer/views.py
+# customer/chatgpt_views.py
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.contrib.auth import get_user_model

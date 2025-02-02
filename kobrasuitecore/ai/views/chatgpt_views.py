@@ -5,19 +5,19 @@ from rest_framework.parsers import JSONParser
 from django.contrib.auth import get_user_model
 
 from school.models import University
-from .serializers import (
+from ai.serializers import (
     CourseVerificationSerializer,
     ChatRequestSerializer,
     ChatResponseSerializer,
     ChatLogSerializer,
 )
-from .services import (
+from ai.services.chatgpt_services import (
     gather_conversation_for_user,
     communicate_with_openai,
     verify_course_existence,
 )
-from .models import ChatLog
-from .permissions import IsAuthenticatedAndActive
+from ai.models import ChatLog
+from ai.permissions import IsAuthenticatedAndActive
 
 User = get_user_model()
 

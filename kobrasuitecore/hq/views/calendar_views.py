@@ -1,1 +1,1 @@
-# Just putting this file here for organization
+# hq/serializers/calendar_views.py

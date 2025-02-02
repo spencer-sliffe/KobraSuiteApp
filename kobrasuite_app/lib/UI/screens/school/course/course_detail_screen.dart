@@ -9,7 +9,7 @@ class CourseDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bannerService = BannerImageService();
-    final bannerUrl = bannerService.getBannerImageUrl("modern course, ${course.courseCode}");
+    final bannerUrl = bannerService.getBannerImageUrl("${course.title}, ${course.courseCode}");
 
     return Scaffold(
       body: CustomScrollView(

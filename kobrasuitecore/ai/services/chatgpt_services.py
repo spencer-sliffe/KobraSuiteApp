@@ -4,7 +4,7 @@ import re
 import requests
 from django.conf import settings
 from functools import lru_cache
-from .models import ChatLog
+from ai.models import ChatLog
 
 logger = logging.getLogger(__name__)
 OPENAI_API_URL = "https://api.openai.com/v1/chat/completions"

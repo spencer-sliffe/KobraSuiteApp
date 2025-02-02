@@ -1,11 +1,10 @@
 from rest_framework_nested import routers
 
 from customer.views.auth_views import AuthViewSet
-from hq.views.profile_views import (
-    SchoolProfileViewSet,
-    WorkProfileViewSet,
-    FinanceProfileViewSet, HomeLifeProfileViewSet
-)
+from hq.views.work_profile_views import WorkProfileViewSet
+from hq.views.homelife_profile_views import HomeLifeProfileViewSet
+from hq.views.finance_profile_views import FinanceProfileViewSet
+from hq.views.school_profile_views import SchoolProfileViewSet
 from customer.views.user_views import UserViewSet, RoleViewSet
 from finances.views.crypto_views import (
     CryptoPortfolioViewSet,
@@ -26,7 +25,7 @@ from school.views.course_views import CourseViewSet
 from school.views.topic_views import TopicViewSet
 from school.views.assignment_views import AssignmentViewSet, SubmissionViewSet
 from school.views.discussion_views import DiscussionThreadViewSet, DiscussionPostViewSet
-from ai.views import ChatBotViewSet, VerifyCourseViewSet
+from ai.views.chatgpt_views import ChatBotViewSet, VerifyCourseViewSet
 from work.views.workplace_views import WorkPlaceViewSet
 
 # Main router
