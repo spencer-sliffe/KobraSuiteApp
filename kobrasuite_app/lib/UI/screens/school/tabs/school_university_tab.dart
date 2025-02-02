@@ -1,13 +1,14 @@
+// lib/UI/screens/school/school_university_tab.dart
 import 'dart:async';
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../providers/school/university_provider.dart';
-import '../../../../services/image/banner_image_service.dart';
-import '../../../widgets/school/school_profile_banner.dart';
+import 'package:kobrasuite_app/services/image/banner_image_service.dart';
 import '../university/university_detail_screen.dart';
 import '../../../widgets/cards/university_card.dart';
+import 'package:kobrasuite_app/UI/widgets/school/school_profile_banner.dart';
 
 class SchoolUniversityTab extends StatefulWidget {
   final int userId;
@@ -72,8 +73,9 @@ class _SchoolUniversityTabState extends State<SchoolUniversityTab> {
     final universities = provider.searchResults;
     final currentUni = provider.currentUniversity;
     final bannerService = BannerImageService();
-    // Use a general query for the banner.
-    final bannerUrl = bannerService.getBannerImageUrl(provider.currentUniversity.toString());
+    final String bannerPrompt = currentUni != null
+        ? "Modern university campus, ${currentUni.name} banner"
+        : "Default university banner";
 
     return Scaffold(
       body: CustomScrollView(
@@ -82,99 +84,115 @@ class _SchoolUniversityTabState extends State<SchoolUniversityTab> {
             SliverToBoxAdapter(
               child: GestureDetector(
                 onTap: () => _openUniversityDetail(currentUni),
-                child: Stack(
-                  children: [
-                    Image.network(bannerUrl, height: 200, width: double.infinity, fit: BoxFit.cover),
-                    Container(
-                      height: 200,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.transparent, Colors.black54],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
+                child: FutureBuilder<String>(
+                  future: bannerService.getBannerImageUrl(bannerPrompt),
+                  builder: (context, snapshot) {
+                    Widget bannerWidget;
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      bannerWidget = Container(
+                        height: 200,
+                        color: Colors.grey.shade300,
+                        child: const Center(child: CircularProgressIndicator()),
+                      );
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      bannerWidget = Container(height: 200, color: Colors.grey.shade400);
+                    } else {
+                      bannerWidget = Image.network(snapshot.data!, height: 200, width: double.infinity, fit: BoxFit.cover);
+                    }
+                    return Stack(
+                      children: [
+                        bannerWidget,
+                        Container(
+                          height: 200,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Colors.transparent, Colors.black54],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                    // Full-width overlay with compact university details.
-                    Positioned(
-                      left: 16,
-                      right: 16,
-                      bottom: 16,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.blueGrey.shade700.withOpacity(0.8),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Icon(Icons.school, color: Colors.white, size: 16),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    currentUni.name,
-                                    style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
+                        Positioned(
+                          left: 16,
+                          right: 16,
+                          bottom: 16,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.blueGrey.shade700.withOpacity(0.8),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(Icons.school, color: Colors.white, size: 16),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Icon(Icons.domain, color: Colors.white, size: 12),
-                                      const SizedBox(width: 4),
                                       Text(
-                                        currentUni.domain,
-                                        style: const TextStyle(color: Colors.white, fontSize: 10),
+                                        currentUni.name,
+                                        style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                                       ),
-                                      const SizedBox(width: 8),
-                                      const Icon(Icons.flag, color: Colors.white, size: 12),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        currentUni.country,
-                                        style: const TextStyle(color: Colors.white, fontSize: 10),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.domain, color: Colors.white, size: 12),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            currentUni.domain,
+                                            style: const TextStyle(color: Colors.white, fontSize: 10),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          const Icon(Icons.flag, color: Colors.white, size: 12),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            currentUni.country,
+                                            style: const TextStyle(color: Colors.white, fontSize: 10),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 4),
+                                      GestureDetector(
+                                        onTap: () async {
+                                          final url = currentUni.website;
+                                          if (await canLaunch(url)) {
+                                            await launch(url, forceSafariVC: false, forceWebView: false);
+                                          }
+                                        },
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.web, color: Colors.white, size: 12),
+                                            const SizedBox(width: 4),
+                                            Flexible(
+                                              child: Text(
+                                                currentUni.website,
+                                                style: const TextStyle(
+                                                  color: Colors.lightBlueAccent,
+                                                  fontSize: 10,
+                                                  decoration: TextDecoration.underline,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 4),
-                                  GestureDetector(
-                                    onTap: () async {
-                                      final url = currentUni.website;
-                                      if (await canLaunch(url)) {
-                                        await launch(url, forceSafariVC: false, forceWebView: false);
-                                      }
-                                    },
-                                    child: Row(
-                                      children: [
-                                        const Icon(Icons.web, color: Colors.white, size: 12),
-                                        const SizedBox(width: 4),
-                                        Flexible(
-                                          child: Text(
-                                            currentUni.website,
-                                            style: const TextStyle(
-                                              color: Colors.lightBlueAccent,
-                                              fontSize: 10,
-                                              decoration: TextDecoration.underline,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                                IconButton(
+                                  icon: Icon(_isSearchVisible ? Icons.close : Icons.search),
+                                  onPressed: _toggleSearch,
+                                ),
+                              ],
                             ),
-                            IconButton(
-                              icon: Icon(_isSearchVisible ? Icons.close : Icons.search),
-                              onPressed: _toggleSearch,
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
-                  ],
+                      ],
+                    );
+                  },
                 ),
               ),
             )
@@ -226,7 +244,6 @@ class _SchoolUniversityTabState extends State<SchoolUniversityTab> {
           ),
         ],
       ),
-      // Removed floating action button here because page controls are in the bottom bar.
     );
   }
 }

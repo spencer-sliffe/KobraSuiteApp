@@ -1,15 +1,15 @@
-from django.contrib.auth import get_user_model
+# File: hq/views/finance_profile_viewset.py
 from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-
 from customer.permissions import IsOwnerOrAdmin
 from hq.models import FinanceProfile
 from hq.serializers.finance_profile_serializers import FinanceProfileSerializer
 
 
 class FinanceProfileViewSet(viewsets.ModelViewSet):
-    queryset = FinanceProfile.objects.all()
+    queryset = FinanceProfile.objects.all().select_related('user')
     serializer_class = FinanceProfileSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
 

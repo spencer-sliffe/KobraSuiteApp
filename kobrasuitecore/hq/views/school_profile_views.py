@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from customer.permissions import IsOwnerOrAdmin
 from hq.models import SchoolProfile
-from hq.homelife_profile_serializers.profile_serializers import SchoolProfileSerializer
+from hq.serializers.school_profile_serializers import SchoolProfileSerializer
 from school.models import University
 from school.serializers.university_serializers import SetUniversitySerializer
 from school.services.university_service import add_university_to_db

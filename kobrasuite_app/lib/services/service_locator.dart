@@ -15,6 +15,7 @@ import 'general/homelife_profile_service.dart';
 import 'general/user_profile_service.dart';
 import 'general/school_profile_service.dart';
 import 'general/work_profile_service.dart';
+import 'image/image_generation_service.dart';
 import 'school/university_service.dart';
 import 'school/university_news_service.dart';
 import 'school/course_service.dart';
@@ -150,5 +151,8 @@ Future<void> setupServiceLocator() async {
     ),
   );
 
+  serviceLocator.registerLazySingleton<ImageGenerationService>(
+        () => ImageGenerationService(serviceLocator<Dio>()),
+  );
   // Add other services here as needed
 }

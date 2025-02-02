@@ -1,3 +1,4 @@
+// lib/UI/screens/university/university_detail_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -16,6 +17,14 @@ class UniversityDetailScreen extends StatefulWidget {
 }
 
 class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
+  late Future<String> _bannerImageFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _bannerImageFuture = BannerImageService().getBannerImageUrl("modern university campus, ${widget.university.name}");
+  }
+
   Future<void> _refreshNews() async {
     final provider = Provider.of<UniversityProvider>(context, listen: false);
     await provider.fetchTrendingNews(widget.university.name);
@@ -83,8 +92,9 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
   }
 
   Future<void> _launchWebsite(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url, forceSafariVC: false, forceWebView: false);
+    final uri = Uri.tryParse(url);
+    if (uri != null && await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Could not launch website')),
@@ -95,8 +105,6 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final bannerService = BannerImageService();
-    final bannerUrl = bannerService.getBannerImageUrl("modern university campus, ${widget.university.name}");
     final trendingNews = Provider.of<UniversityProvider>(context).trendingNews;
 
     return Scaffold(
@@ -104,7 +112,6 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
-        // Removed the chat toggle button.
       ),
       extendBodyBehindAppBar: true,
       body: CustomScrollView(
@@ -116,81 +123,94 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
             flexibleSpace: FlexibleSpaceBar(
               background: Hero(
                 tag: 'univ-banner-${widget.university.id}',
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Image.network(bannerUrl, fit: BoxFit.cover),
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                        ),
-                      ),
-                    ),
-                    // Positioned overlay for university details.
-                    Positioned(
-                      left: 16,
-                      right: 16,
-                      bottom: 16,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.blueGrey.shade700.withOpacity(0.8),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.university.name,
-                              style: theme.textTheme.titleLarge?.copyWith(color: Colors.white),
+                child: FutureBuilder<String>(
+                  future: _bannerImageFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Container(
+                        color: Colors.grey.shade300,
+                        child: const Center(child: CircularProgressIndicator()),
+                      );
+                    }
+                    final imageUrl = snapshot.data;
+                    return Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        imageUrl != null && imageUrl.isNotEmpty
+                            ? Image.network(imageUrl, fit: BoxFit.cover)
+                            : Container(color: Colors.grey.shade400),
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
                             ),
-                            const SizedBox(height: 4),
-                            Row(
+                          ),
+                        ),
+                        Positioned(
+                          left: 16,
+                          right: 16,
+                          bottom: 16,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.blueGrey.shade700.withOpacity(0.8),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Icon(Icons.domain, color: Colors.white, size: 14),
-                                const SizedBox(width: 4),
                                 Text(
-                                  widget.university.domain,
-                                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                                  widget.university.name,
+                                  style: theme.textTheme.titleLarge?.copyWith(color: Colors.white),
                                 ),
-                                const SizedBox(width: 8),
-                                const Icon(Icons.flag, color: Colors.white, size: 14),
-                                const SizedBox(width: 4),
-                                Text(
-                                  widget.university.country,
-                                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.domain, color: Colors.white, size: 14),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      widget.university.domain,
+                                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    const Icon(Icons.flag, color: Colors.white, size: 14),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      widget.university.country,
+                                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                GestureDetector(
+                                  onTap: () => _launchWebsite(widget.university.website),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.web, color: Colors.white, size: 14),
+                                      const SizedBox(width: 4),
+                                      Flexible(
+                                        child: Text(
+                                          widget.university.website,
+                                          style: const TextStyle(
+                                            color: Colors.lightBlueAccent,
+                                            fontSize: 12,
+                                            decoration: TextDecoration.underline,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 4),
-                            GestureDetector(
-                              onTap: () => _launchWebsite(widget.university.website),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.web, color: Colors.white, size: 14),
-                                  const SizedBox(width: 4),
-                                  Flexible(
-                                    child: Text(
-                                      widget.university.website,
-                                      style: const TextStyle(
-                                        color: Colors.lightBlueAccent,
-                                        fontSize: 12,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
-                  ],
+                      ],
+                    );
+                  },
                 ),
               ),
             ),

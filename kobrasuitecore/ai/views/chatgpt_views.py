@@ -5,7 +5,7 @@ from rest_framework.parsers import JSONParser
 from django.contrib.auth import get_user_model
 
 from school.models import University
-from ai.serializers import (
+from ai.serializers.chatgpt_serializers import (
     CourseVerificationSerializer,
     ChatRequestSerializer,
     ChatResponseSerializer,
