@@ -7,29 +7,35 @@ class UniversityCard extends StatelessWidget {
   final Future<void> Function() onSetAsCurrent;
 
   const UniversityCard({
-    super.key,
+    Key? key,
     required this.university,
     required this.onTap,
     required this.onSetAsCurrent,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 2,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 4,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(16),
           child: Row(
             children: [
               CircleAvatar(
-                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                radius: 28,
+                backgroundColor: theme.colorScheme.primaryContainer,
                 child: Text(
-                  university.name.isEmpty ? '?' : university.name[0].toUpperCase(),
-                  style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer),
+                  university.name.isNotEmpty
+                      ? university.name[0].toUpperCase()
+                      : '?',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                      color: theme.colorScheme.onPrimaryContainer),
                 ),
               ),
               const SizedBox(width: 16),
@@ -37,9 +43,19 @@ class UniversityCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(university.name, style: Theme.of(context).textTheme.titleMedium),
+                    Text(
+                      university.name,
+                      style: theme.textTheme.titleLarge,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     const SizedBox(height: 4),
-                    Text('${university.country} • ${university.domain}'),
+                    Text(
+                      '${university.country} • ${university.domain}',
+                      style: theme.textTheme.bodyMedium,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ],
                 ),
               ),

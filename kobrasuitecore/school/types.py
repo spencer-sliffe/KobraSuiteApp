@@ -10,7 +10,7 @@ class DiscussionScope(models.TextChoices):
 
 
 SEMESTER_REGEX = re.compile(r'^(SUMMER|SPRING|FALL|WINTER) \d{4}$')
-COURSE_CODE_REGEX = re.compile(r'^[A-Za-z]{2,4}\s\d{3,4}$')
+COURSE_CODE_REGEX = re.compile(r'^[A-Za-z]{2,4}\d{3,4}$')
 
 SEMESTER_CHOICES = [
     ('SUMMER', 'Summer'),

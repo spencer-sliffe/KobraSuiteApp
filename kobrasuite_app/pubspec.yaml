@@ -20,6 +20,8 @@ dependencies:
   # For iOS-style icons
   cupertino_icons: ^1.0.8
 
+  url_launcher: ^6.1.7
+
   # HTTP requests
   http: ^1.2.2
 

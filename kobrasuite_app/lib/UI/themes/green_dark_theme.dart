@@ -4,10 +4,13 @@ final ThemeData greenDarkTheme = ThemeData(
   brightness: Brightness.dark,
   useMaterial3: true,
   colorScheme: ColorScheme.fromSeed(
-    seedColor: const Color(0xFF2A9D8F), // A slightly subdued teal for dark mode
+    seedColor: const Color(0xFF2A9D8F),
     brightness: Brightness.dark,
   ).copyWith(
-    secondary: const Color(0xFF264653), // Deep complementary accent
+    secondary: const Color(0xFF264653),
+    tertiary: const Color(0xFFE9C46A),
+    background: const Color(0xFF121212),
+    surface: const Color(0xFF1E1E1E),
   ),
   scaffoldBackgroundColor: const Color(0xFF121212),
   appBarTheme: AppBarTheme(
@@ -18,22 +21,21 @@ final ThemeData greenDarkTheme = ThemeData(
     titleTextStyle: const TextStyle(
       fontSize: 20,
       fontWeight: FontWeight.w600,
+      color: Colors.white,
     ),
   ),
   textTheme: const TextTheme(
-    bodyLarge: TextStyle(
-      color: Colors.white70,
-      fontSize: 16,
-    ),
-    bodyMedium: TextStyle(
-      color: Colors.white60,
-      fontSize: 14,
-    ),
-    titleLarge: TextStyle(
-      color: Color(0xFF2A9D8F),
-      fontSize: 20,
-      fontWeight: FontWeight.w600,
-    ),
+    displayLarge: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white),
+    displayMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.w600, color: Colors.white),
+    displaySmall: TextStyle(fontSize: 24, fontWeight: FontWeight.w500, color: Colors.white),
+    headlineLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+    headlineMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+    headlineSmall: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white),
+    titleLarge: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Color(0xFF2A9D8F)),
+    titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.white70),
+    bodyLarge: TextStyle(fontSize: 16, color: Colors.white70),
+    bodyMedium: TextStyle(fontSize: 14, color: Colors.white60),
+    labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
@@ -47,6 +49,7 @@ final ThemeData greenDarkTheme = ThemeData(
         borderRadius: BorderRadius.circular(12),
       ),
       elevation: 2,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
     ),
   ),
   textButtonTheme: TextButtonThemeData(
@@ -91,6 +94,7 @@ final ThemeData greenDarkTheme = ThemeData(
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12),
     ),
+    margin: const EdgeInsets.all(8),
   ),
   navigationRailTheme: NavigationRailThemeData(
     backgroundColor: const Color(0xFF121212),
@@ -109,7 +113,15 @@ final ThemeData greenDarkTheme = ThemeData(
     unselectedLabelTextStyle: const TextStyle(
       color: Colors.white54,
     ),
-    indicatorColor: const Color(0xFF264653).withOpacity(0.3),
+    indicatorColor: Colors.white.withOpacity(0.1),
     labelType: NavigationRailLabelType.all,
+  ),
+  bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+    backgroundColor: Color(0xFF1E1E1E),
+    selectedItemColor: Color(0xFF2A9D8F),
+    unselectedItemColor: Colors.white54,
+    showUnselectedLabels: true,
+    elevation: 8,
+    type: BottomNavigationBarType.fixed,
   ),
 );

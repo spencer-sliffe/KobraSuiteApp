@@ -8,13 +8,14 @@ import 'package:kobrasuite_app/UI/screens/notifications/notifications_screen.dar
 import 'package:kobrasuite_app/UI/screens/school/tabs/school_courses_tab.dart';
 import 'package:kobrasuite_app/UI/screens/school/tabs/school_university_tab.dart';
 import 'package:kobrasuite_app/UI/screens/work/work_screen.dart';
-import 'package:kobrasuite_app/UI/widgets/ai/draggable_chat_overlay.dart';
 import 'package:kobrasuite_app/UI/nav/kobra_drawer.dart';
 import 'package:kobrasuite_app/UI/nav/kobra_nav_rail.dart';
+import 'package:provider/provider.dart';
+
+import '../../widgets/control_bar/page_control_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
-
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -22,7 +23,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   int _selectedIndex = 0;
   bool _showChatOverlay = false;
-
   late final List<Widget> _moduleScreens;
 
   final Map<int, _ModuleTabConfig> _tabConfigs = {
@@ -40,7 +40,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-
     _moduleScreens = [
       HomeDashboardScreen(onModuleSelected: (idx) => setState(() => _selectedIndex = idx)),
       const FinancesScreen(),
@@ -49,7 +48,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       const WorkScreen(),
       const NotificationsScreen(),
     ];
-
     _setupTabController();
   }
 
@@ -89,10 +87,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isLargeScreen = MediaQuery.of(context).size.width >= 800;
-
     final config = _tabConfigs[_selectedIndex];
     _setupTabController();
 
+    // For the bottom control bar, we pass callbacks based on the active module.
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
@@ -103,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             const SizedBox(width: 8),
             const Text('KobraSuite'),
             if (config != null) ...[
-              const SizedBox(width: 8), // minimal space
+              const SizedBox(width: 8),
               _buildInlineTabBar(config, theme),
             ],
             const Spacer(),
@@ -153,25 +151,42 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
               Expanded(
                 child: config == null
-                // No tab config => show single screen
                     ? _moduleScreens[_selectedIndex]
-                    : // If we do have a tab config => show TabBarView
-                TabBarView(
+                    : TabBarView(
                   controller: _moduleTabController,
                   children: config.views,
                 ),
               ),
             ],
           ),
-          if (_showChatOverlay)
-            DraggableChatOverlay(
-              onClose: () => setState(() => _showChatOverlay = false),
-            ),
+          // Chat overlay if needed.
+          // (This could be refined further.)
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => setState(() => _showChatOverlay = !_showChatOverlay),
-        child: const Icon(Icons.chat),
+      bottomNavigationBar: PageControlBar(
+        selectedIndex: _selectedIndex,
+        schoolSubTabIndex: config != null ? _moduleTabController?.index : null,
+        onAiChatToggle: () {
+          // TODO: Implement AI chat toggle.
+        },
+        onRefresh: () {
+          // TODO: Implement refresh action based on active module.
+        },
+        onUniversityChatToggle: () {
+          // TODO: Implement university chat toggle.
+        },
+        onSetUniversity: () {
+          // TODO: Implement set as my university.
+        },
+        onCourseChatToggle: () {
+          // TODO: Implement course chat toggle.
+        },
+        onAddCourse: () {
+          // TODO: Implement add course.
+        },
+        onAssignmentChatToggle: () {
+          // TODO: Implement assignment chat toggle.
+        },
       ),
     );
   }

@@ -1,111 +1,92 @@
-// import 'package:flutter/material.dart';
-// import 'package:kobrasuite_app/models/school/course.dart';
-// import 'package:kobrasuite_app/screens/school/assignment/assignment_list_screen.dart';
-// import 'package:kobrasuite_app/screens/school/topic/topic_list_screen.dart';
-// import 'course_chat_screen.dart';
-//
-// class CourseDetailScreen extends StatelessWidget {
-//   final Course course;
-//   const CourseDetailScreen({Key? key, required this.course}) : super(key: key);
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final theme = Theme.of(context);
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text(course.title),
-//         actions: [
-//           IconButton(
-//             icon: const Icon(Icons.edit),
-//             onPressed: () {},
-//           ),
-//         ],
-//       ),
-//       body: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           // Container(
-//             width: doule.infinity,
-//             padding: const EdgeInsets.all(16),
-//             decoration: BoxDecoration(
-//               color: theme.colorScheme.primary.withOpacity(0.1),
-//               borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
-//             ),
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 Text(
-//                   'Course Code: ${course.courseCode}',
-//                   style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-//                 ),
-//                 const SizedBox(height: 4),
-//                 Text('Professor: ${course.professorLastName}', style: theme.textTheme.titleMedium),
-//                 const SizedBox(height: 4),
-//                 Text('Semester: ${course.semester}', style: theme.textTheme.titleMedium),
-//                 const SizedBox(height: 4),
-//                 if (course.department != null) Text('Department: ${course.department}', style: theme.textTheme.titleMedium),
-//                 const SizedBox(height: 8),
-//                 Row(
-//                   children: [
-//                     const Icon(Icons.people, size: 16),
-//                     const SizedBox(width: 4),
-//                     Text('${course.studentCount ?? 0} Students', style: theme.textTheme.bodySmall),
-//                   ],
-//                 ),
-//               ],
-//             ),
-//           ),
-//           const SizedBox(height: 16),
-//           Padding(
-//             padding: const EdgeInsets.symmetric(horizontal: 16),
-//             child: Row(
-//               children: [
-//                 Expanded(
-//                   child: ElevatedButton.icon(
-//                     onPressed: () {
-//                       Navigator.push(
-//                         context,
-//                         MaterialPageRoute(builder: (_) => AssignmentListScreen(course: course)),
-//                       );
-//                     },
-//                     icon: const Icon(Icons.assignment),
-//                     label: const Text('Assignments'),
-//                     style: ElevatedButton.styleFrom(
-//                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-//                     ),
-//                   ),
-//                 ),
-//                 const SizedBox(width: 16),
-//                 Expanded(
-//                   child: ElevatedButton.icon(
-//                     onPressed: () {
-//                       Navigator.push(
-//                         context,
-//                         MaterialPageRoute(builder: (_) => TopicListScreen(course: course)),
-//                       );
-//                     },
-//                     icon: const Icon(Icons.topic),
-//                     label: const Text('Topics'),
-//                     style: ElevatedButton.styleFrom(
-//                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//           const SizedBox(height: 16),
-//           const Divider(),
-//           Expanded(
-//             child: CourseChatScreen(courseId: course.id.toString()),
-//           ),
-//         ],
-//       ),
-//       floatingActionButton: FloatingActionButton.extended(
-//         onPressed: () {},
-//         icon: const Icon(Icons.create),
-//         label: const Text('New Topic'),
-//       ),
-//     );
-//   }
-// }
+import 'package:flutter/material.dart';
+import '../../../../models/school/course.dart';
+import '../../../../services/image/banner_image_service.dart';
+
+class CourseDetailScreen extends StatelessWidget {
+  final Course course;
+  const CourseDetailScreen({Key? key, required this.course}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final bannerService = BannerImageService();
+    final bannerUrl = bannerService.getBannerImageUrl("modern course, ${course.courseCode}");
+
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 200,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.network(bannerUrl, fit: BoxFit.cover),
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                  ),
+                  // Overlay with course details
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      width: double.infinity,
+                      height: 32,
+                      color: Colors.blueGrey.shade700,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.book, color: Colors.white, size: 16),
+                          const SizedBox(width: 4),
+                          Text('${course.courseCode}', style: const TextStyle(color: Colors.white, fontSize: 12)),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.school, color: Colors.white, size: 16),
+                          const SizedBox(width: 4),
+                          Text('${course.professorLastName}', style: const TextStyle(color: Colors.white, fontSize: 12)),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.where_to_vote, color: Colors.white, size: 16),
+                          const SizedBox(width: 4),
+                          Text('${course.department}', style: const TextStyle(color: Colors.white, fontSize: 12)),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.date_range_sharp, color: Colors.white, size: 16),
+                          const SizedBox(width: 4),
+                          Text('${course.semester}', style: const TextStyle(color: Colors.white, fontSize: 12)),
+                        ],
+                      ),
+                      alignment: Alignment.bottomLeft,
+                    ),
+                  ),
+                ],
+              ),
+              title: Text(course.title),
+            ),
+          ),
+          SliverList(
+            delegate: SliverChildListDelegate([
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 16),
+                    Text('Course Details', style: Theme.of(context).textTheme.headlineSmall),
+                    const SizedBox(height: 8),
+                    Text(
+                      'This course provides in-depth knowledge on the subject. Explore assignments, topics, and discussions within the course.',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ],
+                ),
+              ),
+            ]),
+          ),
+        ],
+      ),
+    );
+  }
+}

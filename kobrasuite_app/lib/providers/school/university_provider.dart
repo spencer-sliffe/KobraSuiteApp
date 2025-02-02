@@ -1,22 +1,29 @@
 import 'package:flutter/foundation.dart';
 import '../../models/school/university.dart';
 import '../../models/school/course.dart';
+import '../../models/school/university_news.dart';
+import '../../services/school/university_news_service.dart';
 import '../../services/school/university_service.dart';
 import '../general/school_profile_provider.dart';
 import '../../services/service_locator.dart';
 
 class UniversityProvider with ChangeNotifier {
   final UniversityService _universityService;
+  final UniversityNewsService _universityNewsService;
   SchoolProfileProvider _schoolProfileProvider;
   University? _currentUniversity;
   List<University> _searchResults = [];
   List<Course> _universityCourses = [];
   bool _isLoading = false;
   String? _errorMessage;
+  List<UniversityNews> _trendingNews = [];
+
 
   UniversityProvider({required SchoolProfileProvider schoolProfileProvider})
       : _schoolProfileProvider = schoolProfileProvider,
-        _universityService = serviceLocator<UniversityService>();
+        _universityService = serviceLocator<UniversityService>(),
+        _universityNewsService = serviceLocator<UniversityNewsService>();
+
 
   University? get currentUniversity => _currentUniversity;
   List<University> get searchResults => _searchResults;
@@ -25,6 +32,8 @@ class UniversityProvider with ChangeNotifier {
   String? get errorMessage => _errorMessage;
   int get userPk => _schoolProfileProvider.userPk;
   int get schoolProfilePk => _schoolProfileProvider.schoolProfilePk;
+  List<UniversityNews> get trendingNews => _trendingNews;
+
 
   void update(SchoolProfileProvider newSchoolProfileProvider) {
     _schoolProfileProvider = newSchoolProfileProvider;
@@ -142,6 +151,21 @@ class UniversityProvider with ChangeNotifier {
     } catch (e) {
       _errorMessage = 'Failed to fetch university courses: $e';
       _universityCourses = [];
+    }
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> fetchTrendingNews(String universityName) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+    try {
+      final news = await _universityNewsService.fetchTrendingNews(universityName);
+      _trendingNews = news;
+    } catch (e) {
+      _errorMessage = 'Failed to fetch trending news: $e';
+      _trendingNews = [];
     }
     _isLoading = false;
     notifyListeners();

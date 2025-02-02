@@ -1,10 +1,8 @@
-// lib/services/service_locator.dart
-
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-// Import all your services here
+// Import your services here
 import 'finance/crypto_news_service.dart';
 import 'finance/crypto_portfolio_service.dart';
 import 'finance/crypto_service.dart';
@@ -18,6 +16,7 @@ import 'general/user_profile_service.dart';
 import 'general/school_profile_service.dart';
 import 'general/work_profile_service.dart';
 import 'school/university_service.dart';
+import 'school/university_news_service.dart';
 import 'school/course_service.dart';
 import 'school/assignment_service.dart';
 import 'school/submission_service.dart';
@@ -77,6 +76,11 @@ Future<void> setupServiceLocator() async {
         () => UniversityService(serviceLocator<Dio>()),
   );
 
+  // Register UniversityNewsService as a singleton (depends on Dio)
+  serviceLocator.registerLazySingleton<UniversityNewsService>(
+        () => UniversityNewsService(serviceLocator<Dio>()),
+  );
+
   // Register CourseService as a singleton (depends on Dio)
   serviceLocator.registerLazySingleton<CourseService>(
         () => CourseService(serviceLocator<Dio>()),
@@ -108,28 +112,34 @@ Future<void> setupServiceLocator() async {
   );
 
   // Register StockService as a singleton (depends on Dio)
-  serviceLocator.registerLazySingleton<StockService>(() =>
-      StockService(serviceLocator<Dio>()));
+  serviceLocator.registerLazySingleton<StockService>(
+        () => StockService(serviceLocator<Dio>()),
+  );
 
   // Register CryptoService as a singleton (depends on Dio)
-  serviceLocator.registerLazySingleton<CryptoService>(() =>
-      CryptoService(serviceLocator<Dio>()));
+  serviceLocator.registerLazySingleton<CryptoService>(
+        () => CryptoService(serviceLocator<Dio>()),
+  );
 
   // Register StockNewsService as a singleton (depends on Dio)
-  serviceLocator.registerLazySingleton<StockNewsService>(() =>
-      StockNewsService(serviceLocator<Dio>()));
+  serviceLocator.registerLazySingleton<StockNewsService>(
+        () => StockNewsService(serviceLocator<Dio>()),
+  );
 
   // Register CryptoNewsService as a singleton (depends on Dio)
-  serviceLocator.registerLazySingleton<CryptoNewsService>(() =>
-      CryptoNewsService(serviceLocator<Dio>()));
+  serviceLocator.registerLazySingleton<CryptoNewsService>(
+        () => CryptoNewsService(serviceLocator<Dio>()),
+  );
 
   // Register StockPortfolioService as a singleton (depends on Dio)
-  serviceLocator.registerLazySingleton<StockPortfolioService>(() =>
-      StockPortfolioService(serviceLocator<Dio>()));
+  serviceLocator.registerLazySingleton<StockPortfolioService>(
+        () => StockPortfolioService(serviceLocator<Dio>()),
+  );
 
   // Register CryptoPortfolioService as a singleton (depends on Dio)
-  serviceLocator.registerLazySingleton<CryptoPortfolioService>(() =>
-      CryptoPortfolioService(serviceLocator<Dio>()));
+  serviceLocator.registerLazySingleton<CryptoPortfolioService>(
+        () => CryptoPortfolioService(serviceLocator<Dio>()),
+  );
 
   // Register RealtimeService as a singleton (depends on Dio, DiscussionService, AuthService)
   serviceLocator.registerLazySingleton<RealtimeService>(

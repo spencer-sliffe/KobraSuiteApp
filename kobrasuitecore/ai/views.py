@@ -70,7 +70,5 @@ class VerifyCourseViewSet(viewsets.ViewSet):
                 department,
                 semester_type,
             )
-            print("Incoming serializer data:", serializer.data)
-            print("verify_course_existence result:", result)
             return Response(result, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

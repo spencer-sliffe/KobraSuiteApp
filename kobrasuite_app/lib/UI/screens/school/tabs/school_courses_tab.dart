@@ -5,27 +5,21 @@ import 'package:provider/provider.dart';
 import '../../../../providers/school/course_provider.dart';
 import '../../../../models/school/course.dart';
 import '../../../widgets/cards/course_card.dart';
-
-enum _AddCourseDialogState {
-  initial,
-  verifying,
-  verified,
-  adding,
-  added,
-}
+import '../../../widgets/school/add_course_bottom_sheet.dart';
+import '../course/course_detail_screen.dart';
 
 class SchoolCoursesTab extends StatefulWidget {
-  const SchoolCoursesTab({super.key});
+  const SchoolCoursesTab({Key? key}) : super(key: key);
 
   @override
   State<SchoolCoursesTab> createState() => _SchoolCoursesTabState();
 }
 
 class _SchoolCoursesTabState extends State<SchoolCoursesTab> {
-  final TextEditingController _searchCtrl = TextEditingController();
-  final List<Course> _filteredCourses = [];
-  bool _isSearchVisible = false;
-  Timer? _debounceTimer;
+  final TextEditingController _searchController = TextEditingController();
+  List<Course> _filteredCourses = [];
+  bool _isSearching = false;
+  Timer? _debounce;
   CancelableOperation<void>? _searchOperation;
 
   @override
@@ -35,353 +29,149 @@ class _SchoolCoursesTabState extends State<SchoolCoursesTab> {
     provider.fetchCourses().then((_) {
       if (!mounted) return;
       setState(() {
-        _filteredCourses
-          ..clear()
-          ..addAll(provider.courses);
+        _filteredCourses = List.from(provider.courses);
       });
     });
   }
 
   @override
   void dispose() {
-    _searchCtrl.dispose();
-    _debounceTimer?.cancel();
+    _searchController.dispose();
+    _debounce?.cancel();
     _searchOperation?.cancel();
     super.dispose();
   }
 
   void _onSearchChanged(String query) {
-    _debounceTimer?.cancel();
+    _debounce?.cancel();
     if (query.trim().isEmpty) {
-      final p = Provider.of<CourseProvider>(context, listen: false);
+      final provider = Provider.of<CourseProvider>(context, listen: false);
       setState(() {
-        _filteredCourses
-          ..clear()
-          ..addAll(p.courses);
+        _filteredCourses = List.from(provider.courses);
       });
       return;
     }
-    _debounceTimer = Timer(const Duration(milliseconds: 400), () {
+    _debounce = Timer(const Duration(milliseconds: 400), () {
       _searchOperation?.cancel();
-      _searchOperation =
-          CancelableOperation.fromFuture(_applyLocalFilter(query));
+      _searchOperation = CancelableOperation.fromFuture(_filterCourses(query));
     });
   }
 
-  Future<void> _applyLocalFilter(String query) async {
-    final p = Provider.of<CourseProvider>(context, listen: false);
-    final all = p.courses;
-    final lc = query.toLowerCase();
-    final result = all.where((c) {
-      return c.title.toLowerCase().contains(lc) ||
-          c.courseCode.toLowerCase().contains(lc);
+  Future<void> _filterCourses(String query) async {
+    final provider = Provider.of<CourseProvider>(context, listen: false);
+    final lowerQuery = query.toLowerCase();
+    final result = provider.courses.where((course) {
+      return course.title.toLowerCase().contains(lowerQuery) ||
+          course.courseCode.toLowerCase().contains(lowerQuery);
     }).toList();
     if (!mounted) return;
     setState(() {
-      _filteredCourses
-        ..clear()
-        ..addAll(result);
+      _filteredCourses = result;
     });
   }
 
-  void _showAddCourseDialog() {
-    final codeCtrl = TextEditingController();
-    final titleCtrl = TextEditingController();
-    final profCtrl = TextEditingController();
-    final deptCtrl = TextEditingController();
-    String semesterType = 'WINTER';
-    int semesterYear = DateTime.now().year;
-    final provider = context.read<CourseProvider>();
-    _AddCourseDialogState dialogState = _AddCourseDialogState.initial;
-
-    showDialog(
+  void _openAddCourseBottomSheet() {
+    showModalBottomSheet(
       context: context,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (context, setStateDialog) {
-            Future<void> verifyAction() async {
-              setStateDialog(() {
-                dialogState = _AddCourseDialogState.verifying;
-              });
-              final result = await provider.verifyCourseData(
-                courseCode: codeCtrl.text.trim(),
-                title: titleCtrl.text.trim(),
-                professorLastName: profCtrl.text.trim(),
-                department: deptCtrl.text.trim(),
-                semesterType: semesterType,
-              );
-              if (!context.mounted) return;
-              if (result['foundExactMatch'] == true ||
-                  result['correctedCourseData'] != null) {
-                if (result['correctedCourseData'] != null) {
-                  final corrected = result['correctedCourseData'];
-                  if (corrected['course_code'] != null) {
-                    codeCtrl.text = corrected['course_code'];
-                  }
-                  if (corrected['course_title'] != null) {
-                    titleCtrl.text = corrected['course_title'];
-                  }
-                  if (corrected['professor_last_name'] != null) {
-                    profCtrl.text = corrected['professor_last_name'];
-                  }
-                  if (corrected['department'] != null) {
-                    deptCtrl.text = corrected['department'];
-                  }
-                  if (corrected['semester_type'] != null) {
-                    semesterType = corrected['semester_type'];
-                  }
-                }
-                setStateDialog(() {
-                  dialogState = _AddCourseDialogState.verified;
-                });
-              } else {
-                final errorMsg = result['error'] ??
-                    'Course not exact. Check fields and verify again.';
-                ScaffoldMessenger.of(ctx).showSnackBar(
-                  SnackBar(content: Text(errorMsg)),
-                );
-                setStateDialog(() {
-                  dialogState = _AddCourseDialogState.initial;
-                });
-              }
-            }
+      isScrollControlled: true,
+      builder: (ctx) => const AddCourseBottomSheet(),
+    );
+  }
 
-            Future<void> addAction() async {
-              setStateDialog(() {
-                dialogState = _AddCourseDialogState.adding;
-              });
-              final success = await provider.addNewCourse(
-                courseCode: codeCtrl.text.trim(),
-                title: titleCtrl.text.trim(),
-                professorLastName: profCtrl.text.trim(),
-                department: deptCtrl.text.trim(),
-                semesterType: semesterType,
-                semesterYear: semesterYear,
-              );
-              if (!ctx.mounted) return;
-              if (success) {
-                setStateDialog(() {
-                  dialogState = _AddCourseDialogState.added;
-                });
-              } else {
-                ScaffoldMessenger.of(ctx).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      provider.errorMessage ?? 'Failed to add course',
-                    ),
-                  ),
-                );
-                setStateDialog(() {
-                  dialogState = _AddCourseDialogState.verified;
-                });
-              }
-            }
-
-            Widget contentWidget() {
-              if (dialogState == _AddCourseDialogState.verifying) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      CircularProgressIndicator(),
-                      SizedBox(width: 16),
-                      Text('Verifying...'),
-                    ],
-                  ),
-                );
-              } else if (dialogState == _AddCourseDialogState.adding) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      CircularProgressIndicator(),
-                      SizedBox(width: 16),
-                      Text('Adding...'),
-                    ],
-                  ),
-                );
-              } else if (dialogState == _AddCourseDialogState.added) {
-                return const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  child: Text('Course added successfully.'),
-                );
-              } else {
-                final readOnly = dialogState == _AddCourseDialogState.verified;
-                return SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextField(
-                        controller: codeCtrl,
-                        readOnly: readOnly,
-                        decoration: const InputDecoration(labelText: 'Course Code'),
-                      ),
-                      TextField(
-                        controller: titleCtrl,
-                        readOnly: readOnly,
-                        decoration: const InputDecoration(labelText: 'Title'),
-                      ),
-                      TextField(
-                        controller: profCtrl,
-                        readOnly: readOnly,
-                        decoration: const InputDecoration(labelText: 'Professor Last Name'),
-                      ),
-                      TextField(
-                        controller: deptCtrl,
-                        readOnly: readOnly,
-                        decoration: const InputDecoration(labelText: 'Department'),
-                      ),
-                      DropdownButtonFormField<String>(
-                        value: semesterType,
-                        items: const [
-                          DropdownMenuItem(value: 'WINTER', child: Text('WINTER')),
-                          DropdownMenuItem(value: 'SPRING', child: Text('SPRING')),
-                          DropdownMenuItem(value: 'SUMMER', child: Text('SUMMER')),
-                          DropdownMenuItem(value: 'FALL', child: Text('FALL')),
-                        ],
-                        onChanged: readOnly
-                            ? null
-                            : (val) {
-                          if (val != null) {
-                            setStateDialog(() {
-                              semesterType = val;
-                            });
-                          }
-                        },
-                        decoration: const InputDecoration(labelText: 'Semester'),
-                      ),
-                      DropdownButtonFormField<int>(
-                        value: semesterYear,
-                        items: List.generate(10, (index) {
-                          final y = DateTime.now().year - 5 + index;
-                          return DropdownMenuItem(value: y, child: Text('$y'));
-                        }),
-                        onChanged: readOnly
-                            ? null
-                            : (val) {
-                          if (val != null) {
-                            setStateDialog(() {
-                              semesterYear = val;
-                            });
-                          }
-                        },
-                        decoration: const InputDecoration(labelText: 'Year'),
-                      ),
-                    ],
-                  ),
-                );
-              }
-            }
-
-            List<Widget> actionButtons() {
-              if (dialogState == _AddCourseDialogState.added) {
-                return [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                    },
-                    child: const Text('Close'),
-                  ),
-                ];
-              } else if (dialogState == _AddCourseDialogState.initial) {
-                return [
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    child: const Text('Cancel'),
-                  ),
-                  ElevatedButton(
-                    onPressed: verifyAction,
-                    child: const Text('Verify'),
-                  ),
-                ];
-              } else if (dialogState == _AddCourseDialogState.verified) {
-                return [
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    child: const Text('Cancel'),
-                  ),
-                  ElevatedButton(
-                    onPressed: addAction,
-                    child: const Text('Add'),
-                  ),
-                ];
-              } else {
-                return [];
-              }
-            }
-
-            return AlertDialog(
-              title: const Text('Add New Course'),
-              content: contentWidget(),
-              actions: actionButtons(),
-            );
-          },
-        );
-      },
+  void _openCourseDetail(Course course) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => CourseDetailScreen(course: course)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<CourseProvider>();
-    return Column(
-      children: [
-        Row(
-          children: [
-            IconButton(
-              icon: Icon(_isSearchVisible ? Icons.close : Icons.search),
-              onPressed: () {
-                setState(() {
-                  _isSearchVisible = !_isSearchVisible;
-                  if (!_isSearchVisible) {
-                    _searchCtrl.clear();
-                    _filteredCourses
-                      ..clear()
-                      ..addAll(provider.courses);
-                  }
-                });
-              },
-            ),
-            if (_isSearchVisible)
-              Expanded(
-                child: TextField(
-                  controller: _searchCtrl,
-                  onChanged: _onSearchChanged,
-                  decoration: const InputDecoration(
-                    hintText: 'Search courses...',
+    final courseProvider = context.watch<CourseProvider>();
+    return Scaffold(
+      body: Column(
+        children: [
+          // When search is active, display the search field and toggle button in one row.
+          if (_isSearching)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: _onSearchChanged,
+                      decoration: const InputDecoration(
+                        hintText: 'Search courses',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.search),
+                      ),
+                    ),
                   ),
-                ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      setState(() {
+                        _isSearching = false;
+                        _searchController.clear();
+                        _filteredCourses = List.from(courseProvider.courses);
+                      });
+                    },
+                  ),
+                ],
               ),
-            IconButton(
-              icon: const Icon(Icons.add),
-              onPressed: _showAddCourseDialog,
+            )
+          else
+          // When not searching, display a row with a search icon on the right.
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.search),
+                    onPressed: () {
+                      setState(() {
+                        _isSearching = true;
+                      });
+                    },
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
-        if (provider.isLoading) const LinearProgressIndicator(),
-        Expanded(
-          child: _filteredCourses.isEmpty
-              ? Center(
-            child: Text(
-              provider.errorMessage?.isNotEmpty == true
-                  ? provider.errorMessage!
-                  : 'No courses found.',
+          if (courseProvider.isLoading)
+            const LinearProgressIndicator(),
+          Expanded(
+            child: _filteredCourses.isEmpty
+                ? Center(
+              child: Text(
+                courseProvider.errorMessage?.isNotEmpty == true
+                    ? courseProvider.errorMessage!
+                    : 'No courses available.',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            )
+                : RefreshIndicator(
+              onRefresh: () => courseProvider.fetchCourses(),
+              child: ListView.builder(
+                itemCount: _filteredCourses.length,
+                itemBuilder: (context, index) {
+                  final course = _filteredCourses[index];
+                  return GestureDetector(
+                    onTap: () => _openCourseDetail(course),
+                    child: CourseCard(course: course),
+                  );
+                },
+              ),
             ),
-          )
-              : ListView.builder(
-            itemCount: _filteredCourses.length,
-            itemBuilder: (_, i) {
-              final course = _filteredCourses[i];
-              return CourseCard(
-                course: course,
-                onTap: () {},
-              );
-            },
           ),
-        ),
-      ],
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _openAddCourseBottomSheet,
+        label: const Text('Add Course'),
+        icon: const Icon(Icons.add),
+      ),
     );
   }
 }
