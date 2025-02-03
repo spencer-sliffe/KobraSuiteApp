@@ -72,7 +72,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                 expandedHeight: 250,
                 pinned: true,
                 flexibleSpace: FlexibleSpaceBar(
-                  title: Text(course.title),
+                  title: Text(course.title, style: const TextStyle(color: Colors.white)),
                   background: FutureBuilder<List<String>>(
                     future: _bannerColorsFuture,
                     builder: (context, snapshot) {
