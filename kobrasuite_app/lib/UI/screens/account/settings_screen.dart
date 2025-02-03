@@ -1,5 +1,4 @@
-// lib/screens/account/settings_screen.dart
-
+// File: lib/screens/account/settings_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/general/theme_notifier.dart';
@@ -73,13 +72,21 @@ class SettingsScreen extends StatelessWidget {
               }
             },
           ),
+          RadioListTile<AppTheme>(
+            title: const Text('Ultra Modern Theme'),
+            value: AppTheme.UltraModern,
+            groupValue: currentTheme,
+            onChanged: (AppTheme? value) {
+              if (value != null) {
+                themeNotifier.setTheme(value);
+              }
+            },
+          ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.color_lens),
             title: const Text('Primary Color'),
-            onTap: () {
-              // Future color picking logic
-            },
+            onTap: () {},
           ),
         ],
       ),

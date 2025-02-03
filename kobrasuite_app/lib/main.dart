@@ -1,3 +1,4 @@
+// File: lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:kobrasuite_app/providers/finance/crypto_news_provider.dart';
@@ -30,6 +31,7 @@ import 'package:kobrasuite_app/UI/themes/green_dark_theme.dart';
 import 'package:kobrasuite_app/UI/themes/blue_light_theme.dart';
 import 'package:kobrasuite_app/UI/themes/blue_dark_theme.dart';
 import 'package:kobrasuite_app/UI/themes/psychedelic_theme.dart';
+import 'package:kobrasuite_app/UI/themes/ultra_modern_theme.dart';
 import 'package:kobrasuite_app/models/general/app_theme.dart';
 
 import 'package:kobrasuite_app/providers/finance/stock_portfolio_provider.dart';
@@ -162,14 +164,12 @@ void main() async {
             return sdp;
           },
         ),
-
         ChangeNotifierProvider<ThemeNotifier>(
           create: (_) => ThemeNotifier(),
         ),
         ChangeNotifierProvider<RealtimeService>(
           create: (_) => serviceLocator<RealtimeService>(),
         ),
-
         ChangeNotifierProxyProvider2<AuthProvider, FinanceProfileProvider, StockPortfolioProvider>(
           create: (_) => StockPortfolioProvider(
             userPk: 0,
@@ -230,7 +230,6 @@ void main() async {
             return c;
           },
         ),
-
         ChangeNotifierProvider<StockNewsProvider>(
           create: (_) => StockNewsProvider(),
         ),
@@ -256,6 +255,7 @@ class KobraSuiteApp extends StatelessWidget {
       case AppTheme.LightGreen:
       case AppTheme.LightBlue:
       case AppTheme.Psychedelic:
+      case AppTheme.UltraModern:
         return ThemeMode.light;
       case AppTheme.DarkGreen:
       case AppTheme.DarkBlue:
@@ -277,6 +277,8 @@ class KobraSuiteApp extends StatelessWidget {
         return blueDarkTheme;
       case AppTheme.Psychedelic:
         return psychedelicTheme;
+      case AppTheme.UltraModern:
+        return ultraModernTheme;
       default:
         return greenLightTheme;
     }
