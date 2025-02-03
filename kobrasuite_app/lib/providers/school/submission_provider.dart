@@ -1,3 +1,5 @@
+// File location: lib/providers/school/submission_provider.dart
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import '../../models/school/submission.dart';
 import '../../services/school/submission_service.dart';
@@ -6,7 +8,6 @@ import '../school/university_provider.dart';
 import '../school/course_provider.dart';
 import '../school/assignment_provider.dart';
 import '../../services/service_locator.dart';
-import 'dart:io';
 
 class SubmissionProvider extends ChangeNotifier {
   SchoolProfileProvider _schoolProfileProvider;
@@ -76,7 +77,7 @@ class SubmissionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> createSubmission(int assignmentId, Map<String, dynamic> submissionData) async {
+  Future<Submission?> createSubmission(int assignmentId, Map<String, dynamic> submissionData) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -95,7 +96,7 @@ class SubmissionProvider extends ChangeNotifier {
         await fetchSubmissions(assignmentId);
         _isLoading = false;
         notifyListeners();
-        return true;
+        return submission;
       } else {
         _errorMessage = 'Failed to create submission.';
       }
@@ -104,7 +105,7 @@ class SubmissionProvider extends ChangeNotifier {
     }
     _isLoading = false;
     notifyListeners();
-    return false;
+    return null;
   }
 
   Future<bool> uploadAnswerFile({

@@ -1,4 +1,4 @@
-// lib/UI/screens/school/school_university_tab.dart
+// File: lib/UI/screens/school/school_university_tab.dart
 import 'dart:async';
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
@@ -6,9 +6,19 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../providers/school/university_provider.dart';
 import 'package:kobrasuite_app/services/image/banner_image_service.dart';
-import '../university/university_detail_screen.dart';
+import '../../../widgets/animation/abstract_banner_animation.dart';
 import '../../../widgets/cards/university_card.dart';
 import 'package:kobrasuite_app/UI/widgets/school/school_profile_banner.dart';
+
+import '../university/university_detail_screen.dart';
+
+Color hexToColor(String hex) {
+  hex = hex.replaceAll("#", "");
+  if (hex.length == 6) {
+    hex = "FF" + hex;
+  }
+  return Color(int.parse(hex, radix: 16));
+}
 
 class SchoolUniversityTab extends StatefulWidget {
   final int userId;
@@ -23,12 +33,21 @@ class _SchoolUniversityTabState extends State<SchoolUniversityTab> {
   bool _isSearchVisible = false;
   Timer? _debounceTimer;
   CancelableOperation<void>? _searchOperation;
+  Future<List<String>>? _bannerColorsFuture;
 
   @override
   void initState() {
     super.initState();
+    // Load the current university and cache the banner colors once.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<UniversityProvider>(context, listen: false).loadUserUniversity();
+      final provider = Provider.of<UniversityProvider>(context, listen: false);
+      provider.loadUserUniversity();
+      if (provider.currentUniversity != null) {
+        final bannerPrompt = "Modern university campus, ${provider.currentUniversity!.name} banner";
+        setState(() {
+          _bannerColorsFuture = BannerImageService().getBannerColors(bannerPrompt);
+        });
+      }
     });
   }
 
@@ -72,7 +91,6 @@ class _SchoolUniversityTabState extends State<SchoolUniversityTab> {
     final provider = context.watch<UniversityProvider>();
     final universities = provider.searchResults;
     final currentUni = provider.currentUniversity;
-    final bannerService = BannerImageService();
     final String bannerPrompt = currentUni != null
         ? "Modern university campus, ${currentUni.name} banner"
         : "Default university banner";
@@ -84,8 +102,9 @@ class _SchoolUniversityTabState extends State<SchoolUniversityTab> {
             SliverToBoxAdapter(
               child: GestureDetector(
                 onTap: () => _openUniversityDetail(currentUni),
-                child: FutureBuilder<String>(
-                  future: bannerService.getBannerImageUrl(bannerPrompt),
+                child: _bannerColorsFuture != null
+                    ? FutureBuilder<List<String>>(
+                  future: _bannerColorsFuture,
                   builder: (context, snapshot) {
                     Widget bannerWidget;
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -97,7 +116,8 @@ class _SchoolUniversityTabState extends State<SchoolUniversityTab> {
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                       bannerWidget = Container(height: 200, color: Colors.grey.shade400);
                     } else {
-                      bannerWidget = Image.network(snapshot.data!, height: 200, width: double.infinity, fit: BoxFit.cover);
+                      final colors = snapshot.data!.map((hex) => hexToColor(hex)).toList();
+                      bannerWidget = AbstractBannerAnimation(colors: colors);
                     }
                     return Stack(
                       children: [
@@ -122,69 +142,84 @@ class _SchoolUniversityTabState extends State<SchoolUniversityTab> {
                               color: Colors.blueGrey.shade700.withOpacity(0.8),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Row(
+                            child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Icon(Icons.school, color: Colors.white, size: 16),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        currentUni.name,
-                                        style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Row(
-                                        children: [
-                                          const Icon(Icons.domain, color: Colors.white, size: 12),
-                                          const SizedBox(width: 4),
+                                Text(
+                                  currentUni.name,
+                                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.domain, color: Colors.white, size: 12),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      currentUni.domain,
+                                      style: const TextStyle(color: Colors.white, fontSize: 10),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    const Icon(Icons.flag, color: Colors.white, size: 12),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      currentUni.country,
+                                      style: const TextStyle(color: Colors.white, fontSize: 10),
+                                    ),
+                                  ],
+                                ),
+                                if (currentUni.stateProvince != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Text(
+                                      "State: ${currentUni.stateProvince}",
+                                      style: const TextStyle(color: Colors.white70, fontSize: 10),
+                                    ),
+                                  ),
+                                if (currentUni.studentCount != null || currentUni.courseCount != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Row(
+                                      children: [
+                                        if (currentUni.studentCount != null)
                                           Text(
-                                            currentUni.domain,
-                                            style: const TextStyle(color: Colors.white, fontSize: 10),
+                                            "Students: ${currentUni.studentCount}",
+                                            style: const TextStyle(color: Colors.white70, fontSize: 10),
                                           ),
+                                        if (currentUni.studentCount != null && currentUni.courseCount != null)
                                           const SizedBox(width: 8),
-                                          const Icon(Icons.flag, color: Colors.white, size: 12),
-                                          const SizedBox(width: 4),
+                                        if (currentUni.courseCount != null)
                                           Text(
-                                            currentUni.country,
-                                            style: const TextStyle(color: Colors.white, fontSize: 10),
+                                            "Courses: ${currentUni.courseCount}",
+                                            style: const TextStyle(color: Colors.white70, fontSize: 10),
                                           ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 4),
-                                      GestureDetector(
-                                        onTap: () async {
-                                          final url = currentUni.website;
-                                          if (await canLaunch(url)) {
-                                            await launch(url, forceSafariVC: false, forceWebView: false);
-                                          }
-                                        },
-                                        child: Row(
-                                          children: [
-                                            const Icon(Icons.web, color: Colors.white, size: 12),
-                                            const SizedBox(width: 4),
-                                            Flexible(
-                                              child: Text(
-                                                currentUni.website,
-                                                style: const TextStyle(
-                                                  color: Colors.lightBlueAccent,
-                                                  fontSize: 10,
-                                                  decoration: TextDecoration.underline,
-                                                ),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ],
+                                      ],
+                                    ),
+                                  ),
+                                const SizedBox(height: 4),
+                                GestureDetector(
+                                  onTap: () async {
+                                    final url = currentUni.website;
+                                    if (await canLaunch(url)) {
+                                      await launch(url, forceSafariVC: false, forceWebView: false);
+                                    }
+                                  },
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.web, color: Colors.white, size: 12),
+                                      const SizedBox(width: 4),
+                                      Flexible(
+                                        child: Text(
+                                          currentUni.website,
+                                          style: const TextStyle(
+                                            color: Colors.lightBlueAccent,
+                                            fontSize: 10,
+                                            decoration: TextDecoration.underline,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
                                     ],
                                   ),
-                                ),
-                                IconButton(
-                                  icon: Icon(_isSearchVisible ? Icons.close : Icons.search),
-                                  onPressed: _toggleSearch,
                                 ),
                               ],
                             ),
@@ -193,11 +228,15 @@ class _SchoolUniversityTabState extends State<SchoolUniversityTab> {
                       ],
                     );
                   },
+                )
+                    : Container(
+                  height: 200,
+                  color: Colors.grey.shade400,
                 ),
               ),
             )
           else
-            SliverToBoxAdapter(child: const SchoolProfileBanner()),
+            const SliverToBoxAdapter(child: SchoolProfileBanner()),
           if (_isSearchVisible)
             SliverToBoxAdapter(
               child: Padding(

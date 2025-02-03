@@ -1,44 +1,59 @@
 # File: ai/services/image_generation_service.py
-import openai
+import json
 import logging
+import re
 from django.conf import settings
+from ai.services.chatgpt_services import communicate_with_openai
 
 logger = logging.getLogger(__name__)
+FALLBACK_COLOR_PALETTE = ["#E8000D", "#0051BA"]  # Fallback palette (e.g. Crimson and Blue)
 
-def generate_image(prompt: str) -> str:
+def generate_banner_colors(prompt: str) -> list:
     """
-    Generate an image using DALL-E 3 via OpenAI API.
-    Returns the URL of the generated image.
-    Raises a ValueError if generation fails.
+    Generate an abstract banner color palette based on the prompt using ChatGPT.
+    Returns a list of hex color codes.
     """
     if not prompt:
-        logger.error("Empty prompt provided to generate_image.")
-        raise ValueError("Prompt must not be empty.")
-
+        logger.error("Empty prompt provided to generate_banner_colors.")
+        return FALLBACK_COLOR_PALETTE
     if not settings.OPENAI_API_KEY:
         logger.error("OpenAI API key is not configured.")
-        raise ValueError("OpenAI API key is not configured.")
+        return FALLBACK_COLOR_PALETTE
 
-    openai.api_key = settings.OPENAI_API_KEY
+    system_prompt = (
+        "You are an assistant that identifies the official color scheme for a university. "
+        "Given the following prompt, return only a JSON array of hex color codes representing the primary colors associated with the university. "
+        "For example: [\"#E8000D\", \"#0051BA\"]. Do not include any additional text."
+    )
+    full_prompt = f"{system_prompt}\nPrompt: {prompt}"
+
     try:
-        response = openai.Image.create(
-            prompt=prompt,
-            n=1,
-            size="1024x1024",
-            response_format="url",  # Ensure the response is a URL
-            model="dall-e-3"
-        )
-        if "data" in response and isinstance(response["data"], list) and len(response["data"]) > 0:
-            image_data = response["data"][0]
-            image_url = image_data.get("url")
-            if image_url:
-                return image_url
-            else:
-                logger.error("No URL found in OpenAI response data.")
-                raise ValueError("No URL found in OpenAI response data.")
-        else:
-            logger.error("Unexpected response format from OpenAI: %s", response)
-            raise ValueError("Unexpected response format from OpenAI.")
+        response_text = communicate_with_openai(full_prompt, [])
+        colors = _parse_colors_response(response_text)
+        if colors and isinstance(colors, list) and all(isinstance(c, str) for c in colors):
+            return colors
+        logger.error("Invalid color palette received from ChatGPT: %s", response_text)
     except Exception as e:
-        logger.exception("Error generating image with prompt '%s': %s", prompt, str(e))
-        raise ValueError("Image generation failed.") from e
+        logger.exception("Error generating banner colors with prompt '%s': %s", prompt, str(e))
+    return FALLBACK_COLOR_PALETTE
+
+def _parse_colors_response(response_text: str):
+    """
+    Parse a JSON array of hex color codes from the response text.
+    """
+    try:
+        # First try to extract a JSON array from a code block
+        code_block_match = re.search(r'```json\s*($begin:math:display$[^$end:math:display$]+\])\s*```', response_text, re.DOTALL)
+        snippet = None
+        if code_block_match:
+            snippet = code_block_match.group(1).strip()
+        if not snippet:
+            # Fallback: find a JSON array anywhere in the text
+            array_match = re.search(r'(\[[^\]]+\])', response_text)
+            if array_match:
+                snippet = array_match.group(1).strip()
+        if snippet:
+            return json.loads(snippet)
+    except Exception:
+        pass
+    return None

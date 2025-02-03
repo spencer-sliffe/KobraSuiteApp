@@ -1,4 +1,4 @@
-// lib/UI/screens/university/university_detail_screen.dart
+// File: lib/UI/screens/university/university_detail_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -6,6 +6,7 @@ import '../../../../models/school/university.dart';
 import '../../../../providers/school/university_provider.dart';
 import '../../../../providers/general/auth_provider.dart';
 import '../../../../services/image/banner_image_service.dart';
+import '../../../widgets/animation/abstract_banner_animation.dart';
 import '../../../widgets/cards/university_news_card.dart';
 
 class UniversityDetailScreen extends StatefulWidget {
@@ -17,12 +18,15 @@ class UniversityDetailScreen extends StatefulWidget {
 }
 
 class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
-  late Future<String> _bannerImageFuture;
+  late Future<List<String>> _bannerColorsFuture;
 
   @override
   void initState() {
     super.initState();
-    _bannerImageFuture = BannerImageService().getBannerImageUrl("modern university campus, ${widget.university.name}");
+    // Cache the banner colors once.
+    _bannerColorsFuture = BannerImageService().getBannerColors(
+      "modern university campus, ${widget.university.name}",
+    );
   }
 
   Future<void> _refreshNews() async {
@@ -102,11 +106,17 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
     }
   }
 
+  // Helper: convert hex string to Color.
+  Color hexToColor(String hex) {
+    hex = hex.replaceAll("#", "");
+    if (hex.length == 6) hex = "FF" + hex;
+    return Color(int.parse(hex, radix: 16));
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final trendingNews = Provider.of<UniversityProvider>(context).trendingNews;
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -116,29 +126,32 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
       extendBodyBehindAppBar: true,
       body: CustomScrollView(
         slivers: [
-          // Banner with overlayed compact university details.
+          // Banner with overlayed university details and extra information.
           SliverAppBar(
             automaticallyImplyLeading: false,
             expandedHeight: 250,
             flexibleSpace: FlexibleSpaceBar(
               background: Hero(
                 tag: 'univ-banner-${widget.university.id}',
-                child: FutureBuilder<String>(
-                  future: _bannerImageFuture,
+                child: FutureBuilder<List<String>>(
+                  future: _bannerColorsFuture,
                   builder: (context, snapshot) {
+                    Widget bannerWidget;
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Container(
+                      bannerWidget = Container(
                         color: Colors.grey.shade300,
                         child: const Center(child: CircularProgressIndicator()),
                       );
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      bannerWidget = Container(color: Colors.grey.shade400);
+                    } else {
+                      final colors = snapshot.data!.map((hex) => hexToColor(hex)).toList();
+                      bannerWidget = AbstractBannerAnimation(colors: colors);
                     }
-                    final imageUrl = snapshot.data;
                     return Stack(
                       fit: StackFit.expand,
                       children: [
-                        imageUrl != null && imageUrl.isNotEmpty
-                            ? Image.network(imageUrl, fit: BoxFit.cover)
-                            : Container(color: Colors.grey.shade400),
+                        bannerWidget,
                         Container(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
@@ -183,6 +196,35 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
                                     ),
                                   ],
                                 ),
+                                if (widget.university.stateProvince != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Text(
+                                      "State/Province: ${widget.university.stateProvince}",
+                                      style: const TextStyle(color: Colors.white70, fontSize: 12),
+                                    ),
+                                  ),
+                                if (widget.university.studentCount != null || widget.university.courseCount != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Row(
+                                      children: [
+                                        if (widget.university.studentCount != null)
+                                          Text(
+                                            "Students: ${widget.university.studentCount}",
+                                            style: const TextStyle(color: Colors.white70, fontSize: 12),
+                                          ),
+                                        if (widget.university.studentCount != null &&
+                                            widget.university.courseCount != null)
+                                          const SizedBox(width: 12),
+                                        if (widget.university.courseCount != null)
+                                          Text(
+                                            "Courses: ${widget.university.courseCount}",
+                                            style: const TextStyle(color: Colors.white70, fontSize: 12),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
                                 const SizedBox(height: 4),
                                 GestureDetector(
                                   onTap: () => _launchWebsite(widget.university.website),

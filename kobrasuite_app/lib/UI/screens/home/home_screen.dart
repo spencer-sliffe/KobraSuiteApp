@@ -10,7 +10,6 @@ import 'package:kobrasuite_app/UI/screens/school/tabs/school_university_tab.dart
 import 'package:kobrasuite_app/UI/screens/work/work_screen.dart';
 import 'package:kobrasuite_app/UI/nav/kobra_drawer.dart';
 import 'package:kobrasuite_app/UI/nav/kobra_nav_rail.dart';
-import 'package:provider/provider.dart';
 
 import '../../widgets/control_bar/page_control_bar.dart';
 
