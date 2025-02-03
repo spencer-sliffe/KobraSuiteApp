@@ -106,7 +106,7 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
     }
   }
 
-  // Helper: convert hex string to Color.
+  // Helper: convert a hex string to a Color.
   Color hexToColor(String hex) {
     hex = hex.replaceAll("#", "");
     if (hex.length == 6) hex = "FF" + hex;

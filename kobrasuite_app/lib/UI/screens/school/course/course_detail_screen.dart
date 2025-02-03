@@ -35,8 +35,9 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
   void initState() {
     super.initState();
     _bannerService = BannerImageService();
-    // Use the course title and code as prompt to retrieve a color palette.
+    // Construct the prompt from course title and course code.
     final prompt = "${widget.course.title}, ${widget.course.courseCode}";
+    // Cache the color palette Future.
     _bannerColorsFuture = _bannerService.getBannerColors(prompt);
     final courseProvider = Provider.of<CourseProvider>(context, listen: false);
     courseProvider.setCurrentCourse(widget.course);
@@ -109,7 +110,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                 color: Colors.black.withOpacity(0.6),
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(12),
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,

@@ -1,4 +1,6 @@
-/* File: lib/UI/widgets/abstract_banner_animation.dart */
+// File: lib/UI/widgets/abstract_banner_animation.dart
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class AbstractBannerAnimation extends StatefulWidget {
@@ -16,8 +18,9 @@ class _AbstractBannerAnimationState extends State<AbstractBannerAnimation> with 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 5))..repeat(reverse: true);
-    _animation = Tween<double>(begin: 0, end: 1).animate(_controller);
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 3))
+      ..repeat(reverse: true);
+    _animation = Tween<double>(begin: 0, end: 2 * 3.14159).animate(_controller);
   }
 
   @override
@@ -31,18 +34,40 @@ class _AbstractBannerAnimationState extends State<AbstractBannerAnimation> with 
     return AnimatedBuilder(
       animation: _animation,
       builder: (context, child) {
-        // Animate the gradient's alignment based on the animation value.
-        return Container(
-          height: 200,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment(-1 + 2 * _animation.value, -1),
-              end: Alignment(1 - 2 * _animation.value, 1),
-              colors: widget.colors,
-            ),
-          ),
+        return CustomPaint(
+          size: Size.infinite,
+          painter: _AbstractBannerPainter(widget.colors, _animation.value),
         );
       },
     );
+  }
+}
+
+class _AbstractBannerPainter extends CustomPainter {
+  final List<Color> colors;
+  final double progress;
+  _AbstractBannerPainter(this.colors, this.progress);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..strokeWidth = 2.0;
+    // Draw 20 animated lines that grow and shrink using a sine wave.
+    int numLines = 20;
+    double spacing = size.width / (numLines + 1);
+    for (int i = 0; i < numLines; i++) {
+      double x = spacing * (i + 1);
+      double wave = sin(progress + i * 0.5);
+      double lineLength = size.height / 2 * (0.5 + 0.5 * wave);
+      Offset start = Offset(x, size.height / 2 - lineLength);
+      Offset end = Offset(x, size.height / 2 + lineLength);
+      Color lineColor = colors[i % colors.length].withOpacity(0.7);
+      paint.color = lineColor;
+      canvas.drawLine(start, end, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _AbstractBannerPainter oldDelegate) {
+    return oldDelegate.progress != progress || oldDelegate.colors != colors;
   }
 }
