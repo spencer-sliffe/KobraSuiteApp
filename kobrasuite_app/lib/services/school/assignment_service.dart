@@ -8,19 +8,22 @@ class AssignmentService {
 
   String getAssignmentsBasePath({
     required int userPk,
+    required int schoolProfilePk,
     required int universityPk,
     required int coursePk,
   }) {
-    return '/api/users/$userPk/school_profile/universities/$universityPk/courses/$coursePk/assignments/';
+    return '/api/users/$userPk/school_profile/$schoolProfilePk/universities/$universityPk/courses/$coursePk/assignments/';
   }
 
   Future<List<Assignment>> getAssignmentsByCourse({
     required int userPk,
+    required int schoolProfilePk,
     required int universityPk,
     required int coursePk,
   }) async {
     final url = getAssignmentsBasePath(
       userPk: userPk,
+      schoolProfilePk: schoolProfilePk,
       universityPk: universityPk,
       coursePk: coursePk,
     );
@@ -34,12 +37,14 @@ class AssignmentService {
 
   Future<bool> addAssignment({
     required int userPk,
+    required int schoolProfilePk,
     required int universityPk,
     required int coursePk,
     required Map<String, dynamic> assignmentData,
   }) async {
     final url = getAssignmentsBasePath(
       userPk: userPk,
+      schoolProfilePk: schoolProfilePk,
       universityPk: universityPk,
       coursePk: coursePk,
     );
@@ -49,11 +54,12 @@ class AssignmentService {
 
   Future<bool> deleteAssignment({
     required int userPk,
+    required int schoolProfilePk,
     required int universityPk,
     required int coursePk,
     required int assignmentId,
   }) async {
-    final url = '${getAssignmentsBasePath(userPk: userPk, universityPk: universityPk, coursePk: coursePk)}$assignmentId/';
+    final url = '${getAssignmentsBasePath(userPk: userPk, schoolProfilePk: schoolProfilePk, universityPk: universityPk, coursePk: coursePk)}$assignmentId/';
     final response = await _dio.delete(url);
     return response.statusCode == 204;
   }

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:kobrasuite_app/UI/screens/auth/login_screen.dart';
-import 'package:kobrasuite_app/UI/screens/home/home_screen.dart';
 import 'package:provider/provider.dart';
 import '../../providers/general/auth_provider.dart';
+import 'package:kobrasuite_app/UI/screens/main_screen.dart';
+import 'package:kobrasuite_app/UI/nav/providers/navigation_store.dart';
+import 'package:kobrasuite_app/UI/nav/providers/hq_mode_provider.dart';
+import 'package:kobrasuite_app/UI/nav/providers/control_bar_provider.dart';
+
+import 'UI/screens/auth/login_screen.dart';
 
 class AuthWrapper extends StatefulWidget {
   const AuthWrapper({super.key});
@@ -35,7 +39,14 @@ class _AuthWrapperState extends State<AuthWrapper> {
       );
     }
     if (authProvider.isLoggedIn) {
-      return const HomeScreen();
+      return MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => NavigationStore()),
+          ChangeNotifierProvider(create: (context) => HQModeProvider(context.read<NavigationStore>())),
+          ChangeNotifierProvider(create: (_) => ControlBarProvider()),
+        ],
+        child: const MainScreen(),
+      );
     } else {
       return const LoginScreen();
     }

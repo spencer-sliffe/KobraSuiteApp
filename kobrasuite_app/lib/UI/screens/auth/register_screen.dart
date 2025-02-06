@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/general/auth_provider.dart';
+import 'buttons/primary_button.dart';
+import 'inputs/rounded_text_field.dart';
 import 'login_screen.dart';
-import '../../widgets/buttons/primary_button.dart';
-import '../../widgets/inputs/rounded_text_field.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});

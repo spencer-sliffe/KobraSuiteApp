@@ -8,7 +8,5 @@ class FinanceProfileSerializer(serializers.ModelSerializer):
         model = FinanceProfile
         fields = [
             'id',
-            'budget',
-            'default_stock_portfolio',
-            'default_crypto_portfolio'
+
         ]

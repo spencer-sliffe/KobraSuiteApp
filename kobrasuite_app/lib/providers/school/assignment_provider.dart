@@ -53,10 +53,12 @@ class AssignmentProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final userPk = _schoolProfileProvider.userPk;
+      final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
       final universityPk = _universityProvider.currentUniversity!.id;
       final coursePk = _courseProvider.currentCourse!.id;
       final fetchedAssignments = await _assignmentService.getAssignmentsByCourse(
         userPk: userPk,
+        schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         coursePk: coursePk,
       );
@@ -80,10 +82,12 @@ class AssignmentProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final userPk = _schoolProfileProvider.userPk;
+      final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
       final universityPk = _universityProvider.currentUniversity!.id;
       final coursePk = _courseProvider.currentCourse!.id;
       final success = await _assignmentService.addAssignment(
         userPk: userPk,
+        schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         coursePk: coursePk,
         assignmentData: assignmentData,
@@ -115,10 +119,12 @@ class AssignmentProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final userPk = _schoolProfileProvider.userPk;
+      final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
       final universityPk = _universityProvider.currentUniversity!.id;
       final coursePk = _courseProvider.currentCourse!.id;
       final success = await _assignmentService.deleteAssignment(
         userPk: userPk,
+        schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         coursePk: coursePk,
         assignmentId: assignmentId,

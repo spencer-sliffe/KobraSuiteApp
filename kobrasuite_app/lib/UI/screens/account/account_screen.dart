@@ -5,7 +5,7 @@ import '../../../providers/general/user_profile_provider.dart';
 import '../../../models/general/user_profile.dart';
 import '../../../services/general/auth_service.dart';
 import '../../../services/service_locator.dart';
-import '../../widgets/buttons/primary_button.dart';
+import '../auth/buttons/primary_button.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -14,8 +14,6 @@ class AccountScreen extends StatefulWidget {
   State<AccountScreen> createState() => _AccountScreenState();
 }
 
-/// Displays user account info, including profile details, plus logout functionality.
-/// Demonstrates a modern UI approach with a personal info card and an editable profile area.
 class _AccountScreenState extends State<AccountScreen> {
   bool _editingProfile = false;
   final TextEditingController _addressCtrl = TextEditingController();
