@@ -1,4 +1,3 @@
-
 """
 ------------------Prologue--------------------
 File Name: models.py
@@ -192,8 +191,8 @@ class WatchlistCrypto(models.Model):
 #     """
 #     Recurring or one-time bills (utilities, subscriptions, etc.).
 #     """
-#     user = models.ForeignKey(
-#         settings.AUTH_USER_MODEL,
+#     profile = models.ForeignKey(
+#         hq.finance_profile,
 #         on_delete=models.CASCADE,
 #         related_name='bills'
 #     )

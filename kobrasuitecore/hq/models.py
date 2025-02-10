@@ -112,11 +112,14 @@ class HomeLifeProfile(models.Model):
 
 
 class Multiplier(models.Model):
+    # User profile
     profile = models.ForeignKey(
         UserProfile,
         on_delete=models.CASCADE,
         related_name='multipliers'
     )
+
+    # Multiplier Context
     multiplier_profile_content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
@@ -137,7 +140,8 @@ class Multiplier(models.Model):
         'multiplier_obj_content_type',
         'multiplier_obj_object_id'
     )
-    multiplier = models.FloatField(default=0.0)
+    # Multiplier Value
+    multiplier = models.FloatField(default=1.0)
 
     def __str__(self):
         return f"Multiplier for {self.profile.user.username}"

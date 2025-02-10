@@ -93,6 +93,8 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> {
   }
 
   // ------------------- Scale (Pinch) handling -------------------
+  //---------------  Pinch motion should activate HQ --------------
+  //---------------- Zoom motion should deactivate HQ -------------
   void _onScaleStart(ScaleStartDetails details) {
     _initialFocalPoint = details.focalPoint;
     _currentFocalPoint = details.focalPoint;
