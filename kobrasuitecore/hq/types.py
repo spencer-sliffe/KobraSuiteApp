@@ -1,5 +1,8 @@
-# Just putting this file here for organization
+from django.db import models
 
-"""
-    Need a module type (finance, school, homelife)
-"""
+
+class ModuleType(models.TextChoices):
+    SCHOOL = "SCHOOL", "School"
+    WORK = "WORK", "Work"
+    HOMELIFE = "HOMELIFE", "HomeLife"
+    FINANCE = "FINANCE", "Finance"

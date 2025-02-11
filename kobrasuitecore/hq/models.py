@@ -6,6 +6,7 @@ from customer.models import User
 from homelife.models import Household
 from school.models import Course, University
 from work.models import WorkPlace
+from .types import ModuleType
 
 
 class UserProfile(models.Model):
@@ -31,7 +32,7 @@ class UserProfile(models.Model):
 
     def get_status(self):
         return {
-            s.module_name: {
+            s.module_type: {
                 'streak_start': s.streak_start,
                 'current_streak': s.current_streak,
                 'max_streak': s.max_streak,
@@ -106,38 +107,38 @@ class Wallet(models.Model):
 
 class ModuleExperience(models.Model):
     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='module_experiences')
-    module_name = models.CharField(max_length=50)
+    module_type = models.CharField(max_length=20, choices=ModuleType.choices)
     experience_amount = models.FloatField(default=0.0)
 
     class Meta:
-        unique_together = ('profile', 'module_name')
+        unique_together = ('profile', 'module_type')
 
     def __str__(self):
-        return f"{self.profile.user.username} - {self.module_name} Experience"
+        return f"{self.profile.user.username} - {self.module_type} Experience"
 
 
 class ModuleStatus(models.Model):
     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='module_statuses')
-    module_name = models.CharField(max_length=50)
+    module_type = models.CharField(max_length=20, choices=ModuleType.choices)
     streak_start = models.DateField(null=True, blank=True)
     current_streak = models.IntegerField(default=0)
     max_streak = models.IntegerField(default=0)
     building_level = models.IntegerField(default=0)
 
     class Meta:
-        unique_together = ('profile', 'module_name')
+        unique_together = ('profile', 'module_type')
 
     def __str__(self):
-        return f"{self.profile.user.username} - {self.module_name} Status"
+        return f"{self.profile.user.username} - {self.module_type} Status"
 
 
 class ModulePopulation(models.Model):
     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='module_populations')
-    module_name = models.CharField(max_length=50)
+    module_type = models.CharField(max_length=20, choices=ModuleType.choices)
     population = models.IntegerField(default=0)
 
     class Meta:
-        unique_together = ('profile', 'module_name')
+        unique_together = ('profile', 'module_type')
 
     def __str__(self):
-        return f"{self.profile.user.username} - {self.module_name} Population"
+        return f"{self.profile.user.username} - {self.module_type} Population"
