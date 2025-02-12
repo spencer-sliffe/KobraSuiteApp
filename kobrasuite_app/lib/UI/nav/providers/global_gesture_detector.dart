@@ -15,59 +15,62 @@ class GlobalGestureDetector extends StatefulWidget {
 }
 
 class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with SingleTickerProviderStateMixin {
-  late AnimationController _fadeController;
-  double _initialScale = 1.0;
-  double _currentScale = 1.0;
-  double _pinchProgress = 0.0;
-  bool _isPinching = false;
-  double _accumulatedScrollDelta = 0.0;
-  bool _moduleSwitchTriggered = false;
-  Timer? _scrollResetTimer;
-  final double _desktopScrollThreshold = 680.0;
-  final double _pinchInThreshold = 0.85;
-  final double _pinchOutThreshold = 1.15;
-  final double _mobileSwipeThreshold = 120.0;
-  Offset _initialFocalPoint = Offset.zero;
-  Offset _currentFocalPoint = Offset.zero;
+  late AnimationController fadeController;
+  double initialScale = 1.0;
+  double currentScale = 1.0;
+  double pinchProgress = 0.0;
+  bool isPinching = false;
+  double accumulatedScrollDelta = 0.0;
+  bool moduleSwitchTriggered = false;
+  double accumulatedHQScrollDelta = 0.0;
+  bool hqSubviewSwitchTriggered = false;
+  Timer? scrollResetTimer;
+  Timer? subviewResetTimer;
+  final double desktopScrollThreshold = 680.0;
+  final double hqSubviewScrollThreshold = 680.0;
+  final double pinchInThreshold = 0.85;
+  final double pinchOutThreshold = 1.15;
+  final double mobileSwipeThreshold = 120.0;
+  Offset initialFocalPoint = Offset.zero;
+  Offset currentFocalPoint = Offset.zero;
 
-  bool get _supportsTrackpad {
+  bool get supportsTrackpad {
     if (kIsWeb) return true;
     final platform = Theme.of(context).platform;
-    return platform == TargetPlatform.macOS ||
-        platform == TargetPlatform.windows ||
-        platform == TargetPlatform.linux;
+    return platform == TargetPlatform.macOS || platform == TargetPlatform.windows || platform == TargetPlatform.linux;
   }
 
-  bool get _usingPanZoom => _supportsTrackpad;
+  bool get usingPanZoom => supportsTrackpad;
 
   @override
   void initState() {
     super.initState();
-    _fadeController = AnimationController(vsync: this, duration: const Duration(milliseconds: 200));
+    fadeController = AnimationController(vsync: this, duration: const Duration(milliseconds: 200));
   }
 
   @override
   void dispose() {
-    _fadeController.dispose();
-    _scrollResetTimer?.cancel();
+    fadeController.dispose();
+    scrollResetTimer?.cancel();
+    subviewResetTimer?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return _usingPanZoom
+    return usingPanZoom
         ? Listener(
-      onPointerSignal: _onPointerSignal,
-      onPointerPanZoomStart: _onPanZoomStart,
-      onPointerPanZoomUpdate: _onPanZoomUpdate,
-      onPointerPanZoomEnd: _onPanZoomEnd,
+      onPointerSignal: onPointerSignal,
+      onPointerPanZoomStart: onPanZoomStart,
+      onPointerPanZoomUpdate: onPanZoomUpdate,
+      onPointerPanZoomEnd: onPanZoomEnd,
       child: Stack(
         children: [
           widget.child,
           AnimatedBuilder(
-            animation: _fadeController,
+            animation: fadeController,
             builder: (context, child) {
-              final opacity = (_pinchProgress.clamp(0.0, 1.0)) * _fadeController.value;
+              final opacity = (pinchProgress.clamp(0.0, 1.0)) * fadeController.value;
               return Positioned.fill(
                 child: IgnorePointer(
                   ignoring: opacity < 0.01,
@@ -83,16 +86,16 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
       ),
     )
         : Listener(
-      onPointerSignal: _onPointerSignal,
+      onPointerSignal: onPointerSignal,
       child: RawGestureDetector(
         gestures: {
           ScaleGestureRecognizer: GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
                 () => ScaleGestureRecognizer(supportedDevices: {PointerDeviceKind.touch}),
                 (instance) {
               instance
-                ..onStart = _onScaleStart
-                ..onUpdate = _onScaleUpdate
-                ..onEnd = _onScaleEnd;
+                ..onStart = onScaleStart
+                ..onUpdate = onScaleUpdate
+                ..onEnd = onScaleEnd;
             },
           ),
         },
@@ -100,9 +103,9 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
           children: [
             widget.child,
             AnimatedBuilder(
-              animation: _fadeController,
+              animation: fadeController,
               builder: (context, child) {
-                final opacity = (_pinchProgress.clamp(0.0, 1.0)) * _fadeController.value;
+                final opacity = (pinchProgress.clamp(0.0, 1.0)) * fadeController.value;
                 return Positioned.fill(
                   child: IgnorePointer(
                     ignoring: opacity < 0.01,
@@ -120,99 +123,129 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
     );
   }
 
-  void _onPointerSignal(PointerSignalEvent event) {
-    if (!_supportsTrackpad) return;
+  void onPointerSignal(PointerSignalEvent event) {
+    if (!supportsTrackpad) return;
     if (event is PointerScrollEvent) {
-      _accumulatedScrollDelta += event.scrollDelta.dy;
-      if (!_moduleSwitchTriggered && _accumulatedScrollDelta.abs() > _desktopScrollThreshold) {
-        final store = context.read<NavigationStore>();
-        final modules = Module.values;
-        final idx = modules.indexOf(store.activeModule);
-        final forward = _accumulatedScrollDelta > 0;
-        final nextIdx = forward ? (idx + 1) % modules.length : (idx - 1 + modules.length) % modules.length;
-        store.setActiveModule(modules[nextIdx]);
-        HapticFeedback.mediumImpact();
-        _moduleSwitchTriggered = true;
-        _scrollResetTimer?.cancel();
-        _scrollResetTimer = Timer(const Duration(milliseconds: 500), () {
-          _accumulatedScrollDelta = 0.0;
-          _moduleSwitchTriggered = false;
-        });
+      final store = context.read<NavigationStore>();
+      if (store.isHQActive) {
+        accumulatedHQScrollDelta += event.scrollDelta.dy;
+        if (!hqSubviewSwitchTriggered && accumulatedHQScrollDelta.abs() > hqSubviewScrollThreshold) {
+          if (store.hqView == HQView.Dashboard) {
+            store.switchHQView(HQView.ModuleManager);
+          } else {
+            store.switchHQView(HQView.Dashboard);
+          }
+          HapticFeedback.mediumImpact();
+          hqSubviewSwitchTriggered = true;
+          subviewResetTimer?.cancel();
+          subviewResetTimer = Timer(const Duration(milliseconds: 500), () {
+            accumulatedHQScrollDelta = 0.0;
+            hqSubviewSwitchTriggered = false;
+          });
+        }
+      } else {
+        accumulatedScrollDelta += event.scrollDelta.dy;
+        if (!moduleSwitchTriggered && accumulatedScrollDelta.abs() > desktopScrollThreshold) {
+          final modules = Module.values;
+          final idx = modules.indexOf(store.activeModule);
+          final forward = accumulatedScrollDelta > 0;
+          final nextIdx = forward ? (idx + 1) % modules.length : (idx - 1 + modules.length) % modules.length;
+          store.setActiveModule(modules[nextIdx]);
+          HapticFeedback.mediumImpact();
+          moduleSwitchTriggered = true;
+          scrollResetTimer?.cancel();
+          scrollResetTimer = Timer(const Duration(milliseconds: 500), () {
+            accumulatedScrollDelta = 0.0;
+            moduleSwitchTriggered = false;
+          });
+        }
       }
     }
   }
 
-  void _onPanZoomStart(PointerPanZoomStartEvent event) {
-    _isPinching = true;
-    _initialScale = 1.0;
-    _currentScale = 1.0;
-    _pinchProgress = 0.0;
-    _fadeController.value = 1.0;
+  void onPanZoomStart(PointerPanZoomStartEvent event) {
+    isPinching = true;
+    initialScale = 1.0;
+    currentScale = 1.0;
+    pinchProgress = 0.0;
+    fadeController.value = 1.0;
   }
 
-  void _onPanZoomUpdate(PointerPanZoomUpdateEvent event) {
-    if (_isPinching) {
-      _currentScale *= event.scale;
-      _pinchProgress = _currentScale < 1.0 ? (1.0 - _currentScale) : (_currentScale - 1.0);
+  void onPanZoomUpdate(PointerPanZoomUpdateEvent event) {
+    if (isPinching) {
+      currentScale *= event.scale;
+      pinchProgress = currentScale < 1.0 ? (1.0 - currentScale) : (currentScale - 1.0);
       setState(() {});
     }
   }
 
-  void _onPanZoomEnd(PointerPanZoomEndEvent event) {
-    if (_isPinching) {
+  void onPanZoomEnd(PointerPanZoomEndEvent event) {
+    if (isPinching) {
       final store = context.read<NavigationStore>();
-      if (_currentScale < _pinchInThreshold) {
+      if (currentScale < pinchInThreshold) {
         store.setHQActive(true);
         HapticFeedback.mediumImpact();
-      } else if (_currentScale > _pinchOutThreshold) {
+      } else if (currentScale > pinchOutThreshold) {
         store.setHQActive(false);
         HapticFeedback.mediumImpact();
       }
-      _fadeController.reverse(from: 1.0);
-      _isPinching = false;
-      _pinchProgress = 0.0;
+      fadeController.reverse(from: 1.0);
+      isPinching = false;
+      pinchProgress = 0.0;
     }
   }
 
-  void _onScaleStart(ScaleStartDetails details) {
-    _isPinching = true;
-    _initialScale = 1.0;
-    _currentScale = 1.0;
-    _pinchProgress = 0.0;
-    _initialFocalPoint = details.focalPoint;
-    _currentFocalPoint = details.focalPoint;
-    _fadeController.value = 1.0;
+  void onScaleStart(ScaleStartDetails details) {
+    isPinching = true;
+    initialScale = 1.0;
+    currentScale = 1.0;
+    pinchProgress = 0.0;
+    initialFocalPoint = details.focalPoint;
+    currentFocalPoint = details.focalPoint;
+    fadeController.value = 1.0;
   }
 
-  void _onScaleUpdate(ScaleUpdateDetails details) {
-    _currentScale = details.scale;
-    _currentFocalPoint = details.focalPoint;
-    _pinchProgress = _currentScale < 1.0 ? (1.0 - _currentScale) : (_currentScale - 1.0);
+  void onScaleUpdate(ScaleUpdateDetails details) {
+    currentScale = details.scale;
+    currentFocalPoint = details.focalPoint;
+    pinchProgress = currentScale < 1.0 ? (1.0 - currentScale) : (currentScale - 1.0);
     setState(() {});
   }
 
-  void _onScaleEnd(ScaleEndDetails details) {
+  void onScaleEnd(ScaleEndDetails details) {
     final store = context.read<NavigationStore>();
-    final ratio = _currentScale;
-    if (ratio < _pinchInThreshold) {
+    final ratio = currentScale;
+    if (ratio < pinchInThreshold) {
       store.setHQActive(true);
       HapticFeedback.mediumImpact();
-    } else if (ratio > _pinchOutThreshold) {
+    } else if (ratio > pinchOutThreshold) {
       store.setHQActive(false);
       HapticFeedback.mediumImpact();
     } else if (ratio >= 0.95 && ratio <= 1.05) {
-      final dx = _currentFocalPoint.dx - _initialFocalPoint.dx;
-      if (dx.abs() > _mobileSwipeThreshold) {
-        final modules = Module.values;
-        final idx = modules.indexOf(store.activeModule);
-        final forward = dx < 0;
-        final nextIdx = forward ? (idx + 1) % modules.length : (idx - 1 + modules.length) % modules.length;
-        store.setActiveModule(modules[nextIdx]);
-        HapticFeedback.mediumImpact();
+      final dx = currentFocalPoint.dx - initialFocalPoint.dx;
+      final dy = currentFocalPoint.dy - initialFocalPoint.dy;
+      if (store.isHQActive) {
+        if (dy.abs() > mobileSwipeThreshold) {
+          if (dy < 0) {
+            store.switchHQView(HQView.ModuleManager);
+          } else {
+            store.switchHQView(HQView.Dashboard);
+          }
+          HapticFeedback.mediumImpact();
+        }
+      } else {
+        if (dx.abs() > mobileSwipeThreshold) {
+          final modules = Module.values;
+          final idx = modules.indexOf(store.activeModule);
+          final forward = dx < 0;
+          final nextIdx = forward ? (idx + 1) % modules.length : (idx - 1 + modules.length) % modules.length;
+          store.setActiveModule(modules[nextIdx]);
+          HapticFeedback.mediumImpact();
+        }
       }
     }
-    _fadeController.reverse(from: 1.0);
-    _isPinching = false;
-    _pinchProgress = 0.0;
+    fadeController.reverse(from: 1.0);
+    isPinching = false;
+    pinchProgress = 0.0;
   }
 }
