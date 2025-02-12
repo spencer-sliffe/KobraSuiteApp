@@ -6,30 +6,33 @@ class ControlBarRegistrar extends StatefulWidget {
   final List<ControlBarButtonModel> buttons;
   final Widget child;
 
-  const ControlBarRegistrar({Key? key, required this.buttons, required this.child}) : super(key: key);
+  const ControlBarRegistrar({
+    Key? key,
+    required this.buttons,
+    required this.child,
+  }) : super(key: key);
 
   @override
   State<ControlBarRegistrar> createState() => _ControlBarRegistrarState();
 }
 
 class _ControlBarRegistrarState extends State<ControlBarRegistrar> {
-  late final ControlBarProvider _controlBarProvider;
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _controlBarProvider = context.read<ControlBarProvider>();
-      for (var button in widget.buttons) {
-        _controlBarProvider.addButton(button);
+      final provider = context.read<ControlBarProvider>();
+      for (var b in widget.buttons) {
+        provider.addEphemeralButton(b);
       }
     });
   }
 
   @override
   void dispose() {
-    for (var button in widget.buttons) {
-      _controlBarProvider.removeButton(button);
+    final provider = context.read<ControlBarProvider>();
+    for (var b in widget.buttons) {
+      provider.removeEphemeralButton(b);
     }
     super.dispose();
   }

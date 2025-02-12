@@ -1,142 +1,218 @@
-import 'dart:io' show Platform;
+import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'navigation_store.dart';
 
 class GlobalGestureDetector extends StatefulWidget {
   final Widget child;
-  const GlobalGestureDetector({super.key, required this.child});
+  const GlobalGestureDetector({Key? key, required this.child}) : super(key: key);
 
   @override
   State<GlobalGestureDetector> createState() => _GlobalGestureDetectorState();
 }
 
-class _GlobalGestureDetectorState extends State<GlobalGestureDetector> {
-  Offset _initialFocalPoint = Offset.zero;
-  Offset _currentFocalPoint = Offset.zero;
+class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with SingleTickerProviderStateMixin {
+  late AnimationController _fadeController;
   double _initialScale = 1.0;
   double _currentScale = 1.0;
+  double _pinchProgress = 0.0;
+  bool _isPinching = false;
+  double _accumulatedScrollDelta = 0.0;
+  bool _moduleSwitchTriggered = false;
+  Timer? _scrollResetTimer;
+  final double _desktopScrollThreshold = 680.0;
+  final double _pinchInThreshold = 0.85;
+  final double _pinchOutThreshold = 1.15;
+  final double _mobileSwipeThreshold = 120.0;
+  Offset _initialFocalPoint = Offset.zero;
+  Offset _currentFocalPoint = Offset.zero;
 
-  // We’ll store the accumulated scroll offset from trackpad signals
-  double _trackpadScrollOffset = 0.0;
-
-  bool get _isDesktopOrWeb {
+  bool get _supportsTrackpad {
     if (kIsWeb) return true;
     final platform = Theme.of(context).platform;
-    return platform == TargetPlatform.linux ||
-        platform == TargetPlatform.macOS ||
-        platform == TargetPlatform.windows;
+    return platform == TargetPlatform.macOS ||
+        platform == TargetPlatform.windows ||
+        platform == TargetPlatform.linux;
+  }
+
+  bool get _usingPanZoom => _supportsTrackpad;
+
+  @override
+  void initState() {
+    super.initState();
+    _fadeController = AnimationController(vsync: this, duration: const Duration(milliseconds: 200));
+  }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    _scrollResetTimer?.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Listener(
-      // We intercept scroll signals for 2-finger trackpad swipes
+    return _usingPanZoom
+        ? Listener(
+      onPointerSignal: _onPointerSignal,
+      onPointerPanZoomStart: _onPanZoomStart,
+      onPointerPanZoomUpdate: _onPanZoomUpdate,
+      onPointerPanZoomEnd: _onPanZoomEnd,
+      child: Stack(
+        children: [
+          widget.child,
+          AnimatedBuilder(
+            animation: _fadeController,
+            builder: (context, child) {
+              final opacity = (_pinchProgress.clamp(0.0, 1.0)) * _fadeController.value;
+              return Positioned.fill(
+                child: IgnorePointer(
+                  ignoring: opacity < 0.01,
+                  child: Opacity(
+                    opacity: opacity * 0.85,
+                    child: Container(color: Colors.black),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    )
+        : Listener(
       onPointerSignal: _onPointerSignal,
       child: RawGestureDetector(
-        gestures: <Type, GestureRecognizerFactory>{
-          ScaleGestureRecognizer:
-          GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
-                () => ScaleGestureRecognizer(
-              debugOwner: this,
-              supportedDevices: _isDesktopOrWeb
-                  ? {
-                PointerDeviceKind.touch,
-                PointerDeviceKind.trackpad,
-                // If you want pinch from mouse wheels (rare):
-                // PointerDeviceKind.mouse,
-              }
-                  : {PointerDeviceKind.touch},
-            ),
-                (ScaleGestureRecognizer instance) {
+        gestures: {
+          ScaleGestureRecognizer: GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
+                () => ScaleGestureRecognizer(supportedDevices: {PointerDeviceKind.touch}),
+                (instance) {
               instance
                 ..onStart = _onScaleStart
                 ..onUpdate = _onScaleUpdate
-                ..onEnd = _onScaleEnd
-              // Because your Flutter version is >= 3.10,
-              // trackpad pinch will be recognized if the OS sends pinch events
-                ..trackpadScrollCausesScale = _isDesktopOrWeb
-                ..trackpadScrollToScaleFactor = const Offset(0.001, 0.001);
+                ..onEnd = _onScaleEnd;
             },
           ),
         },
-        child: widget.child,
+        child: Stack(
+          children: [
+            widget.child,
+            AnimatedBuilder(
+              animation: _fadeController,
+              builder: (context, child) {
+                final opacity = (_pinchProgress.clamp(0.0, 1.0)) * _fadeController.value;
+                return Positioned.fill(
+                  child: IgnorePointer(
+                    ignoring: opacity < 0.01,
+                    child: Opacity(
+                      opacity: opacity * 0.85,
+                      child: Container(color: Colors.black),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
 
   void _onPointerSignal(PointerSignalEvent event) {
-    final navigationStore = context.read<NavigationStore>();
-    // Only handle pointer signals if on desktop or web
-    if (!_isDesktopOrWeb) return;
-
-    // If user 2-fingers scrolls the trackpad, we get a PointerScrollEvent with scrollDelta
+    if (!_supportsTrackpad) return;
     if (event is PointerScrollEvent) {
-      // We accumulate the vertical delta
-      _trackpadScrollOffset += event.scrollDelta.dy;
-
-      // If user scrolls up/down enough, interpret as a 2-finger vertical swipe
-      if (_trackpadScrollOffset.abs() > 80) {
-        if (navigationStore.isHQActive) {
-          // Switch HQ subview
-          _switchHQView(navigationStore, up: _trackpadScrollOffset < 0);
-        } else {
-          // Switch modules
-          _navigateModule(navigationStore, forward: _trackpadScrollOffset < 0);
-        }
-        // Reset offset
-        _trackpadScrollOffset = 0.0;
+      _accumulatedScrollDelta += event.scrollDelta.dy;
+      if (!_moduleSwitchTriggered && _accumulatedScrollDelta.abs() > _desktopScrollThreshold) {
+        final store = context.read<NavigationStore>();
+        final modules = Module.values;
+        final idx = modules.indexOf(store.activeModule);
+        final forward = _accumulatedScrollDelta > 0;
+        final nextIdx = forward ? (idx + 1) % modules.length : (idx - 1 + modules.length) % modules.length;
+        store.setActiveModule(modules[nextIdx]);
+        HapticFeedback.mediumImpact();
+        _moduleSwitchTriggered = true;
+        _scrollResetTimer?.cancel();
+        _scrollResetTimer = Timer(const Duration(milliseconds: 500), () {
+          _accumulatedScrollDelta = 0.0;
+          _moduleSwitchTriggered = false;
+        });
       }
     }
   }
 
-  // ------------------- Scale (Pinch) handling -------------------
-  //---------------  Pinch motion should activate HQ --------------
-  //---------------- Zoom motion should deactivate HQ -------------
-  void _onScaleStart(ScaleStartDetails details) {
-    _initialFocalPoint = details.focalPoint;
-    _currentFocalPoint = details.focalPoint;
+  void _onPanZoomStart(PointerPanZoomStartEvent event) {
+    _isPinching = true;
     _initialScale = 1.0;
     _currentScale = 1.0;
+    _pinchProgress = 0.0;
+    _fadeController.value = 1.0;
+  }
+
+  void _onPanZoomUpdate(PointerPanZoomUpdateEvent event) {
+    if (_isPinching) {
+      _currentScale *= event.scale;
+      _pinchProgress = _currentScale < 1.0 ? (1.0 - _currentScale) : (_currentScale - 1.0);
+      setState(() {});
+    }
+  }
+
+  void _onPanZoomEnd(PointerPanZoomEndEvent event) {
+    if (_isPinching) {
+      final store = context.read<NavigationStore>();
+      if (_currentScale < _pinchInThreshold) {
+        store.setHQActive(true);
+        HapticFeedback.mediumImpact();
+      } else if (_currentScale > _pinchOutThreshold) {
+        store.setHQActive(false);
+        HapticFeedback.mediumImpact();
+      }
+      _fadeController.reverse(from: 1.0);
+      _isPinching = false;
+      _pinchProgress = 0.0;
+    }
+  }
+
+  void _onScaleStart(ScaleStartDetails details) {
+    _isPinching = true;
+    _initialScale = 1.0;
+    _currentScale = 1.0;
+    _pinchProgress = 0.0;
+    _initialFocalPoint = details.focalPoint;
+    _currentFocalPoint = details.focalPoint;
+    _fadeController.value = 1.0;
   }
 
   void _onScaleUpdate(ScaleUpdateDetails details) {
-    _currentFocalPoint = details.focalPoint;
     _currentScale = details.scale;
+    _currentFocalPoint = details.focalPoint;
+    _pinchProgress = _currentScale < 1.0 ? (1.0 - _currentScale) : (_currentScale - 1.0);
+    setState(() {});
   }
 
   void _onScaleEnd(ScaleEndDetails details) {
-    final navigationStore = context.read<NavigationStore>();
-
-    final scaleRatio = _currentScale / _initialScale;
-    if (scaleRatio < 0.95) {
-      navigationStore.setHQActive(true);
-    } else if (scaleRatio > 1.05) {
-      navigationStore.setHQActive(false);
-    }
-
-    if (!_isDesktopOrWeb) {
+    final store = context.read<NavigationStore>();
+    final ratio = _currentScale;
+    if (ratio < _pinchInThreshold) {
+      store.setHQActive(true);
+      HapticFeedback.mediumImpact();
+    } else if (ratio > _pinchOutThreshold) {
+      store.setHQActive(false);
+      HapticFeedback.mediumImpact();
+    } else if (ratio >= 0.95 && ratio <= 1.05) {
       final dx = _currentFocalPoint.dx - _initialFocalPoint.dx;
-      final dy = _currentFocalPoint.dy - _initialFocalPoint.dy;
-      if (dx.abs() > 80 && dy.abs() < 80) {
-        _navigateModule(navigationStore, forward: dx < 0);
+      if (dx.abs() > _mobileSwipeThreshold) {
+        final modules = Module.values;
+        final idx = modules.indexOf(store.activeModule);
+        final forward = dx < 0;
+        final nextIdx = forward ? (idx + 1) % modules.length : (idx - 1 + modules.length) % modules.length;
+        store.setActiveModule(modules[nextIdx]);
+        HapticFeedback.mediumImpact();
       }
     }
-  }
-
-  // ------------------- Module switching -------------------
-  void _navigateModule(NavigationStore store, {required bool forward}) {
-    final modules = Module.values;
-    final currentIndex = modules.indexOf(store.activeModule);
-    final nextIndex = forward
-        ? (currentIndex + 1) % modules.length
-        : (currentIndex - 1 + modules.length) % modules.length;
-    store.setActiveModule(modules[nextIndex]);
-  }
-
-  void _switchHQView(NavigationStore store, {required bool up}) {
-    store.switchHQView(up ? HQView.Dashboard : HQView.ModuleManager);
+    _fadeController.reverse(from: 1.0);
+    _isPinching = false;
+    _pinchProgress = 0.0;
   }
 }

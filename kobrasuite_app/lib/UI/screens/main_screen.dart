@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:kobrasuite_app/UI/nav/providers/control_bar_provider.dart';
+import 'package:kobrasuite_app/UI/nav/control_bar/control_bar_button.dart';
 import 'package:kobrasuite_app/UI/nav/providers/navigation_store.dart';
 import 'package:kobrasuite_app/UI/nav/widgets/hq_navigation_overlay.dart';
 import 'package:kobrasuite_app/UI/nav/providers/global_gesture_detector.dart';
 import 'package:kobrasuite_app/UI/nav/widgets/kobra_drawer.dart';
 import 'package:kobrasuite_app/UI/nav/control_bar/page_control_bar.dart';
-import 'package:kobrasuite_app/UI/screens/modules/school/tabs/school_courses_tab.dart';
 import 'package:kobrasuite_app/UI/screens/modules/school/tabs/school_university_tab.dart';
+import 'package:kobrasuite_app/UI/screens/modules/school/tabs/school_courses_tab.dart';
 import 'package:kobrasuite_app/UI/screens/modules/work/work_screen.dart';
 import 'package:kobrasuite_app/UI/screens/modules/finances/finances_screen.dart';
 import 'package:kobrasuite_app/UI/screens/modules/homelife/homelife_screen.dart';
@@ -21,6 +23,29 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   TabController? _tabController;
   List<String> _tabs = [];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final controlBarProvider = context.read<ControlBarProvider>();
+      controlBarProvider.clearPersistentButtons();
+      controlBarProvider.addPersistentButton(
+        ControlBarButtonModel(
+          icon: Icons.refresh,
+          label: 'Refresh',
+          onPressed: () {},
+        ),
+      );
+      controlBarProvider.addPersistentButton(
+        ControlBarButtonModel(
+          icon: Icons.chat,
+          label: 'Toggle AI Chat',
+          onPressed: () {},
+        ),
+      );
+    });
+  }
 
   @override
   void didChangeDependencies() {
@@ -48,7 +73,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     return TabBar(
       controller: _tabController,
       isScrollable: true,
-      dividerColor: Colors.transparent,
       labelColor: theme.colorScheme.secondary,
       unselectedLabelColor: theme.appBarTheme.foregroundColor ?? Colors.white70,
       tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
@@ -57,11 +81,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   Widget _buildTabContent(String tab, Module module) {
     if (module == Module.School) {
-      if (tab == 'University') {
-        return const SchoolUniversityTab(userId: 0);
-      } else if (tab == 'Courses') {
-        return const SchoolCoursesTab();
-      }
+      if (tab == 'University') return const SchoolUniversityTab(userId: 0);
+      if (tab == 'Courses') return const SchoolCoursesTab();
     } else if (module == Module.Work) {
       return const WorkScreen();
     } else if (module == Module.Finances) {
@@ -129,9 +150,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                   NavigationRail(
                     selectedIndex: Module.values.indexOf(activeModule),
                     onDestinationSelected: (index) {
-                      context.read<NavigationStore>().setActiveModule(
-                        Module.values[index],
-                      );
+                      context.read<NavigationStore>().setActiveModule(Module.values[index]);
                     },
                     labelType: NavigationRailLabelType.all,
                     destinations: Module.values.map((m) {
@@ -152,7 +171,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             if (navigationStore.isHQActive) const HQNavigationOverlay(),
           ],
         ),
-        bottomNavigationBar: const PageControlBar(),
+        bottomNavigationBar: navigationStore.isHQActive ? null : const PageControlBar(),
       ),
     );
   }

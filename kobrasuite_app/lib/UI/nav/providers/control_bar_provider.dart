@@ -5,26 +5,47 @@ class ControlBarButtonModel {
   final String label;
   final VoidCallback onPressed;
 
-  ControlBarButtonModel({required this.icon, required this.label, required this.onPressed});
+  ControlBarButtonModel({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
 }
 
 class ControlBarProvider extends ChangeNotifier {
-  final List<ControlBarButtonModel> _buttons = [];
+  final List<ControlBarButtonModel> _persistentButtons = [];
+  final List<ControlBarButtonModel> _ephemeralButtons = [];
 
-  List<ControlBarButtonModel> get buttons => List.unmodifiable(_buttons);
+  List<ControlBarButtonModel> get allButtons =>
+      List.unmodifiable([..._persistentButtons, ..._ephemeralButtons]);
 
-  void addButton(ControlBarButtonModel button) {
-    _buttons.add(button);
+  void addPersistentButton(ControlBarButtonModel button) {
+    _persistentButtons.add(button);
     notifyListeners();
   }
 
-  void removeButton(ControlBarButtonModel button) {
-    _buttons.remove(button);
+  void removePersistentButton(ControlBarButtonModel button) {
+    _persistentButtons.remove(button);
     notifyListeners();
   }
 
-  void clearButtons() {
-    _buttons.clear();
+  void clearPersistentButtons() {
+    _persistentButtons.clear();
+    notifyListeners();
+  }
+
+  void addEphemeralButton(ControlBarButtonModel button) {
+    _ephemeralButtons.add(button);
+    notifyListeners();
+  }
+
+  void removeEphemeralButton(ControlBarButtonModel button) {
+    _ephemeralButtons.remove(button);
+    notifyListeners();
+  }
+
+  void clearEphemeralButtons() {
+    _ephemeralButtons.clear();
     notifyListeners();
   }
 }

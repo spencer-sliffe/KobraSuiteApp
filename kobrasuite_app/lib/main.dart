@@ -46,54 +46,40 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider<AuthProvider>(
-          create: (_) => AuthProvider(),
-        ),
+        ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
         ChangeNotifierProxyProvider<AuthProvider, UserProfileProvider>(
           create: (_) => UserProfileProvider(userPk: 0, userProfilePk: 0),
-          update: (_, authProvider, userProfileProvider) {
-            userProfileProvider!.update(
-              authProvider.userPk,
-              authProvider.userProfilePk,
-            );
-            return userProfileProvider;
+          update: (_, auth, userProfile) {
+            userProfile!.update(auth.userPk, auth.userProfilePk);
+            return userProfile;
           },
         ),
         ChangeNotifierProxyProvider<AuthProvider, SchoolProfileProvider>(
           create: (_) => SchoolProfileProvider(userPk: 0, schoolProfilePk: 0),
-          update: (_, authProvider, schoolProfileProvider) {
-            schoolProfileProvider!.update(
-              authProvider.userPk,
-              authProvider.schoolProfilePk,
-            );
-            return schoolProfileProvider;
+          update: (_, auth, schoolProfile) {
+            schoolProfile!.update(auth.userPk, auth.schoolProfilePk);
+            return schoolProfile;
           },
         ),
         ChangeNotifierProxyProvider<AuthProvider, WorkProfileProvider>(
           create: (_) => WorkProfileProvider(userPk: 0, workProfilePk: 0),
-          update: (_, authProvider, workProfileProvider) {
-            workProfileProvider!.update(
-              authProvider.userPk,
-              authProvider.workProfilePk,
-            );
-            return workProfileProvider;
+          update: (_, auth, workProfile) {
+            workProfile!.update(auth.userPk, auth.workProfilePk);
+            return workProfile;
           },
         ),
         ChangeNotifierProxyProvider<AuthProvider, FinanceProfileProvider>(
           create: (_) => FinanceProfileProvider(userPk: 0, financeProfilePk: 0),
-          update: (_, authProvider, financeProfileProvider) {
-            financeProfileProvider!.update(
-              authProvider.userPk,
-              authProvider.financeProfilePk,
-            );
-            return financeProfileProvider;
+          update: (_, auth, financeProfile) {
+            financeProfile!.update(auth.userPk, auth.financeProfilePk);
+            return financeProfile;
           },
         ),
         ChangeNotifierProxyProvider<AuthProvider, HomeLifeProfileProvider>(
           create: (_) => HomeLifeProfileProvider(userPk: 0, homeLifeProfilePk: 0),
-          update: (_, authProvider, homeLifeProfileProvider) {
-            homeLifeProfileProvider!.update(authProvider.userPk, authProvider.homeLifeProfilePk);
-            return homeLifeProfileProvider;
+          update: (_, auth, homeLifeProfile) {
+            homeLifeProfile!.update(auth.userPk, auth.homeLifeProfilePk);
+            return homeLifeProfile;
           },
         ),
         ChangeNotifierProxyProvider<SchoolProfileProvider, UniversityProvider>(
@@ -133,9 +119,9 @@ void main() async {
             courseProvider: context.read<CourseProvider>(),
             assignmentProvider: context.read<AssignmentProvider>(),
           ),
-          update: (_, sp, uni, cp, ap, subp) {
-            subp!.update(sp, uni, cp, ap);
-            return subp;
+          update: (_, sp, uni, cp, ap, sub) {
+            sub!.update(sp, uni, cp, ap);
+            return sub;
           },
         ),
         ChangeNotifierProxyProvider3<SchoolProfileProvider, UniversityProvider, CourseProvider, TopicProvider>(
@@ -161,18 +147,10 @@ void main() async {
             return sdp;
           },
         ),
-        ChangeNotifierProvider<ThemeNotifier>(
-          create: (_) => ThemeNotifier(),
-        ),
-        ChangeNotifierProvider<RealtimeService>(
-          create: (_) => serviceLocator<RealtimeService>(),
-        ),
+        ChangeNotifierProvider<ThemeNotifier>(create: (_) => ThemeNotifier()),
+        ChangeNotifierProvider<RealtimeService>(create: (_) => serviceLocator<RealtimeService>()),
         ChangeNotifierProxyProvider2<AuthProvider, FinanceProfileProvider, StockPortfolioProvider>(
-          create: (_) => StockPortfolioProvider(
-            userPk: 0,
-            financeProfilePk: 0,
-            stockPortfolioPk: 0,
-          ),
+          create: (_) => StockPortfolioProvider(userPk: 0, financeProfilePk: 0, stockPortfolioPk: 0),
           update: (_, auth, finance, sp) {
             sp!.update(
               newUserPk: auth.userPk,
@@ -183,11 +161,7 @@ void main() async {
           },
         ),
         ChangeNotifierProxyProvider2<AuthProvider, FinanceProfileProvider, CryptoPortfolioProvider>(
-          create: (_) => CryptoPortfolioProvider(
-            userPk: 0,
-            financeProfilePk: 0,
-            cryptoPortfolioPk: 0,
-          ),
+          create: (_) => CryptoPortfolioProvider(userPk: 0, financeProfilePk: 0, cryptoPortfolioPk: 0),
           update: (_, auth, finance, cp) {
             cp!.update(
               newUserPk: auth.userPk,
@@ -198,11 +172,7 @@ void main() async {
           },
         ),
         ChangeNotifierProxyProvider3<AuthProvider, FinanceProfileProvider, StockPortfolioProvider, StockProvider>(
-          create: (_) => StockProvider(
-            userPk: 0,
-            financeProfilePk: 0,
-            stockPortfolioPk: 0,
-          ),
+          create: (_) => StockProvider(userPk: 0, financeProfilePk: 0, stockPortfolioPk: 0),
           update: (_, auth, finance, spPortfolio, s) {
             s!.update(
               newUserPk: auth.userPk,
@@ -213,11 +183,7 @@ void main() async {
           },
         ),
         ChangeNotifierProxyProvider3<AuthProvider, FinanceProfileProvider, CryptoPortfolioProvider, CryptoProvider>(
-          create: (_) => CryptoProvider(
-            userPk: 0,
-            financeProfilePk: 0,
-            cryptoPortfolioPk: 0,
-          ),
+          create: (_) => CryptoProvider(userPk: 0, financeProfilePk: 0, cryptoPortfolioPk: 0),
           update: (_, auth, finance, cpPortfolio, c) {
             c!.update(
               newUserPk: auth.userPk,
@@ -227,15 +193,9 @@ void main() async {
             return c;
           },
         ),
-        ChangeNotifierProvider<StockNewsProvider>(
-          create: (_) => StockNewsProvider(),
-        ),
-        ChangeNotifierProvider<CryptoNewsProvider>(
-          create: (_) => CryptoNewsProvider(),
-        ),
-        ChangeNotifierProvider<ControlBarProvider>(
-          create: (_) => ControlBarProvider(),
-        ),
+        ChangeNotifierProvider<StockNewsProvider>(create: (_) => StockNewsProvider()),
+        ChangeNotifierProvider<CryptoNewsProvider>(create: (_) => CryptoNewsProvider()),
+        ChangeNotifierProvider<ControlBarProvider>(create: (_) => ControlBarProvider()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(360, 690),
