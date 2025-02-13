@@ -8,7 +8,7 @@ class HQModeProvider extends ChangeNotifier {
     navigationStore.addListener(notifyListeners);
   }
 
-  bool get isHQActive => navigationStore.isHQActive;
+  bool get HQActive => navigationStore.hqActive;
   HQView get currentHQView => navigationStore.hqView;
 
   void toggleHQMode() {

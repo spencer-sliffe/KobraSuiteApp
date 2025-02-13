@@ -8,7 +8,7 @@ import 'navigation_store.dart';
 
 class GlobalGestureDetector extends StatefulWidget {
   final Widget child;
-  const GlobalGestureDetector({Key? key, required this.child}) : super(key: key);
+  const GlobalGestureDetector({super.key, required this.child});
 
   @override
   State<GlobalGestureDetector> createState() => _GlobalGestureDetectorState();
@@ -21,8 +21,8 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
   double pinchProgress = 0.0;
   bool isPinching = false;
   double accumulatedScrollDelta = 0.0;
-  bool moduleSwitchTriggered = false;
   double accumulatedHQScrollDelta = 0.0;
+  bool moduleSwitchTriggered = false;
   bool hqSubviewSwitchTriggered = false;
   Timer? scrollResetTimer;
   Timer? subviewResetTimer;
@@ -37,7 +37,9 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
   bool get supportsTrackpad {
     if (kIsWeb) return true;
     final platform = Theme.of(context).platform;
-    return platform == TargetPlatform.macOS || platform == TargetPlatform.windows || platform == TargetPlatform.linux;
+    return platform == TargetPlatform.macOS ||
+        platform == TargetPlatform.windows ||
+        platform == TargetPlatform.linux;
   }
 
   bool get usingPanZoom => supportsTrackpad;
@@ -70,7 +72,7 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
           AnimatedBuilder(
             animation: fadeController,
             builder: (context, child) {
-              final opacity = (pinchProgress.clamp(0.0, 1.0)) * fadeController.value;
+              final opacity = pinchProgress.clamp(0.0, 1.0) * fadeController.value;
               return Positioned.fill(
                 child: IgnorePointer(
                   ignoring: opacity < 0.01,
@@ -89,7 +91,8 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
       onPointerSignal: onPointerSignal,
       child: RawGestureDetector(
         gestures: {
-          ScaleGestureRecognizer: GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
+          ScaleGestureRecognizer:
+          GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
                 () => ScaleGestureRecognizer(supportedDevices: {PointerDeviceKind.touch}),
                 (instance) {
               instance
@@ -105,7 +108,7 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
             AnimatedBuilder(
               animation: fadeController,
               builder: (context, child) {
-                final opacity = (pinchProgress.clamp(0.0, 1.0)) * fadeController.value;
+                final opacity = pinchProgress.clamp(0.0, 1.0) * fadeController.value;
                 return Positioned.fill(
                   child: IgnorePointer(
                     ignoring: opacity < 0.01,
@@ -127,9 +130,10 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
     if (!supportsTrackpad) return;
     if (event is PointerScrollEvent) {
       final store = context.read<NavigationStore>();
-      if (store.isHQActive) {
+      if (store.hqActive) {
         accumulatedHQScrollDelta += event.scrollDelta.dy;
-        if (!hqSubviewSwitchTriggered && accumulatedHQScrollDelta.abs() > hqSubviewScrollThreshold) {
+        if (!hqSubviewSwitchTriggered &&
+            accumulatedHQScrollDelta.abs() > hqSubviewScrollThreshold) {
           if (store.hqView == HQView.Dashboard) {
             store.switchHQView(HQView.ModuleManager);
           } else {
@@ -145,7 +149,8 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
         }
       } else {
         accumulatedScrollDelta += event.scrollDelta.dy;
-        if (!moduleSwitchTriggered && accumulatedScrollDelta.abs() > desktopScrollThreshold) {
+        if (!moduleSwitchTriggered &&
+            accumulatedScrollDelta.abs() > desktopScrollThreshold) {
           final modules = Module.values;
           final idx = modules.indexOf(store.activeModule);
           final forward = accumulatedScrollDelta > 0;
@@ -224,7 +229,7 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
     } else if (ratio >= 0.95 && ratio <= 1.05) {
       final dx = currentFocalPoint.dx - initialFocalPoint.dx;
       final dy = currentFocalPoint.dy - initialFocalPoint.dy;
-      if (store.isHQActive) {
+      if (store.hqActive) {
         if (dy.abs() > mobileSwipeThreshold) {
           if (dy < 0) {
             store.switchHQView(HQView.ModuleManager);

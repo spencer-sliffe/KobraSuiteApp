@@ -168,10 +168,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 ),
               ],
             ),
-            if (navigationStore.isHQActive) const HQNavigationOverlay(),
+            if (navigationStore.hqActive) const HQNavigationOverlay(),
           ],
         ),
-        bottomNavigationBar: navigationStore.isHQActive ? null : const PageControlBar(),
+        bottomNavigationBar: navigationStore.hqActive ? null : const PageControlBar(),
       ),
     );
   }
