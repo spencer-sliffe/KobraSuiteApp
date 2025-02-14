@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:kobrasuite_app/UI/nav/providers/control_bar_provider.dart';
-import 'package:kobrasuite_app/UI/nav/control_bar/control_bar_button.dart';
 import 'package:kobrasuite_app/UI/nav/providers/navigation_store.dart';
 import 'package:kobrasuite_app/UI/nav/widgets/hq_navigation_overlay.dart';
 import 'package:kobrasuite_app/UI/nav/providers/global_gesture_detector.dart';
@@ -17,10 +16,10 @@ class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  MainScreenState createState() => MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
+class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   TabController? _tabController;
   List<String> _tabs = [];
 
@@ -67,6 +66,15 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       case Module.HomeLife:
         return ['HomeLife'];
     }
+  }
+
+  void switchTab({bool forward = true}) {
+    if (_tabs.length <= 1) return;
+    final currentIndex = _tabController?.index ?? 0;
+    final nextIndex = forward
+        ? (currentIndex + 1) % _tabs.length
+        : (currentIndex - 1 + _tabs.length) % _tabs.length;
+    _tabController?.animateTo(nextIndex);
   }
 
   Widget _inlineTabBar(ThemeData theme) {

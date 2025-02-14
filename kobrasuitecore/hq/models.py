@@ -8,6 +8,7 @@ from school.models import Course, University
 from work.models import WorkPlace
 from .types import ModuleType
 
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     date_of_birth = models.DateField(null=True, blank=True)
@@ -43,6 +44,7 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"Profile of {self.user.username}"
 
+
 class SchoolProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='school_profile')
     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='school_profile')
@@ -52,6 +54,7 @@ class SchoolProfile(models.Model):
     def __str__(self):
         return f"School Profile of {self.user.username}"
 
+
 class WorkProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='work_profile')
     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='work_profile')
@@ -60,12 +63,14 @@ class WorkProfile(models.Model):
     def __str__(self):
         return f"Work profile of {self.user.username}"
 
+
 class FinanceProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='finance_profile')
     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='finance_profile')
 
     def __str__(self):
         return f"Finance Profile of {self.user.username}"
+
 
 class HomeLifeProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='homelife_profile')
@@ -74,6 +79,7 @@ class HomeLifeProfile(models.Model):
 
     def __str__(self):
         return f"HomeLife Profile of {self.user.username}"
+
 
 class Multiplier(models.Model):
     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='multipliers')
@@ -88,6 +94,7 @@ class Multiplier(models.Model):
     def __str__(self):
         return f"Multiplier for {self.profile.user.username}"
 
+
 class Wallet(models.Model):
     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='wallet')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -96,6 +103,7 @@ class Wallet(models.Model):
 
     def __str__(self):
         return f"Wallet for {self.profile.user.username}"
+
 
 class ModuleExperience(models.Model):
     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='module_experiences')
@@ -107,6 +115,7 @@ class ModuleExperience(models.Model):
 
     def __str__(self):
         return f"{self.profile.user.username} - {self.module_type} Experience"
+
 
 class ModuleStatus(models.Model):
     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='module_statuses')
@@ -121,6 +130,7 @@ class ModuleStatus(models.Model):
 
     def __str__(self):
         return f"{self.profile.user.username} - {self.module_type} Status"
+
 
 class ModulePopulation(models.Model):
     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='module_populations')
