@@ -4,7 +4,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../../screens/main_screen.dart';
 import 'navigation_store.dart';
 
 class GlobalGestureDetector extends StatefulWidget {
@@ -15,23 +14,19 @@ class GlobalGestureDetector extends StatefulWidget {
   State<GlobalGestureDetector> createState() => _GlobalGestureDetectorState();
 }
 
-class _GlobalGestureDetectorState extends State<GlobalGestureDetector>
-    with SingleTickerProviderStateMixin {
+class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with SingleTickerProviderStateMixin {
   late AnimationController fadeController;
   double initialScale = 1.0;
   double currentScale = 1.0;
   double pinchProgress = 0.0;
   bool isPinching = false;
-  double accumulatedScrollDeltaY = 0.0;
-  double accumulatedScrollDeltaX = 0.0;
+  double accumulatedScrollDelta = 0.0;
+  double accumulatedHQScrollDelta = 0.0;
   bool moduleSwitchTriggered = false;
-  bool tabSwitchTriggered = false;
   bool hqSubviewSwitchTriggered = false;
   Timer? scrollResetTimer;
   Timer? subviewResetTimer;
-  Timer? tabResetTimer;
-  final double verticalThreshold = 680.0;
-  final double horizontalThreshold = 200.0;
+  final double desktopScrollThreshold = 680.0;
   final double hqSubviewScrollThreshold = 680.0;
   final double pinchInThreshold = 0.85;
   final double pinchOutThreshold = 1.15;
@@ -52,10 +47,7 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector>
   @override
   void initState() {
     super.initState();
-    fadeController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-    );
+    fadeController = AnimationController(vsync: this, duration: const Duration(milliseconds: 200));
   }
 
   @override
@@ -63,7 +55,6 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector>
     fadeController.dispose();
     scrollResetTimer?.cancel();
     subviewResetTimer?.cancel();
-    tabResetTimer?.cancel();
     super.dispose();
   }
 
@@ -140,9 +131,9 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector>
     if (event is PointerScrollEvent) {
       final store = context.read<NavigationStore>();
       if (store.hqActive) {
-        accumulatedScrollDeltaY += event.scrollDelta.dy;
+        accumulatedHQScrollDelta += event.scrollDelta.dy;
         if (!hqSubviewSwitchTriggered &&
-            accumulatedScrollDeltaY.abs() > hqSubviewScrollThreshold) {
+            accumulatedHQScrollDelta.abs() > hqSubviewScrollThreshold) {
           if (store.hqView == HQView.Dashboard) {
             store.switchHQView(HQView.ModuleManager);
           } else {
@@ -152,39 +143,24 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector>
           hqSubviewSwitchTriggered = true;
           subviewResetTimer?.cancel();
           subviewResetTimer = Timer(const Duration(milliseconds: 500), () {
-            accumulatedScrollDeltaY = 0.0;
+            accumulatedHQScrollDelta = 0.0;
             hqSubviewSwitchTriggered = false;
           });
         }
       } else {
-        final dy = event.scrollDelta.dy;
-        final dx = event.scrollDelta.dx;
-        if (dx.abs() > horizontalThreshold && !tabSwitchTriggered) {
-          final mainState = context.findAncestorStateOfType<MainScreenState>();
-          if (mainState != null) {
-            if (dx < 0) {
-              mainState.switchTab(forward: true);
-            } else {
-              mainState.switchTab(forward: false);
-            }
-            HapticFeedback.mediumImpact();
-            tabSwitchTriggered = true;
-            tabResetTimer?.cancel();
-            tabResetTimer = Timer(const Duration(milliseconds: 500), () {
-              tabSwitchTriggered = false;
-            });
-          }
-        } else if (dy.abs() > verticalThreshold && !moduleSwitchTriggered) {
+        accumulatedScrollDelta += event.scrollDelta.dy;
+        if (!moduleSwitchTriggered &&
+            accumulatedScrollDelta.abs() > desktopScrollThreshold) {
           final modules = Module.values;
           final idx = modules.indexOf(store.activeModule);
-          final forward = dy > 0;
-          final nextIdx =
-          forward ? (idx + 1) % modules.length : (idx - 1 + modules.length) % modules.length;
+          final forward = accumulatedScrollDelta > 0;
+          final nextIdx = forward ? (idx + 1) % modules.length : (idx - 1 + modules.length) % modules.length;
           store.setActiveModule(modules[nextIdx]);
           HapticFeedback.mediumImpact();
           moduleSwitchTriggered = true;
           scrollResetTimer?.cancel();
           scrollResetTimer = Timer(const Duration(milliseconds: 500), () {
+            accumulatedScrollDelta = 0.0;
             moduleSwitchTriggered = false;
           });
         }
@@ -237,8 +213,7 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector>
   void onScaleUpdate(ScaleUpdateDetails details) {
     currentScale = details.scale;
     currentFocalPoint = details.focalPoint;
-    pinchProgress =
-    currentScale < 1.0 ? (1.0 - currentScale) : (currentScale - 1.0);
+    pinchProgress = currentScale < 1.0 ? (1.0 - currentScale) : (currentScale - 1.0);
     setState(() {});
   }
 
@@ -268,8 +243,7 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector>
           final modules = Module.values;
           final idx = modules.indexOf(store.activeModule);
           final forward = dx < 0;
-          final nextIdx =
-          forward ? (idx + 1) % modules.length : (idx - 1 + modules.length) % modules.length;
+          final nextIdx = forward ? (idx + 1) % modules.length : (idx - 1 + modules.length) % modules.length;
           store.setActiveModule(modules[nextIdx]);
           HapticFeedback.mediumImpact();
         }
