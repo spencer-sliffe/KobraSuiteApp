@@ -1,3 +1,22 @@
+"""
+------------------Prologue--------------------
+File Name: homelife_models.py
+Path: kobrasuitecore/homelife/models.py
+
+Description:
+Declares models for household management, including chores, pets, meal plans, shared
+calendars, and more. Facilitates domestic organization for multiple occupant types.
+
+Input:
+None directly; data is stored and retrieved by other application components.
+
+Output:
+Database tables representing households, chores, events, groceries, medications, and related
+home-life features.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 from django.db import models
 from django.utils import timezone
 from homelife.types import HouseholdType, ChoreFrequency, MealType

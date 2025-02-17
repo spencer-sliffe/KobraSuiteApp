@@ -1,3 +1,21 @@
+"""
+------------------Prologue--------------------
+File Name: signals.py
+Path: kobrasuitecore/customer/signals.py
+
+Description:
+Automatically creates user-related profiles (general, school, work, finance, homelife) after
+a User instance is saved, initializing these profiles for newly registered users.
+
+Input:
+User instances monitored through Django signals.
+
+Output:
+Profile objects for each user, updated or newly created.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 # customer/signals.py
 
 from django.db.models.signals import post_save

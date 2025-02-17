@@ -1,3 +1,22 @@
+"""
+------------------Prologue--------------------
+File Name: user_serializers.py
+Path: kobrasuitecore/customer/serializers/user_serializers.py
+
+Description:
+Defines serializer classes that handle user data, including associated profile details
+for school, work, finance, and homelife. Supports both retrieval and updates of nested
+profile information.
+
+Input:
+User data and associated nested profile fields for validation and transformation.
+
+Output:
+JSON representations of user objects, including nested profile identifiers and content.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 # File: customer/serializers/user_serializers.py
 from rest_framework import serializers
 from django.contrib.auth import get_user_model

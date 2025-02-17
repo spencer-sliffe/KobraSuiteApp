@@ -1,3 +1,22 @@
+"""
+------------------Prologue--------------------
+File Name: misc_invest_views.py
+Path: kobrasuitecore/finances/views/misc_invest_views.py
+
+Description:
+Provides endpoints covering miscellaneous investment functionalities, such as retrieving
+stock or crypto data, fetching market movers, generating predictions, and returning
+financial or news information.
+
+Input:
+Various query parameters for stock/crypto info, predictions, or market updates.
+
+Output:
+Aggregated or computed investment data, including predictions and news articles.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 import os
 from rest_framework import viewsets, status
 from rest_framework.response import Response

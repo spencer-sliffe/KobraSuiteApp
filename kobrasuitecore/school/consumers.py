@@ -1,3 +1,22 @@
+"""
+------------------Prologue--------------------
+File Name: consumers.py
+Path: kobrasuitecore/school/consumers.py
+
+Description:
+Defines a WebSocket consumer for the school chat functionality.
+Manages connection lifecycle events, message handling, heartbeat monitoring, and presence notifications.
+Saves discussion posts to the database as part of the chat interactions.
+
+Input:
+WebSocket messages of various types (message, heartbeat, typing, ping) from connected clients.
+
+Output:
+Real-time chat broadcasts, presence updates, and acknowledgment responses to connected users.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 import json
 import logging
 import asyncio

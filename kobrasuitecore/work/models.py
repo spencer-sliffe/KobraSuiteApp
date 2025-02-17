@@ -1,3 +1,22 @@
+"""
+------------------Prologue--------------------
+File Name: models.py
+Path: kobrasuitecore/work/models.py
+
+Description:
+Defines the WorkPlace model representing a workplace environment.
+Includes fields for name, field, website, invite_code, owner, identity_image, and creation timestamp.
+Automatically generates a unique invite code if not provided and computes the member_count based on related work profiles.
+
+Input:
+WorkPlace data submitted via forms or API endpoints.
+
+Output:
+Database table representation for WorkPlace with automated invite code generation and a computed member count.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 from django.db import models
 from django.conf import settings
 from django.utils import timezone

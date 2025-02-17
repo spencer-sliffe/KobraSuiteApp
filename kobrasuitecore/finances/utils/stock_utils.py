@@ -1,3 +1,21 @@
+"""
+------------------Prologue--------------------
+File Name: stock_utils.py
+Path: kobrasuitecore/finances/utils/stock_utils.py
+
+Description:
+Provides helper functions for retrieving current and historical stock data, checking
+ticker validity, generating textual analyses, and handling external API integrations.
+
+Input:
+Ticker symbols and optional date ranges or user parameters.
+
+Output:
+Cleaned and structured stock data, chart information, or generated financial insights.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 import os
 import requests
 import numpy as np

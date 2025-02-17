@@ -1,3 +1,22 @@
+"""
+------------------Prologue--------------------
+File Name: tasks.py
+Path: kobrasuitecore/school/tasks.py
+
+Description:
+Defines asynchronous Celery tasks for background processing within the school module.
+Tasks include synchronizing universities from an external API, cleaning up old submissions,
+and sending assignment reminders to students.
+
+Input:
+Scheduled task triggers with optional parameters such as cleanup days or reminder intervals.
+
+Output:
+Background operations that update the database and log task outcomes.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 # school/tasks.py
 import logging
 import datetime

@@ -1,3 +1,22 @@
+"""
+------------------Prologue--------------------
+File Name: stock_prediction_services.py
+Path: kobrasuitecore/finances/services/stock_prediction_services.py
+
+Description:
+Contains functions for retrieving stock data, engineering technical indicators, and
+running classification/regression models (including LSTM networks) to generate predictions.
+Employs concurrency for horizon-based forecasting.
+
+Input:
+Stock ticker symbols and optional indicator flags for feature expansion.
+
+Output:
+Prediction metrics (accuracy, MSE, Sharpe ratio, etc.) and future price estimations.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 import logging
 import numpy as np
 import pandas as pd

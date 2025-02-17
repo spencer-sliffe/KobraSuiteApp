@@ -1,3 +1,21 @@
+"""
+------------------Prologue--------------------
+File Name: crypto_utils.py
+Path: kobrasuitecore/finances/utils/crypto_utils.py
+
+Description:
+Offers utility functions for retrieving cryptocurrency data from external APIs (e.g.,
+CoinGecko). Extracts current pricing, market cap, volume, and more for given coins.
+
+Input:
+Crypto coin identifiers used by external services.
+
+Output:
+Parsed data structures containing relevant crypto info (price, rank, volume, etc.).
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 # /finances/utils/crypto_utils.py
 import requests
 from django.conf import settings

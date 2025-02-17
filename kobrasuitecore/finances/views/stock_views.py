@@ -1,3 +1,23 @@
+"""
+------------------Prologue--------------------
+File Name: stock_views.py
+Path: kobrasuitecore/finances/views/stock_views.py
+
+Description:
+Implements endpoints for managing stock portfolios: adding/removing tickers, fetching
+positions, and performing portfolio-level analytics. Relies on utility and service layers
+to handle data integrity and external lookups.
+
+Input:
+User-provided portfolio identifiers, ticker symbols, share counts, and optional dates.
+
+Output:
+Structured JSON containing updated portfolio data, success/error messages, or portfolio
+analysis results.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response

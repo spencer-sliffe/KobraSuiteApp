@@ -1,3 +1,24 @@
+"""
+------------------Prologue--------------------
+File Name: assignment_serializers.py
+Path: kobrasuitecore/school/serializers/assignment_serializers.py
+
+Description:
+Provides serializer classes for handling assignment and submission data.
+AssignmentSerializer formats assignment data with nested course details and associated submissions.
+CreateAssignmentSerializer offers a simplified interface for creating new assignments.
+SubmissionSerializer validates and structures submission data including text answers, files, and optional comments.
+SubmissionActionSerializer is used for partial updates to submission content.
+
+Input:
+Assignment and submission data submitted via API endpoints.
+
+Output:
+Validated and structured JSON representations for assignments and submissions.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 # school/serializers/assignment_serializers.py
 
 from rest_framework import serializers

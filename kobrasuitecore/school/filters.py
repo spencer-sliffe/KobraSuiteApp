@@ -1,3 +1,22 @@
+"""
+------------------Prologue--------------------
+File Name: filters.py
+Path: kobrasuitecore/school/filters.py
+
+Description:
+Provides filter sets for querying school-related models including University, Course, Assignment, Topic,
+StudyDocument, and Submission.
+Facilitates advanced filtering capabilities based on fields like names, dates, and identifiers.
+
+Input:
+Query parameters from client API requests for filtering data.
+
+Output:
+Filtered QuerySets that are used in API views to return precise model data.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 # school/filters.py
 
 import django_filters

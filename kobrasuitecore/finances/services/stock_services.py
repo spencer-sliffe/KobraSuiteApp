@@ -1,3 +1,22 @@
+"""
+------------------Prologue--------------------
+File Name: stock_services.py
+Path: kobrasuitecore/finances/services/stock_services.py
+
+Description:
+Handles the main business logic for stock portfolios, including adding and removing
+stocks, retrieving current positions, and performing high-level portfolio analysis (e.g.,
+expected returns, risk, Sharpe ratio).
+
+Input:
+User requests to manage stock holdings, plus real-time data lookups for stock prices.
+
+Output:
+Database operations reflecting updated portfolios, along with computed portfolio metrics.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 import logging
 import numpy as np
 import pandas as pd
