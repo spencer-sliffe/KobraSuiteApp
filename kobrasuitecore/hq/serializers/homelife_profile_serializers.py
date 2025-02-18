@@ -8,5 +8,5 @@ class HomeLifeProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = HomeLifeProfile
         fields = [
-            'id', 'user',
+            'id',
         ]
