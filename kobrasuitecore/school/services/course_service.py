@@ -1,3 +1,23 @@
+"""
+------------------Prologue--------------------
+File Name: course_service.py
+Path: kobrasuitecore/school/services/course_service.py
+
+Description:
+Provides service functions for course management.
+Includes functions to create new courses within a university, search courses based on query parameters,
+and add or remove courses from a school profile.
+Employs atomic transactions to ensure consistency.
+
+Input:
+Course data and identifiers provided via client requests.
+
+Output:
+Course objects and status messages indicating success or failure of the operations.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 # school/services/course_service.py
 import logging
 from typing import Tuple, Any, Dict

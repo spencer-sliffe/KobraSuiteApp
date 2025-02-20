@@ -1,3 +1,22 @@
+"""
+------------------Prologue--------------------
+File Name: permissions.py
+Path: kobrasuitecore/school/permissions.py
+
+Description:
+Defines custom permission classes for validating access to discussion threads and posts.
+IsThreadMember checks if the authenticated user is a member of a discussion scope (University, Course, or Assignment).
+IsPostAuthorOrThreadMember grants access if the user is either the post author or a member of the associated discussion thread.
+
+Input:
+HTTP request objects containing authenticated user details and discussion-related objects.
+
+Output:
+Boolean permission decisions to either grant or deny access to discussion resources.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 from rest_framework import permissions
 from school.models import University, Course, Assignment
 

@@ -1,3 +1,22 @@
+"""
+------------------Prologue--------------------
+File Name: stock_serializers.py
+Path: kobrasuitecore/finances/serializers/stock_serializers.py
+
+Description:
+Contains serializer classes for the stock-related data models, including stock portfolios,
+individual holdings, and favorites/watchlists. Validates and structures data for storage
+and retrieval.
+
+Input:
+Incoming stock data such as ticker symbols, purchase info, and portfolio references.
+
+Output:
+Validated JSON structures representing stocks, portfolios, and watchlist/favorites entries.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 from rest_framework import serializers
 from finances.models import StockPortfolio, PortfolioStock, FavoriteStock, WatchlistStock
 

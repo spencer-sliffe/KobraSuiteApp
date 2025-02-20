@@ -1,3 +1,22 @@
+"""
+------------------Prologue--------------------
+File Name: crypto_views.py
+Path: kobrasuitecore/finances/views/crypto_views.py
+
+Description:
+Defines REST API endpoints for crypto portfolios, including adding/removing coins and
+retrieving portfolio holdings. Integrates with business logic in crypto_services and
+utility functions for data lookups.
+
+Input:
+HTTP requests specifying crypto actions (add, remove, list) and metadata for coin details.
+
+Output:
+Serialized responses containing portfolio data, success/failure messages, or error codes.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response

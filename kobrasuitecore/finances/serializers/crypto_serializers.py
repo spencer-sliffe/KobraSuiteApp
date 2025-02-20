@@ -1,3 +1,23 @@
+"""
+------------------Prologue--------------------
+File Name: crypto_serializers.py
+Path: kobrasuitecore/finances/serializers/crypto_serializers.py
+
+Description:
+Provides serializers to handle data for crypto portfolios, individual crypto holdings,
+and user favorites/watchlists. Ensures correct structure and validation for crypto-based
+data.
+
+Input:
+Raw request data related to crypto portfolios and coins.
+
+Output:
+JSON representations of crypto portfolio objects, including nested relationships like
+portfolio cryptos, favorites, and watchlist items.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 from rest_framework import serializers
 from finances.models import CryptoPortfolio, PortfolioCrypto, FavoriteCrypto, WatchlistCrypto
 

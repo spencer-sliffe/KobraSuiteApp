@@ -1,3 +1,22 @@
+"""
+------------------Prologue--------------------
+File Name: discussion_serializers.py
+Path: kobrasuitecore/school/serializers/discussion_serializers.py
+
+Description:
+Provides serializer classes for managing discussion threads and posts.
+DiscussionThreadSerializer formats thread data including dynamic scope model information.
+DiscussionPostSerializer validates and structures individual discussion post data ensuring non-empty content.
+
+Input:
+Discussion thread and post data from API requests.
+
+Output:
+Validated JSON representations for discussion threads and posts.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
 from school.models import DiscussionThread, DiscussionPost

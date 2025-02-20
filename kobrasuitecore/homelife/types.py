@@ -1,3 +1,21 @@
+"""
+------------------Prologue--------------------
+File Name: homelife_types.py
+Path: kobrasuitecore/homelife/types.py
+
+Description:
+Defines enumerated text choices for household types, chore frequencies, and meal types.
+These choices help maintain consistent references and validations across the homelife app.
+
+Input:
+None directly; used for referencing enumerated options within the models.
+
+Output:
+Constant string values representing valid types for household structures and chores.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 from django.db import models
 
 

@@ -1,3 +1,21 @@
+"""
+------------------Prologue--------------------
+File Name: types.py
+Path: kobrasuitecore/school/types.py
+
+Description:
+Defines enumerated types and regular expression patterns for the school module.
+Includes discussion scope choices, semester format validation, course code regex, and semester choices.
+
+Input:
+None directly; used internally for model field validations and choice constraints.
+
+Output:
+Constant values and regex patterns employed throughout the school application.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 # school/types.py
 import re
 from django.db import models

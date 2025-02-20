@@ -1,3 +1,22 @@
+"""
+------------------Prologue--------------------
+File Name: types.py
+Path: kobrasuitecore/work/types.py
+
+Description:
+Defines enumerated text choices for categorizing workplace fields.
+Provides standardized options such as TECHNOLOGY, RETAIL, AUTOMOBILE, FINANCE, HEALTHCARE, EDUCATION, REAL_ESTATE, MEDIA, and OTHER.
+Ensures consistent categorization of workplace data across the application.
+
+Input:
+None directly; used internally for field validation in the WorkPlace model.
+
+Output:
+Constant string values representing valid workplace fields.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 from django.db import models
 
 

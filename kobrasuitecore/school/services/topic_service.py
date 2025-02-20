@@ -1,4 +1,23 @@
 # school/services/topic_service.py
+"""
+------------------Prologue--------------------
+File Name: topic_service.py
+Path: kobrasuitecore/school/services/topic_service.py
+
+Description:
+Implements service functions for managing topics and study documents.
+Handles creation, update, and deletion of topics and study documents using atomic transactions.
+Logs key operations for monitoring and debugging purposes.
+
+Input:
+Validated topic and study document data from API requests.
+
+Output:
+Updated topic or study document objects along with corresponding HTTP status codes.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 import logging
 from django.db import transaction
 from rest_framework import status

@@ -1,3 +1,23 @@
+"""
+------------------Prologue--------------------
+File Name: crypto_services.py
+Path: kobrasuitecore/finances/services/crypto_services.py
+
+Description:
+Implements core logic for managing crypto portfolios, including creation and deletion of
+crypto holdings. Supports atomic transactions and queries to external APIs for up-to-date
+pricing data.
+
+Input:
+Requests to add/remove crypto assets from user portfolios, plus external data lookups
+for real-time coin info.
+
+Output:
+Database operations on crypto portfolios and aggregated data about portfolio performance.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 # /finances/services/crypto_services
 import logging
 from django.db import transaction

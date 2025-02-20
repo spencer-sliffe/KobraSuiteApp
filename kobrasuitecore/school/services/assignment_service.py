@@ -1,3 +1,22 @@
+"""
+------------------Prologue--------------------
+File Name: assignment_service.py
+Path: kobrasuitecore/school/services/assignment_service.py
+
+Description:
+Implements business logic for managing assignments and submissions.
+Handles creation of assignments, retrieval of submissions, and both creation and updates of submissions.
+Ensures data integrity using atomic transactions.
+
+Input:
+Validated assignment and submission data from API endpoints.
+
+Output:
+Database operations on assignments and submissions along with appropriate HTTP status codes.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 # school/services/assignment_service.py
 
 import logging

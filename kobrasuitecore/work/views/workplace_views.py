@@ -1,3 +1,22 @@
+"""
+------------------Prologue--------------------
+File Name: workplace_views.py
+Path: kobrasuitecore/work/views/workplace_views.py
+
+Description:
+Implements API endpoints for managing workplaces.
+Provides actions for creating a workplace, joining/leaving a workplace, and listing workplace members.
+Handles permissions and ownership validations while integrating with filtering mechanisms.
+
+Input:
+HTTP requests for workplace management and membership operations.
+
+Output:
+Serialized workplace data, success messages, and error responses related to workplace operations.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, status
 from rest_framework.response import Response

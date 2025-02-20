@@ -1,3 +1,22 @@
+"""
+------------------Prologue--------------------
+File Name: university_serializers.py
+Path: kobrasuitecore/school/serializers/university_serializers.py
+
+Description:
+Provides serializers for university data management.
+UniversitySerializer formats university details along with computed student and course counts.
+SetUniversitySerializer validates and processes input data for setting university information.
+
+Input:
+University data provided by client applications.
+
+Output:
+Structured and validated JSON representations of university information.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 # school/serializers/university_serializers.py
 from rest_framework import serializers
 from ..models import University

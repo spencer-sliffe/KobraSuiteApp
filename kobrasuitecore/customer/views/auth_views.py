@@ -1,3 +1,21 @@
+"""
+------------------Prologue--------------------
+File Name: auth_viewset.py
+Path: kobrasuitecore/customer/views/auth_viewset.py
+
+Description:
+Exposes endpoints for registering new users, logging in, logging out, and retrieving user
+information (whoami). Utilizes DRF and JWT for managing authentication tokens.
+
+Input:
+Registration and login data, refresh tokens for logout, and user credentials.
+
+Output:
+JWT tokens, success messages, user data, or error details.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 # File: customer/views/auth_viewset.py
 from django.db.utils import IntegrityError
 from rest_framework import viewsets, status

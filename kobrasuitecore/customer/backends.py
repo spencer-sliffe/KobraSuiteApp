@@ -1,3 +1,21 @@
+"""
+------------------Prologue--------------------
+File Name: backends.py
+Path: kobrasuitecore/customer/backends.py
+
+Description:
+Defines a custom authentication backend that merges role-based permissions with standard
+Django permission checks. Permits layered authorization for users based on assigned roles.
+
+Input:
+User credentials and role associations.
+
+Output:
+Permission decisions granting or denying access to protected resources.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 # customer/backends.py
 
 from django.contrib.auth.backends import ModelBackend

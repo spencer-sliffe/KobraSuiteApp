@@ -1,3 +1,21 @@
+"""
+------------------Prologue--------------------
+File Name: chatgpt_serializers.py
+Path: kobrasuitecore/ai/serializers/chatgpt_serializers.py
+
+Description:
+Defines serializer classes for chat interactions (user messages, bot responses, logs) and course verification.
+These serializers handle incoming and outgoing data for AI-related features, including validation of user inputs.
+
+Input:
+Data passed in requests through Django REST Framework.
+
+Output:
+JSON representations of chat requests, responses, and course verification details.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 from rest_framework import serializers
 
 from school.serializers.university_serializers import UniversitySerializer

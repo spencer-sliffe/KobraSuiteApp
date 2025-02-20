@@ -1,3 +1,21 @@
+"""
+------------------Prologue--------------------
+File Name: models.py
+Path: kobrasuitecore/ai/models.py
+
+Description:
+Declares the ChatLog model for storing AI chat interactions, including user messages, bot responses,
+and timestamps.
+
+Input:
+None directly; models are populated by the application’s services and views.
+
+Output:
+Database tables representing chat logs.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 # ai/models.py
 
 from django.db import models

@@ -1,3 +1,22 @@
+"""
+------------------Prologue--------------------
+File Name: signals.py
+Path: kobrasuitecore/school/signals.py
+
+Description:
+Registers signal handlers to log significant events within the school module.
+Monitors creation events for University, Course, Assignment, Submission, and DiscussionThread.
+Also logs many-to-many changes in course-student relationships.
+
+Input:
+Model save events and m2m_changed signals triggered by data modifications.
+
+Output:
+Log entries detailing creation and update events for school-related models.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 # school/signals.py
 import logging
 from django.db.models.signals import post_save, m2m_changed

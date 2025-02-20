@@ -1,3 +1,22 @@
+"""
+------------------Prologue--------------------
+File Name: middleware.py
+Path: kobrasuitecore/school/tests/middleware.py
+
+Description:
+Implements custom middleware for WebSocket authentication in tests using JWT tokens.
+Extracts tokens from headers or query parameters, verifies them, and assigns the corresponding user
+to the WebSocket connection scope.
+
+Input:
+JWT tokens provided in the WebSocket connection headers or query strings.
+
+Output:
+Authenticated user information in the connection scope or defaults to AnonymousUser.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 # school/tests/middleware.py
 
 import logging

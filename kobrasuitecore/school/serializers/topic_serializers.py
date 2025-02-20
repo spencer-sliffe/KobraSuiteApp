@@ -1,3 +1,22 @@
+"""
+------------------Prologue--------------------
+File Name: topic_serializers.py
+Path: kobrasuitecore/school/serializers/topic_serializers.py
+
+Description:
+Defines serializers for managing topics and associated study documents.
+TopicSerializer formats topic data with nested course details.
+StudyDocumentSerializer validates study document submissions and includes author information.
+
+Input:
+Topic and study document data from client submissions.
+
+Output:
+Structured and validated JSON responses representing topics and study documents.
+
+Collaborators: SPENCER SLIFFE
+---------------------------------------------
+"""
 # school/serializers/topic_serializers.py
 
 from rest_framework import serializers
