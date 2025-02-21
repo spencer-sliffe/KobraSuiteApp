@@ -24,14 +24,12 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_datetime
-
 from customer.permissions import IsOwnerOrAdmin
 from hq.models import FinanceProfile
-from finances.models import StockPortfolio, PortfolioStock, FavoriteStock, WatchlistStock
+from finances.models import StockPortfolio, PortfolioStock, WatchlistStock
 from finances.serializers.stock_serializers import (
     StockPortfolioSerializer,
     PortfolioStockSerializer,
-    FavoriteStockSerializer,
     WatchlistStockSerializer
 )
 from finances.services.stock_services import (
@@ -48,24 +46,20 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
     queryset = StockPortfolio.objects.all()
     serializer_class = StockPortfolioSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
-
     def get_queryset(self):
         user_pk = self.kwargs.get('user_pk')
         finance_profile_pk = self.kwargs.get('finance_profile_pk')
         return self.queryset.filter(profile__user__id=user_pk, profile__id=finance_profile_pk)
-
     def create(self, request, user_pk=None, finance_profile_pk=None):
         profile = get_object_or_404(FinanceProfile, pk=finance_profile_pk, user_id=user_pk)
         portfolio = get_or_create_stock_portfolio(profile)
         serializer = self.get_serializer(portfolio)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
     @action(detail=True, methods=['get'])
     def stocks(self, request, pk=None, user_pk=None, finance_profile_pk=None):
         profile = get_object_or_404(FinanceProfile, pk=finance_profile_pk, user_id=user_pk)
         data = get_portfolio_stocks(profile, pk)
         return Response(data, status=status.HTTP_200_OK)
-
     @action(detail=True, methods=['post'])
     def add_stock(self, request, pk=None, user_pk=None, finance_profile_pk=None):
         profile = get_object_or_404(FinanceProfile, pk=finance_profile_pk, user_id=user_pk)
@@ -82,7 +76,6 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
         if success:
             return Response({'message': f'{ticker} added.'}, status=status.HTTP_200_OK)
         return Response({'error': 'Failed to add stock'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
     @action(detail=True, methods=['delete'], url_path='remove_stock/(?P<ticker>[^/.]+)')
     def remove_stock(self, request, ticker=None, pk=None, user_pk=None, finance_profile_pk=None):
         profile = get_object_or_404(FinanceProfile, pk=finance_profile_pk, user_id=user_pk)
@@ -90,7 +83,6 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
         if success:
             return Response({'message': f'{ticker} removed.'}, status=status.HTTP_200_OK)
         return Response({'error': 'Failed to remove stock'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
     @action(detail=True, methods=['get'])
     def analysis(self, request, pk=None, user_pk=None, finance_profile_pk=None):
         profile = get_object_or_404(FinanceProfile, pk=finance_profile_pk, user_id=user_pk)
@@ -112,21 +104,10 @@ class PortfolioStockViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
 
 
-class FavoriteStockViewSet(viewsets.ModelViewSet):
-    queryset = FavoriteStock.objects.all()
-    serializer_class = FavoriteStockSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
-
-    def get_queryset(self):
-        stock_portfolio_pk = self.kwargs.get('stock_portfolio_pk')
-        return self.queryset.filter(portfolio__pk=stock_portfolio_pk)
-
-
 class WatchlistStockViewSet(viewsets.ModelViewSet):
     queryset = WatchlistStock.objects.all()
     serializer_class = WatchlistStockSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
-
     def get_queryset(self):
         stock_portfolio_pk = self.kwargs.get('stock_portfolio_pk')
         return self.queryset.filter(portfolio__pk=stock_portfolio_pk)

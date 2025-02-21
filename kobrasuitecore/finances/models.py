@@ -15,75 +15,40 @@ Database table representations for StockPortfolio, PortfolioStock, FavoriteStock
 Database table representations for CryptoPortfolio, PortfolioCrypto, FavoriteCrypto, WatchedPortfolio
 
 Collaborators: Spencer Sliffe
+
 ---------------------------------------------
 """
 
 from django.db import models
 from django.utils import timezone
-from django.conf import settings
-
 from hq.models import FinanceProfile
+from .types import CategoryType
 
-class CategoryType(models.TextChoices):
-    NECESSARY = 'NECESSARY', 'Necessary Expenses'
-    UNNECESSARY = 'UNNECESSARY', 'Unnecessary Expenses'
-    INVESTING = 'INVESTING', 'Investing'
 
 class StockPortfolio(models.Model):
     profile = models.ForeignKey(FinanceProfile, on_delete=models.CASCADE, related_name='stock_portfolios')
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class PortfolioStock(models.Model):
+    portfolio = models.ForeignKey(StockPortfolio, on_delete=models.CASCADE, related_name='stocks')
+    ticker = models.CharField(max_length=12)
+    number_of_shares = models.IntegerField()
+    pps_at_purchase = models.FloatField()
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
 class WatchlistStock(models.Model):
+    portfolio = models.ForeignKey(StockPortfolio, on_delete=models.CASCADE, related_name='watchlist_stocks')
+    ticker = models.CharField(max_length=12)
     created_at = models.DateTimeField(default=timezone.now)
 
-
-class Transaction(models.Model):
-    """
-    Stores financial transactions (expenses, income, transfers).
-    """
-    TRANSACTION_TYPES = (
-        ('EXPENSE', 'Expense'),
-        ('INCOME', 'Income'),
-        ('TRANSFER', 'Transfer'),
-    )
-
-    user = models.ForeignKey(
-        'auth.User',  # Adjust as per your AUTH_USER_MODEL
-        on_delete=models.CASCADE,
-        related_name='transactions'
-    )
-    bank_account = models.ForeignKey(
-        'BankAccount',
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True
-    )
-    budget_category = models.ForeignKey(
-        'BudgetCategory',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='transactions'
-    )
-    transaction_type = models.CharField(
-        max_length=20,
-        choices=TRANSACTION_TYPES
-    )
-    amount = models.DecimalField(max_digits=12, decimal_places=2)
-    description = models.TextField(null=True, blank=True)
-    date = models.DateField(default=timezone.now)
-    created_at = models.DateTimeField(default=timezone.now)
-    def __str__(self):
-        return f"{self.transaction_type} - {self.amount} - {self.user.username}"
-    class Meta:
-        ordering = ['-created_at']
 
 class BankAccount(models.Model):
-    """
-    Links a user to external or internal bank accounts.
-    """
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+    profile = models.ForeignKey(
+        FinanceProfile,
         on_delete=models.CASCADE,
         related_name='bank_accounts'
     )
@@ -95,27 +60,13 @@ class BankAccount(models.Model):
     last_synced = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
-    def __str__(self):
-        return f"{self.name} - {self.user.username}"
-    def total_allocated(self):
-        return self.categories.aggregate(total=models.Sum('allocated_amount'))['total'] or 0.00
-    def total_spent(self):
-        return Transaction.objects.filter(
-            user=self.user,
-            budget_category__budget=self,
-            transaction_type='EXPENSE'
-        ).aggregate(total=models.Sum('amount'))['total'] or 0.00
-    def remaining_budget(self):
-        return self.total_allocated() - self.total_spent()
     class Meta:
         ordering = ['-created_at']
 
+
 class Budget(models.Model):
-    """
-    Represents a user's budget.
-    """
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+    profile = models.ForeignKey(
+        FinanceProfile,
         on_delete=models.CASCADE,
         related_name='budgets'
     )
@@ -125,12 +76,23 @@ class Budget(models.Model):
     end_date = models.DateField()
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+    class Meta:
+        ordering = ['-created_at']
+    def total_allocated(self):
+        return self.categories.aggregate(total=models.Sum('allocated_amount'))['total'] or 0.00
+    def total_spent(self):
+        from .models import Transaction
+        return Transaction.objects.filter(
+            profile=self.profile,
+            budget_category__budget=self,
+            transaction_type='EXPENSE'
+        ).aggregate(total=models.Sum('amount'))['total'] or 0.00
+    def remaining_budget(self):
+        return self.total_allocated() - self.total_spent()
+
 
 class BudgetCategory(models.Model):
-    """
-    Sub-category within a Budget (e.g., 'Groceries', 'Rent').
-    Categorized into Necessary, Unnecessary, or Investing.
-    """
     budget = models.ForeignKey(
         Budget,
         on_delete=models.CASCADE,
@@ -143,14 +105,48 @@ class BudgetCategory(models.Model):
         choices=CategoryType.choices,
         default=CategoryType.NECESSARY
     )
-    def __str__(self):
-        return f"{self.name} ({self.get_category_type_display()}) under {self.budget.name}"
+    class Meta:
+        ordering = ['category_type', 'name']
     def total_spent(self):
         return self.transactions.filter(transaction_type='EXPENSE').aggregate(total=models.Sum('amount'))['total'] or 0.00
     def remaining_allocated_amount(self):
         return self.allocated_amount - self.total_spent()
+
+
+class Transaction(models.Model):
+    TRANSACTION_TYPES = (
+        ('EXPENSE', 'Expense'),
+        ('INCOME', 'Income'),
+        ('TRANSFER', 'Transfer'),
+    )
+    profile = models.ForeignKey(
+        FinanceProfile,
+        on_delete=models.CASCADE,
+        related_name='transactions'
+    )
+    bank_account = models.ForeignKey(
+        BankAccount,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+    budget_category = models.ForeignKey(
+        BudgetCategory,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='transactions'
+    )
+    transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPES)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    description = models.TextField(null=True, blank=True)
+    date = models.DateField(default=timezone.now)
+    created_at = models.DateTimeField(default=timezone.now)
     class Meta:
-        ordering = ['category_type', 'name']
+        ordering = ['-created_at']
+    def __str__(self):
+        return f"{self.transaction_type} - {self.amount}"
+
 
 #class Bill(models.Model):
 #    """
