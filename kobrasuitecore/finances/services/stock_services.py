@@ -18,14 +18,14 @@ Collaborators: SPENCER SLIFFE
 ---------------------------------------------
 """
 import logging
-import numpy as np
-import pandas as pd
 import yfinance as yf
 from datetime import datetime
 from django.db import transaction
 from finances.models import StockPortfolio, PortfolioStock
 from finances.utils.stock_utils import get_current_stock_price, get_stock_price_at_date
 from math import sqrt
+import numpy as np
+import pandas as pd
 
 
 def get_or_create_stock_portfolio(finance_profile):
@@ -62,6 +62,7 @@ def add_stock_to_portfolio(finance_profile, portfolio_id, ticker, num_shares, pu
         logging.error(e)
         return False
 
+
 def remove_stock_from_portfolio(finance_profile, portfolio_id, ticker):
     try:
         portfolio = StockPortfolio.objects.filter(profile=finance_profile, pk=portfolio_id).first()
@@ -75,6 +76,7 @@ def remove_stock_from_portfolio(finance_profile, portfolio_id, ticker):
     except Exception as e:
         logging.error(e)
         return False
+
 
 def get_portfolio_stocks(finance_profile, portfolio_id):
     portfolio = StockPortfolio.objects.filter(profile=finance_profile, pk=portfolio_id).first()
@@ -127,8 +129,8 @@ def portfolio_analysis(structure):
         returns = data.pct_change().dropna()
         mu = returns.mean() * 252
         cov = returns.cov() * 252
-        er = np.dot(weights, mu)
-        var = np.dot(weights.T, np.dot(cov, weights))
+        er = float(weights.dot(mu))
+        var = float(weights.T.dot(cov).dot(weights))
         risk = sqrt(var)
         bench = yf.download('SPY', start=start, end=now)['Adj Close'].dropna()
         bench_ret = bench.pct_change().dropna()
@@ -139,21 +141,21 @@ def portfolio_analysis(structure):
         alpha, beta = 0, 1
         if len(pdaily) > 10:
             b, a = np.polyfit(bdaily, pdaily, 1)
-            alpha, beta = a, b
+            alpha, beta = float(a), float(b)
         risk_free = 0.02
         ex_ret = pdaily - risk_free / 252
         dn = ex_ret[ex_ret < 0]
-        dn_dev = np.sqrt((dn**2).mean()) * np.sqrt(252) if not dn.empty else 1e-6
+        dn_dev = dn.pow(2).mean()**0.5 * 252**0.5 if not dn.empty else 1e-6
         sortino = (er - risk_free) / dn_dev
         cumret = (1 + pdaily).cumprod()
         peak = cumret.cummax()
         dd = (cumret - peak) / peak
         mdd = dd.min() if not dd.empty else 0
         sr = (er - risk_free) / risk if risk != 0 else 0
-        def diversification_ratio(dat, wts):
-            std_indiv = dat.std() * np.sqrt(252)
-            weighted_vol = np.dot(wts, std_indiv)
-            port_vol = np.sqrt(np.dot(wts.T, np.dot(dat.cov()*252, wts)))
+        def diversification_ratio(returns_df, wts):
+            std_indiv = returns_df.std() * (252**0.5)
+            weighted_vol = wts.dot(std_indiv)
+            port_vol = float((wts.T.dot(returns_df.cov()*252).dot(wts))**0.5)
             return weighted_vol / port_vol if port_vol != 0 else 1
         div = diversification_ratio(returns, weights)
         metrics = {
@@ -164,7 +166,7 @@ def portfolio_analysis(structure):
             'alpha': alpha,
             'beta': beta,
             'sortino_ratio': sortino,
-            'max_drawdown': mdd
+            'max_drawdown': float(mdd)
         }
         return metrics
     except:

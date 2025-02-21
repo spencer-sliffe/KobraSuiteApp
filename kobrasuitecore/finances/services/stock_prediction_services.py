@@ -31,8 +31,6 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.utils import class_weight
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score, accuracy_score, classification_report
 
-logging.basicConfig(level=logging.INFO)
-
 
 def retrieve_data(ticker):
     now = datetime.now()
@@ -60,7 +58,7 @@ def add_macd(df, fast=12, slow=26, signal=9):
 
 def add_rsi(df, window=14):
     delta = df['Close'].diff()
-    gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
+    gain = delta.where(delta > 0, 0).rolling(window=window).mean()
     loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
     rs = gain / loss
     df['RSI'] = 100 - (100 / (1 + rs))
@@ -79,8 +77,8 @@ def add_ema(df, window=14):
 
 def add_atr(df, window=14):
     hl = df['High'] - df['Low']
-    hc = abs(df['High'] - df['Close'].shift())
-    lc = abs(df['Low'] - df['Close'].shift())
+    hc = (df['High'] - df['Close'].shift()).abs()
+    lc = (df['Low'] - df['Close'].shift()).abs()
     tr = pd.concat([hl, hc, lc], axis=1).max(axis=1)
     df['ATR'] = tr.rolling(window=window).mean()
     return df
@@ -127,7 +125,9 @@ def train_classification(df, horizon):
     if target_col not in df.columns:
         return None
     df = df.dropna(subset=[target_col])
-    X = df.select_dtypes(include=[np.number]).drop(columns=['Tomorrow','Week','Month','Close_Tomorrow','Close_NextWeek','Close_NextMonth'], errors='ignore')
+    X = df.select_dtypes(include=[np.number]).drop(columns=[
+        'Tomorrow','Week','Month','Close_Tomorrow','Close_NextWeek','Close_NextMonth'
+    ], errors='ignore')
     y = df[target_col].astype(int)
     train_size = int(len(X)*0.8)
     X_train, X_test = X.iloc[:train_size], X.iloc[train_size:]
@@ -144,7 +144,6 @@ def train_classification(df, horizon):
     next_pred = model.predict(next_data)[0]
     return {'accuracy': acc, 'classification_report': rep, 'today_prediction': int(next_pred)}
 
-
 def train_regression(df, horizon):
     if df.shape[0] < 50:
         return None
@@ -153,7 +152,9 @@ def train_regression(df, horizon):
     if not target_col:
         return None
     df = df.dropna(subset=[target_col])
-    features = df.select_dtypes(include=[np.number]).drop(columns=['Tomorrow','Week','Month','Close_Tomorrow','Close_NextWeek','Close_NextMonth'], errors='ignore').values
+    features = df.select_dtypes(include=[np.number]).drop(columns=[
+        'Tomorrow','Week','Month','Close_Tomorrow','Close_NextWeek','Close_NextMonth'
+    ], errors='ignore').values
     targets = df[target_col].values
     seq_len = {1: 5, 2: 7, 3: 10}.get(horizon, 5)
     scaler_x = MinMaxScaler()

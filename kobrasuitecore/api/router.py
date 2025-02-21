@@ -6,17 +6,16 @@ from hq.views.homelife_profile_views import HomeLifeProfileViewSet
 from hq.views.finance_profile_views import FinanceProfileViewSet
 from hq.views.school_profile_views import SchoolProfileViewSet
 from customer.views.user_views import UserViewSet
-from finances.views.crypto_views import (
-    CryptoPortfolioViewSet,
-    PortfolioCryptoViewSet,
-    WatchlistCryptoViewSet,
-    FavoriteCryptoViewSet
-)
 from finances.views.stock_views import (
     StockPortfolioViewSet,
     PortfolioStockViewSet,
     WatchlistStockViewSet,
-    FavoriteStockViewSet
+)
+from finances.views.banking_views import (
+    BankAccountViewSet,
+    BudgetViewSet,
+    BudgetCategoryViewSet,
+    TransactionViewSet
 )
 from finances.views.misc_invest_views import MiscInvestViewSet
 from hq.views.user_profile_views import UserProfileViewSet
@@ -45,6 +44,7 @@ user_router.register(r'finance_profile', FinanceProfileViewSet, basename='financ
 user_router.register(r'homelife_profile', HomeLifeProfileViewSet, basename='homelife_profile')
 
 homelife_profile_router = routers.NestedDefaultRouter(user_router, r'homelife_profile', lookup='homelife_profile')
+
 school_profile_router = routers.NestedDefaultRouter(user_router, r'school_profile', lookup='school_profile')
 school_profile_router.register(r'universities', UniversityViewSet, basename='university')
 
@@ -67,17 +67,14 @@ work_place_router = routers.NestedDefaultRouter(work_profile_router, r'work_plac
 
 finance_profile_router = routers.NestedDefaultRouter(user_router, r'finance_profile', lookup='finance_profile')
 finance_profile_router.register(r'stock_portfolio', StockPortfolioViewSet, basename='stock_portfolio')
-finance_profile_router.register(r'crypto_portfolio', CryptoPortfolioViewSet, basename='crypto_portfolio')
+finance_profile_router.register(r'bank_accounts', BankAccountViewSet, basename='bank_account')
+finance_profile_router.register(r'budgets', BudgetViewSet, basename='budget')
+finance_profile_router.register(r'budget_categories', BudgetCategoryViewSet, basename='budget_category')
+finance_profile_router.register(r'transactions', TransactionViewSet, basename='transaction')
 
 stock_portfolio_router = routers.NestedDefaultRouter(finance_profile_router, r'stock_portfolio', lookup='stock_portfolio')
 stock_portfolio_router.register(r'portfolio_stocks', PortfolioStockViewSet, basename='portfolio_stock')
 stock_portfolio_router.register(r'watchlist_stocks', WatchlistStockViewSet, basename='watchlist_stock')
-stock_portfolio_router.register(r'favorite_stocks', FavoriteStockViewSet, basename='favorite_stock')
-
-crypto_portfolio_router = routers.NestedDefaultRouter(finance_profile_router, r'crypto_portfolio', lookup='crypto_portfolio')
-crypto_portfolio_router.register(r'portfolio_cryptos', PortfolioCryptoViewSet, basename='portfolio_crypto')
-crypto_portfolio_router.register(r'watchlist_cryptos', WatchlistCryptoViewSet, basename='watchlist_crypto')
-crypto_portfolio_router.register(r'favorite_cryptos', FavoriteCryptoViewSet, basename='favorite_crypto')
 
 router.register(r'misc_invest', MiscInvestViewSet, basename='misc_invests')
 
@@ -93,6 +90,5 @@ urlpatterns = [
     *work_place_router.urls,
     *finance_profile_router.urls,
     *stock_portfolio_router.urls,
-    *crypto_portfolio_router.urls,
     *homelife_profile_router.urls,
 ]
