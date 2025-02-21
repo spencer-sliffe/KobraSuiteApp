@@ -1,17 +1,16 @@
-// lib/models/finance/favorite_stock.dart
-class FavoriteStock {
+class WatchlistStock {
   final int id;
   final String ticker;
   final String createdAt;
 
-  FavoriteStock({
+  WatchlistStock({
     required this.id,
     required this.ticker,
     required this.createdAt,
   });
 
-  factory FavoriteStock.fromJson(Map<String, dynamic> json) {
-    return FavoriteStock(
+  factory WatchlistStock.fromJson(Map<String, dynamic> json) {
+    return WatchlistStock(
       id: json['id'],
       ticker: json['ticker'] ?? '',
       createdAt: json['created_at'] ?? '',
