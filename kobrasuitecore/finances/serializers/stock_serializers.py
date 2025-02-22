@@ -18,7 +18,7 @@ Collaborators: SPENCER SLIFFE
 ---------------------------------------------
 """
 from rest_framework import serializers
-from finances.models import StockPortfolio, PortfolioStock, FavoriteStock, WatchlistStock
+from finances.models import StockPortfolio, PortfolioStock, WatchlistStock
 
 
 class PortfolioStockSerializer(serializers.ModelSerializer):
@@ -36,7 +36,6 @@ class PortfolioStockSerializer(serializers.ModelSerializer):
 
 class StockPortfolioSerializer(serializers.ModelSerializer):
     stocks = PortfolioStockSerializer(many=True, read_only=True)
-
     class Meta:
         model = StockPortfolio
         fields = [
@@ -45,16 +44,6 @@ class StockPortfolioSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
             'stocks'
-        ]
-
-
-class FavoriteStockSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FavoriteStock
-        fields = [
-            'id',
-            'ticker',
-            'created_at'
         ]
 
 

@@ -3,12 +3,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 // Import your services here
-import 'finance/crypto_news_service.dart';
-import 'finance/crypto_portfolio_service.dart';
-import 'finance/crypto_service.dart';
 import 'finance/stock_news_service.dart';
 import 'finance/stock_portfolio_service.dart';
 import 'finance/stock_service.dart';
+import 'finance/banking_service.dart';
+
 import 'general/auth_service.dart';
 import 'general/finance_profile_service.dart';
 import 'general/homelife_profile_service.dart';
@@ -117,29 +116,18 @@ Future<void> setupServiceLocator() async {
         () => StockService(serviceLocator<Dio>()),
   );
 
-  // Register CryptoService as a singleton (depends on Dio)
-  serviceLocator.registerLazySingleton<CryptoService>(
-        () => CryptoService(serviceLocator<Dio>()),
-  );
-
   // Register StockNewsService as a singleton (depends on Dio)
   serviceLocator.registerLazySingleton<StockNewsService>(
         () => StockNewsService(serviceLocator<Dio>()),
   );
-
-  // Register CryptoNewsService as a singleton (depends on Dio)
-  serviceLocator.registerLazySingleton<CryptoNewsService>(
-        () => CryptoNewsService(serviceLocator<Dio>()),
-  );
-
   // Register StockPortfolioService as a singleton (depends on Dio)
   serviceLocator.registerLazySingleton<StockPortfolioService>(
         () => StockPortfolioService(serviceLocator<Dio>()),
   );
 
-  // Register CryptoPortfolioService as a singleton (depends on Dio)
-  serviceLocator.registerLazySingleton<CryptoPortfolioService>(
-        () => CryptoPortfolioService(serviceLocator<Dio>()),
+  // BANKING SERVICE
+  serviceLocator.registerLazySingleton<BankingService>(
+        () => BankingService(serviceLocator<Dio>()),
   );
 
   // Register RealtimeService as a singleton (depends on Dio, DiscussionService, AuthService)

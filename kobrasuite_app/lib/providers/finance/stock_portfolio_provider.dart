@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:dio/dio.dart';
 import '../../../services/finance/stock_service.dart';
 import '../../../services/service_locator.dart';
 import '../../../models/finance/stock_portfolio.dart';
@@ -10,6 +9,7 @@ class StockPortfolioProvider extends ChangeNotifier {
   int _userPk;
   int _financeProfilePk;
   int _stockPortfolioPk;
+
   bool _isLoading = false;
   String _errorMessage = '';
   StockPortfolio? _stockPortfolio;
@@ -28,6 +28,7 @@ class StockPortfolioProvider extends ChangeNotifier {
   String get errorMessage => _errorMessage;
   StockPortfolio? get stockPortfolio => _stockPortfolio;
   List<PortfolioStock> get portfolioStocks => _portfolioStocks;
+
   int get userPk => _userPk;
   int get financeProfilePk => _financeProfilePk;
   int get stockPortfolioPk => _stockPortfolioPk;
@@ -79,7 +80,11 @@ class StockPortfolioProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> addStock(String ticker, double shares, {String? purchaseDateIso}) async {
+  Future<bool> addStock({
+    required String ticker,
+    required double shares,
+    String? purchaseDateIso,
+  }) async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
@@ -95,14 +100,13 @@ class StockPortfolioProvider extends ChangeNotifier {
       if (success) {
         await loadPortfolioStocks();
       }
-      _isLoading = false;
-      notifyListeners();
       return success;
     } catch (e) {
       _errorMessage = 'Error adding stock: $e';
+      return false;
+    } finally {
       _isLoading = false;
       notifyListeners();
-      return false;
     }
   }
 
@@ -120,14 +124,13 @@ class StockPortfolioProvider extends ChangeNotifier {
       if (success) {
         _portfolioStocks.removeWhere((s) => s.ticker == ticker);
       }
-      _isLoading = false;
-      notifyListeners();
       return success;
     } catch (e) {
       _errorMessage = 'Error removing stock: $e';
+      return false;
+    } finally {
       _isLoading = false;
       notifyListeners();
-      return false;
     }
   }
 }

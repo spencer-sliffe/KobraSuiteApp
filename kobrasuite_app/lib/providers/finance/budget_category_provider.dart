@@ -1,81 +1,81 @@
 import 'package:flutter/foundation.dart';
-import '../../../services/finance/stock_service.dart';
+import '../../../services/finance/banking_service.dart';
 import '../../../services/service_locator.dart';
-import '../../models/finance/watchlist_stock.dart';
+import '../../../models/finance/budget_category.dart';
 
-class StockProvider extends ChangeNotifier {
-  final StockService _service;
+class BudgetCategoryProvider extends ChangeNotifier {
+  final BankingService _service;
   int _userPk;
   int _financeProfilePk;
-  int _stockPortfolioPk;
 
   bool _isLoading = false;
   String _errorMessage = '';
-  List<WatchlistStock> _watchlistStocks = [];
+  List<BudgetCategory> _categories = [];
 
-  StockProvider({
+  BudgetCategoryProvider({
     required int userPk,
     required int financeProfilePk,
-    required int stockPortfolioPk,
   })  : _userPk = userPk,
         _financeProfilePk = financeProfilePk,
-        _stockPortfolioPk = stockPortfolioPk,
-        _service = serviceLocator<StockService>();
+        _service = serviceLocator<BankingService>();
 
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
-  List<WatchlistStock> get watchlistStocks => _watchlistStocks;
+  List<BudgetCategory> get categories => _categories;
 
   int get userPk => _userPk;
   int get financeProfilePk => _financeProfilePk;
-  int get stockPortfolioPk => _stockPortfolioPk;
 
   void update({
     required int newUserPk,
     required int newFinanceProfilePk,
-    required int newStockPortfolioPk,
   }) {
     _userPk = newUserPk;
     _financeProfilePk = newFinanceProfilePk;
-    _stockPortfolioPk = newStockPortfolioPk;
     notifyListeners();
   }
 
-  Future<void> loadWatchlistStocks() async {
+  Future<void> loadCategories() async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
     try {
-      final list = await _service.getWatchlistStocks(
+      final list = await _service.getBudgetCategories(
         userPk: _userPk,
         financeProfilePk: _financeProfilePk,
-        stockPortfolioPk: _stockPortfolioPk,
       );
-      _watchlistStocks = list;
+      _categories = list;
     } catch (e) {
-      _errorMessage = 'Error loading watchlist stocks: $e';
+      _errorMessage = 'Error loading budget categories: $e';
     }
     _isLoading = false;
     notifyListeners();
   }
 
-  Future<bool> addWatchlistStock(String ticker) async {
+  Future<bool> createCategory({
+    required int budgetId,
+    required String name,
+    required double allocatedAmount,
+    required String categoryType,
+  }) async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
     try {
-      final success = await _service.addWatchlistStock(
+      final success = await _service.createBudgetCategory(
         userPk: _userPk,
         financeProfilePk: _financeProfilePk,
-        stockPortfolioPk: _stockPortfolioPk,
-        ticker: ticker,
+        budgetId: budgetId,
+        name: name,
+        allocatedAmount: allocatedAmount,
+        categoryType: categoryType,
       );
       if (success) {
-        await loadWatchlistStocks();
+        await loadCategories();
       }
       return success;
     } catch (e) {
-      _errorMessage = 'Error adding watchlist stock: $e';
+      _errorMessage = 'Error creating budget category: $e';
       return false;
     } finally {
       _isLoading = false;
@@ -83,23 +83,22 @@ class StockProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> removeWatchlistStock(String ticker) async {
+  Future<bool> deleteCategory(int categoryId) async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
     try {
-      final success = await _service.removeWatchlistStock(
+      final success = await _service.deleteBudgetCategory(
         userPk: _userPk,
         financeProfilePk: _financeProfilePk,
-        stockPortfolioPk: _stockPortfolioPk,
-        ticker: ticker,
+        categoryId: categoryId,
       );
       if (success) {
-        _watchlistStocks.removeWhere((w) => w.ticker == ticker);
+        _categories.removeWhere((c) => c.id == categoryId);
       }
       return success;
     } catch (e) {
-      _errorMessage = 'Error removing watchlist stock: $e';
+      _errorMessage = 'Error deleting budget category: $e';
       return false;
     } finally {
       _isLoading = false;

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:kobrasuite_app/providers/finance/crypto_news_provider.dart';
 import 'package:kobrasuite_app/providers/finance/stock_news_provider.dart';
 import 'package:kobrasuite_app/UI/nav/providers/control_bar_provider.dart';
 import 'package:kobrasuite_app/providers/general/homelife_profile_provider.dart';
@@ -31,9 +30,11 @@ import 'package:kobrasuite_app/UI/themes/psychedelic_theme.dart';
 import 'package:kobrasuite_app/UI/themes/ultra_modern_theme.dart';
 import 'package:kobrasuite_app/models/general/app_theme.dart';
 import 'package:kobrasuite_app/providers/finance/stock_portfolio_provider.dart';
-import 'package:kobrasuite_app/providers/finance/crypto_portfolio_provider.dart';
 import 'package:kobrasuite_app/providers/finance/stock_provider.dart';
-import 'package:kobrasuite_app/providers/finance/crypto_provider.dart';
+import 'package:kobrasuite_app/providers/finance/bank_account_provider.dart';
+import 'package:kobrasuite_app/providers/finance/budget_provider.dart';
+import 'package:kobrasuite_app/providers/finance/budget_category_provider.dart';
+import 'package:kobrasuite_app/providers/finance/transaction_provider.dart';
 import 'UI/screens/main_screen.dart';
 import 'auth_wrapper.dart';
 
@@ -147,6 +148,46 @@ void main() async {
             return sdp;
           },
         ),
+        ChangeNotifierProxyProvider2<AuthProvider, FinanceProfileProvider, BankAccountProvider>(
+          create: (_) => BankAccountProvider(userPk: 0, financeProfilePk: 0),
+          update: (_, auth, financeProfile, bankProvider) {
+            bankProvider!.update(
+              newUserPk: auth.userPk,
+              newFinanceProfilePk: financeProfile.profile?.id ?? 0,
+            );
+            return bankProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider2<AuthProvider, FinanceProfileProvider, BudgetProvider>(
+          create: (_) => BudgetProvider(userPk: 0, financeProfilePk: 0),
+          update: (_, auth, financeProfile, budgetProvider) {
+            budgetProvider!.update(
+              newUserPk: auth.userPk,
+              newFinanceProfilePk: financeProfile.profile?.id ?? 0,
+            );
+            return budgetProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider2<AuthProvider, FinanceProfileProvider, BudgetCategoryProvider>(
+          create: (_) => BudgetCategoryProvider(userPk: 0, financeProfilePk: 0),
+          update: (_, auth, financeProfile, categoryProvider) {
+            categoryProvider!.update(
+              newUserPk: auth.userPk,
+              newFinanceProfilePk: financeProfile.profile?.id ?? 0,
+            );
+            return categoryProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider2<AuthProvider, FinanceProfileProvider, TransactionProvider>(
+          create: (_) => TransactionProvider(userPk: 0, financeProfilePk: 0),
+          update: (_, auth, financeProfile, transactionProvider) {
+            transactionProvider!.update(
+              newUserPk: auth.userPk,
+              newFinanceProfilePk: financeProfile.profile?.id ?? 0,
+            );
+            return transactionProvider;
+          },
+        ),
         ChangeNotifierProvider<ThemeNotifier>(create: (_) => ThemeNotifier()),
         ChangeNotifierProvider<RealtimeService>(create: (_) => serviceLocator<RealtimeService>()),
         ChangeNotifierProxyProvider2<AuthProvider, FinanceProfileProvider, StockPortfolioProvider>(
@@ -160,17 +201,6 @@ void main() async {
             return sp;
           },
         ),
-        ChangeNotifierProxyProvider2<AuthProvider, FinanceProfileProvider, CryptoPortfolioProvider>(
-          create: (_) => CryptoPortfolioProvider(userPk: 0, financeProfilePk: 0, cryptoPortfolioPk: 0),
-          update: (_, auth, finance, cp) {
-            cp!.update(
-              newUserPk: auth.userPk,
-              newFinanceProfilePk: finance.profile?.id ?? 0,
-              newCryptoPortfolioPk: cp.cryptoPortfolioPk,
-            );
-            return cp;
-          },
-        ),
         ChangeNotifierProxyProvider3<AuthProvider, FinanceProfileProvider, StockPortfolioProvider, StockProvider>(
           create: (_) => StockProvider(userPk: 0, financeProfilePk: 0, stockPortfolioPk: 0),
           update: (_, auth, finance, spPortfolio, s) {
@@ -182,19 +212,7 @@ void main() async {
             return s;
           },
         ),
-        ChangeNotifierProxyProvider3<AuthProvider, FinanceProfileProvider, CryptoPortfolioProvider, CryptoProvider>(
-          create: (_) => CryptoProvider(userPk: 0, financeProfilePk: 0, cryptoPortfolioPk: 0),
-          update: (_, auth, finance, cpPortfolio, c) {
-            c!.update(
-              newUserPk: auth.userPk,
-              newFinanceProfilePk: finance.profile?.id ?? 0,
-              newCryptoPortfolioPk: cpPortfolio.cryptoPortfolioPk,
-            );
-            return c;
-          },
-        ),
         ChangeNotifierProvider<StockNewsProvider>(create: (_) => StockNewsProvider()),
-        ChangeNotifierProvider<CryptoNewsProvider>(create: (_) => CryptoNewsProvider()),
         ChangeNotifierProvider<ControlBarProvider>(create: (_) => ControlBarProvider()),
       ],
       child: ScreenUtilInit(

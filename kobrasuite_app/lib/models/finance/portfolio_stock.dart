@@ -1,4 +1,3 @@
-// lib/models/finance/portfolio_stock.dart
 class PortfolioStock {
   final int id;
   final String ticker;

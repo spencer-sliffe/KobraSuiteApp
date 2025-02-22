@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
 import '../../../models/finance/stock_portfolio.dart';
 import '../../../models/finance/portfolio_stock.dart';
-import '../../../models/finance/favorite_stock.dart';
-import '../../../models/finance/watched_stock.dart';
+import '../../models/finance/watchlist_stock.dart';
 
 class StockService {
   final Dio _dio;
+
   StockService(this._dio);
 
   Future<StockPortfolio?> getStockPortfolio({
@@ -91,51 +91,7 @@ class StockService {
     return null;
   }
 
-  Future<List<FavoriteStock>> getFavoriteStocks({
-    required int userPk,
-    required int financeProfilePk,
-    required int stockPortfolioPk,
-  }) async {
-    final path = '/api/users/$userPk/finance_profile/$financeProfilePk/stock_portfolio/$stockPortfolioPk/favorite_stocks/';
-    try {
-      final response = await _dio.get(path);
-      if (response.statusCode == 200) {
-        final data = response.data as List;
-        return data.map((e) => FavoriteStock.fromJson(e)).toList();
-      }
-    } catch (_) {}
-    return [];
-  }
-
-  Future<bool> addFavoriteStock({
-    required int userPk,
-    required int financeProfilePk,
-    required int stockPortfolioPk,
-    required String ticker,
-  }) async {
-    final path = '/api/users/$userPk/finance_profile/$financeProfilePk/stock_portfolio/$stockPortfolioPk/favorite_stocks/';
-    try {
-      final response = await _dio.post(path, data: {'ticker': ticker});
-      return response.statusCode == 201 || response.statusCode == 200;
-    } catch (_) {}
-    return false;
-  }
-
-  Future<bool> removeFavoriteStock({
-    required int userPk,
-    required int financeProfilePk,
-    required int stockPortfolioPk,
-    required String ticker,
-  }) async {
-    final path = '/api/users/$userPk/finance_profile/$financeProfilePk/stock_portfolio/$stockPortfolioPk/favorite_stocks/$ticker';
-    try {
-      final response = await _dio.delete(path);
-      return response.statusCode == 200;
-    } catch (_) {}
-    return false;
-  }
-
-  Future<List<WatchedStock>> getWatchlistStocks({
+  Future<List<WatchlistStock>> getWatchlistStocks({
     required int userPk,
     required int financeProfilePk,
     required int stockPortfolioPk,
@@ -145,7 +101,7 @@ class StockService {
       final response = await _dio.get(path);
       if (response.statusCode == 200) {
         final data = response.data as List;
-        return data.map((e) => WatchedStock.fromJson(e)).toList();
+        return data.map((e) => WatchlistStock.fromJson(e)).toList();
       }
     } catch (_) {}
     return [];

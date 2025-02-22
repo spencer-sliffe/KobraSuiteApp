@@ -3,6 +3,7 @@ import '../../models/finance/stock_portfolio.dart';
 
 class StockPortfolioService {
   final Dio _dio;
+
   StockPortfolioService(this._dio);
 
   Future<StockPortfolio?> fetchStockPortfolio({
