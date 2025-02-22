@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:kobrasuite_app/UI/nav/providers/control_bar_provider.dart';
-import 'package:kobrasuite_app/UI/nav/control_bar/control_bar_button.dart';
 import 'package:kobrasuite_app/UI/nav/providers/navigation_store.dart';
 import 'package:kobrasuite_app/UI/nav/widgets/hq_navigation_overlay.dart';
 import 'package:kobrasuite_app/UI/nav/providers/global_gesture_detector.dart';
@@ -10,8 +9,12 @@ import 'package:kobrasuite_app/UI/nav/control_bar/page_control_bar.dart';
 import 'package:kobrasuite_app/UI/screens/modules/school/tabs/school_university_tab.dart';
 import 'package:kobrasuite_app/UI/screens/modules/school/tabs/school_courses_tab.dart';
 import 'package:kobrasuite_app/UI/screens/modules/work/work_screen.dart';
-import 'package:kobrasuite_app/UI/screens/modules/finances/finances_screen.dart';
 import 'package:kobrasuite_app/UI/screens/modules/homelife/homelife_screen.dart';
+
+import 'modules/finances/tabs/bank_accounts_tab.dart';
+import 'modules/finances/tabs/budgets_tab.dart';
+import 'modules/finances/tabs/stocks_tab.dart';
+import 'modules/finances/tabs/transactions_tab.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -63,7 +66,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       case Module.Work:
         return ['Work'];
       case Module.Finances:
-        return ['Finances'];
+        return ['Accounts', 'Budgets', 'Transactions', 'Stocks'];
       case Module.HomeLife:
         return ['HomeLife'];
     }
@@ -86,7 +89,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     } else if (module == Module.Work) {
       return const WorkScreen();
     } else if (module == Module.Finances) {
-      return const FinancesScreen();
+      if (tab == 'Accounts') return const BankAccountsTab();
+      if (tab == 'Budgets') return const BudgetsTab();
+      if (tab == 'Transactions') return const TransactionsTab();
+      if (tab == 'Stocks') return const StocksTab();
     } else if (module == Module.HomeLife) {
       return const HomelifeScreen();
     }

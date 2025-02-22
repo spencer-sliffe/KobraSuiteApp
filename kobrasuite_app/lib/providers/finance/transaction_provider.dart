@@ -1,81 +1,85 @@
 import 'package:flutter/foundation.dart';
-import '../../../services/finance/stock_service.dart';
+import '../../../services/finance/banking_service.dart';
 import '../../../services/service_locator.dart';
-import '../../models/finance/watchlist_stock.dart';
+import '../../../models/finance/transaction.dart';
 
-class StockProvider extends ChangeNotifier {
-  final StockService _service;
+class TransactionProvider extends ChangeNotifier {
+  final BankingService _service;
   int _userPk;
   int _financeProfilePk;
-  int _stockPortfolioPk;
 
   bool _isLoading = false;
   String _errorMessage = '';
-  List<WatchlistStock> _watchlistStocks = [];
+  List<Transaction> _transactions = [];
 
-  StockProvider({
+  TransactionProvider({
     required int userPk,
     required int financeProfilePk,
-    required int stockPortfolioPk,
   })  : _userPk = userPk,
         _financeProfilePk = financeProfilePk,
-        _stockPortfolioPk = stockPortfolioPk,
-        _service = serviceLocator<StockService>();
+        _service = serviceLocator<BankingService>();
 
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
-  List<WatchlistStock> get watchlistStocks => _watchlistStocks;
+  List<Transaction> get transactions => _transactions;
 
   int get userPk => _userPk;
   int get financeProfilePk => _financeProfilePk;
-  int get stockPortfolioPk => _stockPortfolioPk;
 
   void update({
     required int newUserPk,
     required int newFinanceProfilePk,
-    required int newStockPortfolioPk,
   }) {
     _userPk = newUserPk;
     _financeProfilePk = newFinanceProfilePk;
-    _stockPortfolioPk = newStockPortfolioPk;
     notifyListeners();
   }
 
-  Future<void> loadWatchlistStocks() async {
+  Future<void> loadTransactions() async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
     try {
-      final list = await _service.getWatchlistStocks(
+      final list = await _service.getTransactions(
         userPk: _userPk,
         financeProfilePk: _financeProfilePk,
-        stockPortfolioPk: _stockPortfolioPk,
       );
-      _watchlistStocks = list;
+      _transactions = list;
     } catch (e) {
-      _errorMessage = 'Error loading watchlist stocks: $e';
+      _errorMessage = 'Error loading transactions: $e';
     }
     _isLoading = false;
     notifyListeners();
   }
 
-  Future<bool> addWatchlistStock(String ticker) async {
+  Future<bool> createTransaction({
+    required String transactionType,
+    required double amount,
+    int? bankAccountId,
+    int? budgetCategoryId,
+    String? description,
+    String? dateIso,
+  }) async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
     try {
-      final success = await _service.addWatchlistStock(
+      final success = await _service.createTransaction(
         userPk: _userPk,
         financeProfilePk: _financeProfilePk,
-        stockPortfolioPk: _stockPortfolioPk,
-        ticker: ticker,
+        transactionType: transactionType,
+        amount: amount,
+        bankAccountId: bankAccountId,
+        budgetCategoryId: budgetCategoryId,
+        description: description,
+        dateIso: dateIso,
       );
       if (success) {
-        await loadWatchlistStocks();
+        await loadTransactions();
       }
       return success;
     } catch (e) {
-      _errorMessage = 'Error adding watchlist stock: $e';
+      _errorMessage = 'Error creating transaction: $e';
       return false;
     } finally {
       _isLoading = false;
@@ -83,23 +87,22 @@ class StockProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> removeWatchlistStock(String ticker) async {
+  Future<bool> deleteTransaction(int transactionId) async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
     try {
-      final success = await _service.removeWatchlistStock(
+      final success = await _service.deleteTransaction(
         userPk: _userPk,
         financeProfilePk: _financeProfilePk,
-        stockPortfolioPk: _stockPortfolioPk,
-        ticker: ticker,
+        transactionId: transactionId,
       );
       if (success) {
-        _watchlistStocks.removeWhere((w) => w.ticker == ticker);
+        _transactions.removeWhere((t) => t.id == transactionId);
       }
       return success;
     } catch (e) {
-      _errorMessage = 'Error removing watchlist stock: $e';
+      _errorMessage = 'Error deleting transaction: $e';
       return false;
     } finally {
       _isLoading = false;
