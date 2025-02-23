@@ -26,28 +26,39 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
   bool hqSubviewSwitchTriggered = false;
   Timer? scrollResetTimer;
   Timer? subviewResetTimer;
+
   final double desktopScrollThreshold = 680.0;
   final double hqSubviewScrollThreshold = 680.0;
   final double pinchInThreshold = 0.85;
   final double pinchOutThreshold = 1.15;
   final double mobileSwipeThreshold = 120.0;
+
   Offset initialFocalPoint = Offset.zero;
   Offset currentFocalPoint = Offset.zero;
 
+  /// By default, you were forcing the pointerPanZoom path on web.
+  /// Now, we only use pointerPanZoom for native desktop apps, not for web.
   bool get supportsTrackpad {
-    if (kIsWeb) return true;
     final platform = Theme.of(context).platform;
-    return platform == TargetPlatform.macOS ||
+    return (platform == TargetPlatform.macOS ||
         platform == TargetPlatform.windows ||
-        platform == TargetPlatform.linux;
+        platform == TargetPlatform.linux);
   }
 
-  bool get usingPanZoom => supportsTrackpad;
+  /// If we're on web, we disable pointerPanZoom, so we end up with the fallback
+  /// ScaleGestureRecognizer. If on a native desktop build, pointerPanZoom is allowed.
+  bool get usingPanZoom {
+    if (kIsWeb) return false;
+    return supportsTrackpad;
+  }
 
   @override
   void initState() {
     super.initState();
-    fadeController = AnimationController(vsync: this, duration: const Duration(milliseconds: 200));
+    fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
   }
 
   @override
@@ -60,6 +71,8 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
 
   @override
   Widget build(BuildContext context) {
+    // If usingPanZoom is true, we rely on pointerPanZoom events.
+    // Otherwise (e.g., web in Chrome), we use ScaleGestureRecognizer fallback.
     return usingPanZoom
         ? Listener(
       onPointerSignal: onPointerSignal,
@@ -93,7 +106,13 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
         gestures: {
           ScaleGestureRecognizer:
           GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
-                () => ScaleGestureRecognizer(supportedDevices: {PointerDeviceKind.touch}),
+            // We include PointerDeviceKind.trackpad so that trackpad pinch is recognized.
+                () => ScaleGestureRecognizer(
+              supportedDevices: {
+                PointerDeviceKind.touch,
+                PointerDeviceKind.trackpad,
+              },
+            ),
                 (instance) {
               instance
                 ..onStart = onScaleStart
@@ -126,7 +145,10 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
     );
   }
 
+  // For desktop trackpad scrolling to switch modules or HQ subviews
   void onPointerSignal(PointerSignalEvent event) {
+    // We only handle scroll-based switching if usingPanZoom is true (i.e., native desktop)
+    // or if you want to keep it for web, that's up to you.
     if (!supportsTrackpad) return;
     if (event is PointerScrollEvent) {
       final store = context.read<NavigationStore>();
@@ -168,6 +190,8 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
     }
   }
 
+  // ----- PointerPanZoom handlers (used if usingPanZoom is true) -----
+
   void onPanZoomStart(PointerPanZoomStartEvent event) {
     isPinching = true;
     initialScale = 1.0;
@@ -199,6 +223,8 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
       pinchProgress = 0.0;
     }
   }
+
+  // ----- ScaleGestureRecognizer handlers (used if usingPanZoom is false) -----
 
   void onScaleStart(ScaleStartDetails details) {
     isPinching = true;
