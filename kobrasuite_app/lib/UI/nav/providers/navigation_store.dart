@@ -1,21 +1,26 @@
-/// lib/UI/nav/providers/navigation_store.dart
-
 import 'package:flutter/material.dart';
 
 enum Module { Finances, HomeLife, School, Work }
 enum HQView { Dashboard, ModuleManager }
 
 class NavigationStore extends ChangeNotifier {
-  Module _module = Module.Finances;
+  List<Module> _moduleOrder = Module.values.toList();
+  Module _activeModule = Module.Finances;
   bool _hqActive = false;
   HQView _hqView = HQView.Dashboard;
 
-  Module get activeModule => _module;
+  List<Module> get moduleOrder => _moduleOrder;
+  Module get activeModule => _activeModule;
   bool get hqActive => _hqActive;
   HQView get hqView => _hqView;
 
+  void setModuleOrder(List<Module> newOrder) {
+    _moduleOrder = newOrder;
+    notifyListeners();
+  }
+
   void setActiveModule(Module module) {
-    _module = module;
+    _activeModule = module;
     notifyListeners();
   }
 
