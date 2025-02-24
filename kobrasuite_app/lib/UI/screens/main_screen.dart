@@ -47,6 +47,17 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           onPressed: () {},
         ),
       );
+      // Added HQ button to manually open HQ mode
+      controlBarProvider.addPersistentButton(
+        ControlBarButtonModel(
+          icon: Icons.hd,
+          label: 'HQ',
+          onPressed: () {
+            final store = context.read<NavigationStore>();
+            store.setHQActive(true);
+          },
+        ),
+      );
     });
   }
 

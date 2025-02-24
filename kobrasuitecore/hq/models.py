@@ -143,6 +143,7 @@ class ModulePopulation(models.Model):
     def __str__(self):
         return f"{self.profile.user.username} - {self.module_type} Population"
 
+
 class ModuleTask(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='module_tasks')
     date = models.DateField()
