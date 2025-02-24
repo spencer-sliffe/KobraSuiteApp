@@ -39,23 +39,20 @@ class _HQNavigationOverlayState extends State<HQNavigationOverlay>
   @override
   Widget build(BuildContext context) {
     final hqModeProvider = context.watch<HQModeProvider>();
+    final child = hqModeProvider.currentHQView == null
+        ? const SizedBox()
+        : hqModeProvider.currentHQView.toString() == 'HQView.Dashboard'
+        ? const HQDashboardScreen()
+        : const ModuleManagerScreen();
     return AnimatedBuilder(
       animation: _fadeAnimation!,
-      builder: (context, child) {
+      builder: (context, _) {
         return Opacity(
           opacity: _fadeAnimation!.value,
           child: Stack(
             children: [
               Container(color: Colors.black.withOpacity(0.6)),
-              hqModeProvider.currentHQView == null
-                  ? const SizedBox()
-                  : hqModeProvider.currentHQView == null
-                  ? const SizedBox()
-                  : hqModeProvider.currentHQView == hqModeProvider.currentHQView
-                  ? hqModeProvider.currentHQView.toString() == 'HQView.Dashboard'
-                  ? const HQDashboardScreen()
-                  : const ModuleManagerScreen()
-                  : const SizedBox(),
+              child,
             ],
           ),
         );
