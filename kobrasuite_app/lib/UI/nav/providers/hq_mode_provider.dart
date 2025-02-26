@@ -3,8 +3,6 @@ import 'navigation_store.dart';
 
 class HQModeProvider extends ChangeNotifier {
   final NavigationStore navigationStore;
-
-  // You can also keep thresholds in one place:
   final double pinchInThreshold = 0.85;
   final double pinchOutThreshold = 1.15;
 
