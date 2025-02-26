@@ -145,7 +145,7 @@ class ModulePopulation(models.Model):
 
 
 class ModuleTask(models.Model):
-    profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='module_tasks')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='module_tasks')
     date = models.DateField()
     module = models.CharField(max_length=20, choices=ModuleType.choices)
     task_number = models.IntegerField()
@@ -156,3 +156,28 @@ class ModuleTask(models.Model):
 
     def __str__(self):
         return f"{self.profile.user.username} {self.module} Task {self.task_number}"
+        return f"{self.user.username} {self.module} Task {self.task_number}"
+
+
+class CalendarEvent(models.Model):
+    profile = models.ForeignKey(
+        'hq.UserProfile',
+        on_delete=models.CASCADE,
+        related_name='calendar_events'
+    )
+    module_type = models.CharField(
+        max_length=20,
+        choices=ModuleType.choices,
+        blank=True,
+        null=True
+    )
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    start_datetime = models.DateTimeField()
+    end_datetime = models.DateTimeField()
+    is_all_day = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"CalendarEvent {self.title} for {self.profile.user.username}"
