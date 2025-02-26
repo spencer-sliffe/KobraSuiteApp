@@ -10,7 +10,6 @@ import 'package:kobrasuite_app/UI/screens/modules/school/tabs/school_university_
 import 'package:kobrasuite_app/UI/screens/modules/school/tabs/school_courses_tab.dart';
 import 'package:kobrasuite_app/UI/screens/modules/work/work_screen.dart';
 import 'package:kobrasuite_app/UI/screens/modules/homelife/homelife_screen.dart';
-
 import 'modules/finances/tabs/bank_accounts_tab.dart';
 import 'modules/finances/tabs/budgets_tab.dart';
 import 'modules/finances/tabs/stocks_tab.dart';
@@ -47,7 +46,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           onPressed: () {},
         ),
       );
-      // Added HQ button to manually open HQ mode
       controlBarProvider.addPersistentButton(
         ControlBarButtonModel(
           icon: Icons.hd,
@@ -64,7 +62,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final module = context.watch<NavigationStore>().activeModule;
+    final store = context.watch<NavigationStore>();
+    final module = store.activeModule;
     _tabs = _tabsForModule(module);
     _tabController?.dispose();
     _tabController = TabController(length: _tabs.length, vsync: this);
@@ -128,6 +127,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     final navigationStore = context.watch<NavigationStore>();
     final isLargeScreen = MediaQuery.of(context).size.width >= 800;
     final activeModule = navigationStore.activeModule;
+    final moduleOrder = navigationStore.moduleOrder;
     final theme = Theme.of(context);
 
     return GlobalGestureDetector(
@@ -165,12 +165,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               children: [
                 if (isLargeScreen)
                   NavigationRail(
-                    selectedIndex: Module.values.indexOf(activeModule),
+                    selectedIndex: moduleOrder.indexOf(activeModule),
                     onDestinationSelected: (index) {
-                      context.read<NavigationStore>().setActiveModule(Module.values[index]);
+                      context.read<NavigationStore>().setActiveModule(moduleOrder[index]);
                     },
                     labelType: NavigationRailLabelType.all,
-                    destinations: Module.values.map((m) {
+                    destinations: moduleOrder.map((m) {
                       return NavigationRailDestination(
                         icon: Icon(_moduleIcon(m)),
                         label: Text(m.toString().split('.').last),
