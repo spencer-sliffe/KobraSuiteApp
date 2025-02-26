@@ -145,8 +145,7 @@ class ModulePopulation(models.Model):
 
 
 class ModuleTask(models.Model):
-    profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='module_tasks')
-    profile = models.ForeignKey(User, on_delete=models.CASCADE, related_name='module_tasks')
+    profile = models.ForeignKey('hq.UserProfile', on_delete=models.CASCADE, related_name='module_tasks')
     date = models.DateField()
     module = models.CharField(max_length=20, choices=ModuleType.choices)
     task_number = models.IntegerField()
@@ -157,6 +156,7 @@ class ModuleTask(models.Model):
 
     def __str__(self):
         return f"{self.profile.user.username} {self.module} Task {self.task_number}"
+
 
 class CalendarEvent(models.Model):
     profile = models.ForeignKey(
