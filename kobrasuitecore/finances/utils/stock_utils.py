@@ -1,21 +1,3 @@
-"""
-------------------Prologue--------------------
-File Name: stock_utils.py
-Path: kobrasuitecore/finances/utils/stock_utils.py
-
-Description:
-Provides helper functions for retrieving current and historical stock data, checking
-ticker validity, generating textual analyses, and handling external API integrations.
-
-Input:
-Ticker symbols and optional date ranges or user parameters.
-
-Output:
-Cleaned and structured stock data, chart information, or generated financial insights.
-
-Collaborators: SPENCER SLIFFE
----------------------------------------------
-"""
 import requests
 import yfinance as yf
 import pandas as pd
@@ -64,25 +46,25 @@ def get_stock_results_data(ticker):
         if not info.get('regularMarketPrice'):
             return None
         return {
-            "ticker": info.get("symbol"),
-            "name": info.get("shortName") or info.get("longName"),
-            "sector": info.get("sector"),
-            "industry": info.get("industry"),
-            "market_cap": info.get("marketCap"),
-            "price": info.get("currentPrice"),
-            "previous_close": info.get("previousClose"),
-            "open": info.get("open"),
-            "day_low": info.get("dayLow"),
-            "day_high": info.get("dayHigh"),
-            "fifty_two_week_low": info.get("fiftyTwoWeekLow"),
-            "fifty_two_week_high": info.get("fiftyTwoWeekHigh"),
-            "volume": info.get("volume"),
-            "average_volume": info.get("averageVolume"),
-            "beta": info.get("beta"),
-            "dividend_yield": info.get("dividendYield"),
-            "trailing_pe": info.get("trailingPE"),
-            "forward_pe": info.get("forwardPE"),
-            "long_business_summary": info.get("longBusinessSummary"),
+            'ticker': info.get('symbol'),
+            'name': info.get('shortName') or info.get('longName'),
+            'sector': info.get('sector'),
+            'industry': info.get('industry'),
+            'market_cap': info.get('marketCap'),
+            'price': info.get('currentPrice'),
+            'previous_close': info.get('previousClose'),
+            'open': info.get('open'),
+            'day_low': info.get('dayLow'),
+            'day_high': info.get('dayHigh'),
+            'fifty_two_week_low': info.get('fiftyTwoWeekLow'),
+            'fifty_two_week_high': info.get('fiftyTwoWeekHigh'),
+            'volume': info.get('volume'),
+            'average_volume': info.get('averageVolume'),
+            'beta': info.get('beta'),
+            'dividend_yield': info.get('dividendYield'),
+            'trailing_pe': info.get('trailingPE'),
+            'forward_pe': info.get('forwardPE'),
+            'long_business_summary': info.get('longBusinessSummary'),
         }
     except:
         return None
@@ -100,9 +82,9 @@ def get_stock_chart(ticker):
 
 
 def get_hot_stocks(api_key, budget=None):
-    url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-movers"
-    headers = {"X-RapidAPI-Key": api_key, "X-RapidAPI-Host": "apidojo-yahoo-finance-v1.p.rapidapi.com"}
-    params = {"region":"US","lang":"en-US","count":"50","start":"0"}
+    url = 'https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-movers'
+    headers = {'X-RapidAPI-Key': api_key, 'X-RapidAPI-Host': 'apidojo-yahoo-finance-v1.p.rapidapi.com'}
+    params = {'region':'US','lang':'en-US','count':'50','start':'0'}
     try:
         r = requests.get(url, headers=headers, params=params)
         d = r.json()
@@ -114,7 +96,7 @@ def get_hot_stocks(api_key, budget=None):
                     if sym:
                         cp = get_current_stock_price(sym)
                         if cp is not None:
-                            if budget is None or cp<=budget:
+                            if budget is None or cp <= budget:
                                 hot.append({'ticker': sym,'close_price':cp})
         return hot[:10]
     except:
@@ -123,17 +105,17 @@ def get_hot_stocks(api_key, budget=None):
 
 def get_news_articles(api_key, query='stock market', page=1):
     try:
-        url = "https://newsapi.org/v2/everything"
+        url = 'https://newsapi.org/v2/everything'
         params = {
-            "apiKey": api_key,
-            "q": query,
-            "language":"en",
-            "sortBy":"publishedAt",
-            "pageSize":10,
-            "page":page
+            'apiKey': api_key,
+            'q': query,
+            'language':'en',
+            'sortBy':'publishedAt',
+            'pageSize':10,
+            'page':page
         }
         r = requests.get(url, params=params)
-        if r.status_code==200:
+        if r.status_code == 200:
             return r.json()
         return {}
     except:

@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from finances.models import BankAccount, Budget, BudgetCategory, Transaction
 
 
@@ -21,6 +22,7 @@ class BankAccountSerializer(serializers.ModelSerializer):
 
 class BudgetSerializer(serializers.ModelSerializer):
     categories = serializers.StringRelatedField(many=True, read_only=True)
+
     class Meta:
         model = Budget
         fields = [
@@ -34,9 +36,22 @@ class BudgetSerializer(serializers.ModelSerializer):
             'categories'
         ]
 
+    def validate_total_amount(self, value):
+        if value < 0:
+            raise ValidationError('Total amount cannot be negative.')
+        return value
+
+    def validate(self, data):
+        start_date = data.get('start_date')
+        end_date = data.get('end_date')
+        if start_date and end_date and end_date < start_date:
+            raise ValidationError('End date cannot be before start date.')
+        return data
+
 
 class BudgetCategorySerializer(serializers.ModelSerializer):
     budget = serializers.PrimaryKeyRelatedField(queryset=Budget.objects.all())
+
     class Meta:
         model = BudgetCategory
         fields = [
@@ -47,9 +62,15 @@ class BudgetCategorySerializer(serializers.ModelSerializer):
             'category_type'
         ]
 
+    def validate_allocated_amount(self, value):
+        if value < 0:
+            raise ValidationError('Allocated amount cannot be negative.')
+        return value
+
 
 class TransactionSerializer(serializers.ModelSerializer):
     budget_category = serializers.PrimaryKeyRelatedField(queryset=BudgetCategory.objects.all())
+
     class Meta:
         model = Transaction
         fields = [
@@ -64,3 +85,8 @@ class TransactionSerializer(serializers.ModelSerializer):
             'created_at'
         ]
         read_only_fields = ['created_at']
+
+    def validate_amount(self, value):
+        if value < 0:
+            raise ValidationError('Transaction amount cannot be negative.')
+        return value

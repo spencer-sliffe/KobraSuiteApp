@@ -31,6 +31,20 @@ from finances.utils.stock_utils import (
 from finances.services.stock_prediction_services import get_predictions
 
 
+import os
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from finances.utils.stock_utils import (
+    get_stock_results_data,
+    get_stock_chart,
+    get_hot_stocks,
+    get_news_articles
+)
+from finances.services.stock_prediction_services import get_predictions
+
+
 class MiscInvestViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
@@ -38,10 +52,10 @@ class MiscInvestViewSet(viewsets.ViewSet):
     def stock_data(self, request):
         ticker = request.query_params.get('ticker')
         if not ticker:
-            return Response({"error": "Missing ticker"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Missing ticker'}, status=status.HTTP_400_BAD_REQUEST)
         data = get_stock_results_data(ticker)
         if not data:
-            return Response({"error": f"No data found for {ticker}"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': f'No data found for {ticker}'}, status=status.HTTP_404_NOT_FOUND)
         return Response(data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'])
@@ -49,7 +63,7 @@ class MiscInvestViewSet(viewsets.ViewSet):
         ticker = request.query_params.get('ticker', 'AAPL')
         chart = get_stock_chart(ticker)
         if not chart:
-            return Response({"error": "Could not generate chart."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Could not generate chart.'}, status=status.HTTP_404_NOT_FOUND)
         return Response(chart, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'])
@@ -64,14 +78,14 @@ class MiscInvestViewSet(viewsets.ViewSet):
         VWAP = request.query_params.get('VWAP', 'false') == 'true'
         res = get_predictions(ticker, MACD=MACD, RSI=RSI, SMA=SMA, EMA=EMA, ATR=ATR, BBands=BBands, VWAP=VWAP)
         if not res:
-            return Response({"error": "Could not generate predictions"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Could not generate predictions'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(res, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'])
     def hot_stocks(self, request):
         key = os.environ.get('RAPIDAPI_KEY')
         if not key:
-            return Response({"error": "No RapidAPI key found"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': 'No RapidAPI key found'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         user = request.user
         budget = 0
         if hasattr(user, 'finance_profile'):
@@ -89,7 +103,7 @@ class MiscInvestViewSet(viewsets.ViewSet):
             page = 1
         key = os.environ.get('NEWS_API_KEY')
         if not key:
-            return Response({"error": "No NEWS_API_KEY found"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': 'No NEWS_API_KEY found'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         articles = get_news_articles(key, query, page)
         return Response(articles, status=status.HTTP_200_OK)
 
@@ -97,7 +111,7 @@ class MiscInvestViewSet(viewsets.ViewSet):
     def stock_news(self, request):
         key = os.environ.get('NEWS_API_KEY')
         if not key:
-            return Response({"error": "No NEWS_API_KEY found"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': 'No NEWS_API_KEY found'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         q = request.query_params.get('q', 'stocks')
         pg = request.query_params.get('page', 1)
         try:
