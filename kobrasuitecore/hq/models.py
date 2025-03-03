@@ -107,7 +107,7 @@ class Wallet(models.Model):
 
 class ModuleExperience(models.Model):
     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='module_experiences')
-    module_type = models.CharField(max_length=20, choices=ModuleType.choices)
+    module_type = models.CharField(max_length=1, choices=ModuleType.choices)
     experience_amount = models.FloatField(default=0.0)
 
     class Meta:
@@ -119,7 +119,7 @@ class ModuleExperience(models.Model):
 
 class ModuleStatus(models.Model):
     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='module_statuses')
-    module_type = models.CharField(max_length=20, choices=ModuleType.choices)
+    module_type = models.CharField(max_length=1, choices=ModuleType.choices)
     streak_start = models.DateField(null=True, blank=True)
     current_streak = models.IntegerField(default=0)
     max_streak = models.IntegerField(default=0)
@@ -134,7 +134,7 @@ class ModuleStatus(models.Model):
 
 class ModulePopulation(models.Model):
     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='module_populations')
-    module_type = models.CharField(max_length=20, choices=ModuleType.choices)
+    module_type = models.CharField(max_length=1, choices=ModuleType.choices)
     population = models.IntegerField(default=0)
 
     class Meta:
