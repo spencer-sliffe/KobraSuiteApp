@@ -1,20 +1,27 @@
 
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
-from rest_framework import viewsets
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
 from customer.permissions import IsOwnerOrAdmin
 from hq.models import ModuleTask
 from hq.serializers.module_task_serializers import ModuleTaskSerializer
+from hq.utils.task_utils import apply_task_rewards
 
 class ModuleTaskViewSet(viewsets.ModelViewSet):
     queryset = ModuleTask.objects.all()
     serializer_class = ModuleTaskSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrAdmin)
 
-    @action()
+    @action(methods=['post'], detail=True)
     def complete(self, request):
-        # task/complete/{module}/{task_name}/{weight}
+        serializer = self.get_serializer(data=request.data)
+        task = serializer.save()
+        currency, experience, population = apply_task_rewards(task)
+        return Response({"currency": currency, "experience": experience, "population": population})
+
 
     def get_queryset(self):
         user_pk = self.kwargs.get('user_pk')
