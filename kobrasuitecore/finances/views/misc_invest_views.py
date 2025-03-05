@@ -17,19 +17,6 @@ Aggregated or computed investment data, including predictions and news articles.
 Collaborators: SPENCER SLIFFE
 ---------------------------------------------
 """
-import os
-from rest_framework import viewsets, status
-from rest_framework.response import Response
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
-from finances.utils.stock_utils import (
-    get_stock_results_data,
-    get_stock_chart,
-    get_hot_stocks,
-    get_news_articles
-)
-from finances.services.stock_prediction_services import get_predictions
-
 
 import os
 from rest_framework import viewsets, status
