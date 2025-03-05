@@ -1,3 +1,4 @@
+// lib/UI/screens/main_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:kobrasuite_app/UI/nav/providers/control_bar_provider.dart';
@@ -12,8 +13,8 @@ import 'package:kobrasuite_app/UI/screens/modules/work/work_screen.dart';
 import 'package:kobrasuite_app/UI/screens/modules/homelife/homelife_screen.dart';
 import 'modules/finances/tabs/bank_accounts_tab.dart';
 import 'modules/finances/tabs/budgets_tab.dart';
-import 'modules/finances/tabs/stocks_tab.dart';
 import 'modules/finances/tabs/transactions_tab.dart';
+import 'modules/finances/tabs/stocks_tab.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -62,11 +63,19 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final store = context.watch<NavigationStore>();
-    final module = store.activeModule;
+    final navigationStore = context.watch<NavigationStore>();
+    final module = navigationStore.activeModule;
     _tabs = _tabsForModule(module);
     _tabController?.dispose();
     _tabController = TabController(length: _tabs.length, vsync: this);
+    if (module == Module.Finances) {
+      _tabController!.index = navigationStore.activeFinancesTabIndex;
+      _tabController!.addListener(() {
+        if (!_tabController!.indexIsChanging) {
+          navigationStore.setActiveFinancesTabIndex(_tabController!.index);
+        }
+      });
+    }
   }
 
   List<String> _tabsForModule(Module module) {
@@ -99,10 +108,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     } else if (module == Module.Work) {
       return const WorkScreen();
     } else if (module == Module.Finances) {
-      if (tab == 'Accounts') return const BankAccountsTab();
-      if (tab == 'Budgets') return const BudgetsTab();
-      if (tab == 'Transactions') return const TransactionsTab();
-      if (tab == 'Stocks') return const StocksTab();
+      switch (tab) {
+        case 'Accounts':     return const BankAccountsTab();
+        case 'Budgets':      return const BudgetsTab();
+        case 'Transactions': return const TransactionsTab();
+        case 'Stocks':       return const StocksTab();
+      }
     } else if (module == Module.HomeLife) {
       return const HomelifeScreen();
     }

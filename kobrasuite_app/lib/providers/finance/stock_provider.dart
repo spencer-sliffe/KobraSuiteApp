@@ -83,7 +83,7 @@ class StockProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> removeWatchlistStock(String ticker) async {
+  Future<bool> removeWatchlistStock(int watchlistStockId) async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
@@ -92,10 +92,10 @@ class StockProvider extends ChangeNotifier {
         userPk: _userPk,
         financeProfilePk: _financeProfilePk,
         stockPortfolioPk: _stockPortfolioPk,
-        ticker: ticker,
+        watchlistStockId: watchlistStockId,
       );
       if (success) {
-        _watchlistStocks.removeWhere((w) => w.ticker == ticker);
+        _watchlistStocks.removeWhere((w) => w.id == watchlistStockId);
       }
       return success;
     } catch (e) {

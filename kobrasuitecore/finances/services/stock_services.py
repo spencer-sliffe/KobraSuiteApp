@@ -1,22 +1,3 @@
-"""
-------------------Prologue--------------------
-File Name: stock_services.py
-Path: kobrasuitecore/finances/services/stock_services.py
-
-Description:
-Handles the main business logic for stock portfolios, including adding and removing
-stocks, retrieving current positions, and performing high-level portfolio analysis (e.g.,
-expected returns, risk, Sharpe ratio).
-
-Input:
-User requests to manage stock holdings, plus real-time data lookups for stock prices.
-
-Output:
-Database operations reflecting updated portfolios, along with computed portfolio metrics.
-
-Collaborators: SPENCER SLIFFE
----------------------------------------------
-"""
 import logging
 import yfinance as yf
 from datetime import datetime
@@ -91,14 +72,14 @@ def get_portfolio_stocks(finance_profile, portfolio_id):
         pl = val - invest
         pct = (pl / invest) * 100 if invest != 0 else 0
         data.append({
-            "ticker": x.ticker,
-            "number_of_shares": x.number_of_shares,
-            "pps_at_purchase": x.pps_at_purchase,
-            "close_price": cp,
-            "current_value": val,
-            "total_invested": invest,
-            "profit_loss": pl,
-            "profit_loss_percentage": pct
+            'ticker': x.ticker,
+            'number_of_shares': x.number_of_shares,
+            'pps_at_purchase': x.pps_at_purchase,
+            'close_price': cp,
+            'current_value': val,
+            'total_invested': invest,
+            'profit_loss': pl,
+            'profit_loss_percentage': pct
         })
     return data
 
@@ -152,11 +133,13 @@ def portfolio_analysis(structure):
         dd = (cumret - peak) / peak
         mdd = dd.min() if not dd.empty else 0
         sr = (er - risk_free) / risk if risk != 0 else 0
+
         def diversification_ratio(returns_df, wts):
             std_indiv = returns_df.std() * (252**0.5)
             weighted_vol = wts.dot(std_indiv)
             port_vol = float((wts.T.dot(returns_df.cov()*252).dot(wts))**0.5)
             return weighted_vol / port_vol if port_vol != 0 else 1
+
         div = diversification_ratio(returns, weights)
         metrics = {
             'expected_return': er,

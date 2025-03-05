@@ -1,7 +1,12 @@
+// lib/modules/finances/tabs/bank_accounts_tab.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:kobrasuite_app/providers/finance/bank_account_provider.dart';
 import 'package:kobrasuite_app/models/finance/bank_account.dart';
+import 'package:kobrasuite_app/providers/finance/bank_account_provider.dart';
+import 'package:kobrasuite_app/UI/nav/providers/control_bar_provider.dart';
+
+import '../../../../nav/providers/control_bar_registrar.dart';
+
 
 class BankAccountsTab extends StatefulWidget {
   const BankAccountsTab({Key? key}) : super(key: key);
@@ -16,9 +21,9 @@ class _BankAccountsTabState extends State<BankAccountsTab> {
   @override
   void initState() {
     super.initState();
+    // Load data after the widget builds.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<BankAccountProvider>();
-      provider.loadBankAccounts().then((_) {
+      context.read<BankAccountProvider>().loadBankAccounts().then((_) {
         setState(() => _initialized = true);
       });
     });
@@ -31,42 +36,50 @@ class _BankAccountsTabState extends State<BankAccountsTab> {
     final error = bankProvider.errorMessage;
     final accounts = bankProvider.bankAccounts;
 
-    return Scaffold(
-      body: Column(
-        children: [
-          if (isLoading) const LinearProgressIndicator(),
-          if (error.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(error, style: const TextStyle(color: Colors.red)),
-            ),
-          if (!isLoading && error.isEmpty)
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: () => bankProvider.loadBankAccounts(),
-                child: ListView.builder(
-                  itemCount: accounts.length,
-                  itemBuilder: (context, index) {
-                    final BankAccount acct = accounts[index];
-                    return ListTile(
-                      title: Text(acct.accountName),
-                      subtitle: Text('${acct.institutionName} • ${acct.balance} ${acct.currency}'),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: () async {
-                          await bankProvider.deleteBankAccount(acct.id);
-                        },
-                      ),
-                    );
-                  },
+    // Use ControlBarRegistrar with financeTabIndex = 0 (for Accounts)
+    return ControlBarRegistrar(
+      financeTabIndex: 0,
+      buttons: [
+        ControlBarButtonModel(
+          icon: Icons.add,
+          label: 'Add Account',
+          onPressed: _showAddAccountDialog,
+        ),
+      ],
+      child: Scaffold(
+        body: Column(
+          children: [
+            if (isLoading) const LinearProgressIndicator(),
+            if (error.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(error, style: const TextStyle(color: Colors.red)),
+              ),
+            if (!isLoading && error.isEmpty)
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: bankProvider.loadBankAccounts,
+                  child: ListView.separated(
+                    itemCount: accounts.length,
+                    separatorBuilder: (_, __) => const Divider(),
+                    itemBuilder: (context, index) {
+                      final BankAccount account = accounts[index];
+                      return ListTile(
+                        title: Text(account.accountName),
+                        subtitle: Text(
+                          '${account.institutionName} • ${account.balance} ${account.currency}',
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () => bankProvider.deleteBankAccount(account.id),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
-            ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showAddAccountDialog,
-        child: const Icon(Icons.add),
+          ],
+        ),
       ),
     );
   }
@@ -74,44 +87,89 @@ class _BankAccountsTabState extends State<BankAccountsTab> {
   void _showAddAccountDialog() {
     showDialog(
       context: context,
-      builder: (context) {
-        final accountNameCtrl = TextEditingController();
-        final accountNumberCtrl = TextEditingController();
-        final institutionNameCtrl = TextEditingController();
-        final balanceCtrl = TextEditingController();
-        return AlertDialog(
-          title: const Text('Add Account'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                TextField(controller: accountNameCtrl, decoration: const InputDecoration(labelText: 'Account Name')),
-                TextField(controller: accountNumberCtrl, decoration: const InputDecoration(labelText: 'Account Number')),
-                TextField(controller: institutionNameCtrl, decoration: const InputDecoration(labelText: 'Institution Name')),
-                TextField(controller: balanceCtrl, decoration: const InputDecoration(labelText: 'Balance')),
-              ],
-            ),
+      builder: (context) => const _AddBankAccountDialog(),
+    );
+  }
+}
+
+class _AddBankAccountDialog extends StatefulWidget {
+  const _AddBankAccountDialog({Key? key}) : super(key: key);
+
+  @override
+  State<_AddBankAccountDialog> createState() => _AddBankAccountDialogState();
+}
+
+class _AddBankAccountDialogState extends State<_AddBankAccountDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final _accountNameCtrl = TextEditingController();
+  final _accountNumberCtrl = TextEditingController();
+  final _institutionNameCtrl = TextEditingController();
+  final _balanceCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _accountNameCtrl.dispose();
+    _accountNumberCtrl.dispose();
+    _institutionNameCtrl.dispose();
+    _balanceCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _saveAccount() async {
+    if (_formKey.currentState!.validate()) {
+      final bankProvider = context.read<BankAccountProvider>();
+      final success = await bankProvider.createBankAccount(
+        accountName: _accountNameCtrl.text,
+        accountNumber: _accountNumberCtrl.text,
+        institutionName: _institutionNameCtrl.text,
+        balance: double.parse(_balanceCtrl.text),
+      );
+      if (success && mounted) Navigator.pop(context);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Add Bank Account'),
+      content: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _accountNameCtrl,
+                decoration: const InputDecoration(labelText: 'Account Name'),
+                validator: (value) => (value == null || value.isEmpty) ? 'Enter account name' : null,
+              ),
+              TextFormField(
+                controller: _accountNumberCtrl,
+                decoration: const InputDecoration(labelText: 'Account Number'),
+                validator: (value) => (value == null || value.isEmpty) ? 'Enter account number' : null,
+              ),
+              TextFormField(
+                controller: _institutionNameCtrl,
+                decoration: const InputDecoration(labelText: 'Institution Name'),
+                validator: (value) => (value == null || value.isEmpty) ? 'Enter institution name' : null,
+              ),
+              TextFormField(
+                controller: _balanceCtrl,
+                decoration: const InputDecoration(labelText: 'Balance'),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Enter balance';
+                  if (double.tryParse(value) == null) return 'Enter a valid number';
+                  return null;
+                },
+              ),
+            ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                final bankProvider = context.read<BankAccountProvider>();
-                await bankProvider.createBankAccount(
-                  accountName: accountNameCtrl.text,
-                  accountNumber: accountNumberCtrl.text,
-                  institutionName: institutionNameCtrl.text,
-                  balance: double.tryParse(balanceCtrl.text) ?? 0.0,
-                );
-                if (mounted) Navigator.pop(context);
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        );
-      },
+        ),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        ElevatedButton(onPressed: _saveAccount, child: const Text('Save')),
+      ],
     );
   }
 }
