@@ -138,6 +138,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     final navigationStore = context.watch<NavigationStore>();
     final isLargeScreen = MediaQuery.of(context).size.width >= 800;
     final activeModule = navigationStore.activeModule;
+    final moduleOrder = navigationStore.moduleOrder;
     final theme = Theme.of(context);
 
     return GlobalGestureDetector(
@@ -175,12 +176,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               children: [
                 if (isLargeScreen)
                   NavigationRail(
-                    selectedIndex: Module.values.indexOf(activeModule),
+                    selectedIndex: moduleOrder.indexOf(activeModule),
                     onDestinationSelected: (index) {
-                      context.read<NavigationStore>().setActiveModule(Module.values[index]);
+                      context.read<NavigationStore>().setActiveModule(moduleOrder[index]);
                     },
                     labelType: NavigationRailLabelType.all,
-                    destinations: Module.values.map((m) {
+                    destinations: moduleOrder.map((m) {
                       return NavigationRailDestination(
                         icon: Icon(_moduleIcon(m)),
                         label: Text(m.toString().split('.').last),

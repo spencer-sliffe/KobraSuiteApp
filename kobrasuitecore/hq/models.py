@@ -145,14 +145,62 @@ class ModulePopulation(models.Model):
 
 
 class ModuleTask(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='module_tasks')
+    profile = models.ForeignKey('hq.UserProfile', on_delete=models.CASCADE, related_name='module_tasks')
     date = models.DateField()
     module = models.CharField(max_length=20, choices=ModuleType.choices)
     task_number = models.IntegerField()
     task_weight = models.FloatField(default=1.0)
 
     class Meta:
-        unique_together = ('user', 'date', 'module', 'task_number')
+        unique_together = ('profile', 'date', 'module', 'task_number')
 
     def __str__(self):
-        return f"{self.user.username} {self.module} Task {self.task_number}"
+        return f"{self.profile.user.username} {self.module} Task {self.task_number}"
+
+
+class CalendarEvent(models.Model):
+    profile = models.ForeignKey(
+        'hq.UserProfile',
+        on_delete=models.CASCADE,
+        related_name='calendar_events'
+    )
+    module_type = models.CharField(
+        max_length=20,
+        choices=ModuleType.choices,
+        blank=True,
+        null=True
+    )
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    start_datetime = models.DateTimeField()
+    end_datetime = models.DateTimeField()
+    is_all_day = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"CalendarEvent {self.title} for {self.profile.user.username}"
+
+
+class CalendarEvent(models.Model):
+    profile = models.ForeignKey(
+        'hq.UserProfile',
+        on_delete=models.CASCADE,
+        related_name='calendar_events'
+    )
+    module_type = models.CharField(
+        max_length=20,
+        choices=ModuleType.choices,
+        blank=True,
+        null=True
+    )
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    start_datetime = models.DateTimeField()
+    end_datetime = models.DateTimeField()
+    is_all_day = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"CalendarEvent {self.title} for {self.profile.user.username}"

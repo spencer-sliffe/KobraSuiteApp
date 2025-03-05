@@ -52,3 +52,5 @@ node_modules/
 
 # FVM Version Cache
 .fvm/
+
+lib/config.dart
