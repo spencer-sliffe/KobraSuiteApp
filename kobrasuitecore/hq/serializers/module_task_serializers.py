@@ -1,7 +1,6 @@
-# hq/serializers/multiplier_serializers.py
 from rest_framework import serializers
-
 from hq.models import ModuleTask
+
 
 class ModuleTaskSerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,6 +9,7 @@ class ModuleTaskSerializer(serializers.ModelSerializer):
             'profile',
             'date',
             'module',
-            'task_number',
+            'category_id',
+            'unique_task_id',
             'task_weight'
         ]
