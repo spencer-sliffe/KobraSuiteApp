@@ -48,7 +48,8 @@ class UserProfile(models.Model):
 class SchoolProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='school_profile')
     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='school_profile')
-    university = models.ForeignKey(University, null=True, blank=True, on_delete=models.SET_NULL, related_name='school_profiles')
+    university = models.ForeignKey(University, null=True, blank=True, on_delete=models.SET_NULL,
+                                   related_name='school_profiles')
     courses = models.ManyToManyField(Course, related_name='school_profiles', blank=True)
 
     def __str__(self):
@@ -75,7 +76,8 @@ class FinanceProfile(models.Model):
 class HomeLifeProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='homelife_profile')
     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='homelife_profile')
-    household = models.ForeignKey(Household, null=True, blank=True, on_delete=models.SET_NULL, related_name='homelife_profiles')
+    household = models.ForeignKey(Household, null=True, blank=True, on_delete=models.SET_NULL,
+                                  related_name='homelife_profiles')
 
     def __str__(self):
         return f"HomeLife Profile of {self.user.username}"
@@ -83,10 +85,12 @@ class HomeLifeProfile(models.Model):
 
 class Multiplier(models.Model):
     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='multipliers')
-    multiplier_profile_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='multiplier_profiles')
+    multiplier_profile_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,
+                                                        related_name='multiplier_profiles')
     multiplier_profile_object_id = models.PositiveIntegerField()
     multiplier_profile = GenericForeignKey('multiplier_profile_content_type', 'multiplier_profile_object_id')
-    multiplier_obj_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='multiplier_objects')
+    multiplier_obj_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,
+                                                    related_name='multiplier_objects')
     multiplier_obj_object_id = models.PositiveIntegerField()
     multiplier_obj = GenericForeignKey('multiplier_obj_content_type', 'multiplier_obj_object_id')
     multiplier = models.FloatField(default=1.0)
@@ -144,20 +148,6 @@ class ModulePopulation(models.Model):
         return f"{self.profile.user.username} - {self.module_type} Population"
 
 
-class ModuleTask(models.Model):
-    profile = models.ForeignKey('hq.UserProfile', on_delete=models.CASCADE, related_name='module_tasks')
-    date = models.DateField()
-    module = models.CharField(max_length=20, choices=ModuleType.choices)
-    task_number = models.IntegerField()
-    task_weight = models.FloatField(default=1.0)
-
-    class Meta:
-        unique_together = ('profile', 'date', 'module', 'task_number')
-
-    def __str__(self):
-        return f"{self.profile.user.username} {self.module} Task {self.task_number}"
-
-
 class CalendarEvent(models.Model):
     profile = models.ForeignKey(
         'hq.UserProfile',
@@ -180,3 +170,46 @@ class CalendarEvent(models.Model):
 
     def __str__(self):
         return f"CalendarEvent {self.title} for {self.profile.user.username}"
+
+
+class TaskCategoryProgress(models.Model):
+    profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='task_category_progresses')
+    module = models.CharField(max_length=1, choices=ModuleType.choices)
+    category_id = models.PositiveIntegerField()
+    completion_count = models.PositiveIntegerField(default=0)
+    last_renewed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('profile', 'module', 'category_id')
+
+    def __str__(self):
+        return f"{self.profile.user.username} {self.module} Cat {self.category_id} Progress"
+
+
+class TaskCategorySlot(models.Model):
+    progress = models.ForeignKey(TaskCategoryProgress, on_delete=models.CASCADE, related_name='slots')
+    slots = models.BigIntegerField(default=0)
+    completed = models.BigIntegerField(default=0)
+
+    def __str__(self):
+        return (
+            f"{self.progress.profile.user.username} {self.progress.module} "
+            f"Cat {self.progress.category_id} Slots {self.slots:064b} "
+            f"Completed {self.completed:064b}"
+        )
+
+
+class TaskPerformanceBounds(models.Model):
+    progress = models.ForeignKey(TaskCategoryProgress, on_delete=models.CASCADE, related_name='performance_bounds')
+    slot_index = models.IntegerField(default=-1)
+    data = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        unique_together = ('progress', 'slot_index')
+
+    def __str__(self):
+        return (
+            f"{self.progress.profile.user.username} {self.progress.module} "
+            f"Cat {self.progress.category_id} Slot {self.slot_index} Bounds"
+        )
+

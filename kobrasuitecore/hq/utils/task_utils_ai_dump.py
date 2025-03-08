@@ -191,7 +191,7 @@ def some_finance_eval(bounds_data, task_data):
     ratio = budget / expense
     return ratio if ratio < 1.5 else 1.5
 
-def some_homelife_eval(bounds_data, task_data):
+def homelife_eval(bounds_data, task_data):
     due_date = bounds_data.get("due_date")
     now_str = task_data.get("date")
     if not due_date or not now_str:
