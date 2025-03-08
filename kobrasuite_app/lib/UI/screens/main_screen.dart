@@ -1,4 +1,3 @@
-// lib/UI/screens/main_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:kobrasuite_app/UI/nav/providers/control_bar_provider.dart';
@@ -11,10 +10,11 @@ import 'package:kobrasuite_app/UI/screens/modules/school/tabs/school_university_
 import 'package:kobrasuite_app/UI/screens/modules/school/tabs/school_courses_tab.dart';
 import 'package:kobrasuite_app/UI/screens/modules/work/work_screen.dart';
 import 'package:kobrasuite_app/UI/screens/modules/homelife/homelife_screen.dart';
-import 'modules/finances/tabs/bank_accounts_tab.dart';
-import 'modules/finances/tabs/budgets_tab.dart';
-import 'modules/finances/tabs/transactions_tab.dart';
-import 'modules/finances/tabs/stocks_tab.dart';
+import 'package:kobrasuite_app/UI/screens/modules/finances/tabs/bank_accounts_tab.dart';
+import 'package:kobrasuite_app/UI/screens/modules/finances/tabs/budgets_tab.dart';
+import 'package:kobrasuite_app/UI/screens/modules/finances/tabs/transactions_tab.dart';
+import 'package:kobrasuite_app/UI/screens/modules/finances/tabs/stocks_tab.dart';
+import '../nav/providers/control_bar_registrar.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -31,29 +31,28 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final controlBarProvider = context.read<ControlBarProvider>();
-      controlBarProvider.clearPersistentButtons();
-      controlBarProvider.addPersistentButton(
+      final provider = context.read<ControlBarProvider>();
+      provider.clearPersistentButtons();
+      provider.addPersistentButton(
         ControlBarButtonModel(
           icon: Icons.refresh,
           label: 'Refresh',
           onPressed: () {},
         ),
       );
-      controlBarProvider.addPersistentButton(
+      provider.addPersistentButton(
         ControlBarButtonModel(
           icon: Icons.chat,
           label: 'Toggle AI Chat',
           onPressed: () {},
         ),
       );
-      controlBarProvider.addPersistentButton(
+      provider.addPersistentButton(
         ControlBarButtonModel(
           icon: Icons.hd,
           label: 'HQ',
           onPressed: () {
-            final store = context.read<NavigationStore>();
-            store.setHQActive(true);
+            context.read<NavigationStore>().setHQActive(true);
           },
         ),
       );
@@ -63,16 +62,16 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final navigationStore = context.watch<NavigationStore>();
-    final module = navigationStore.activeModule;
+    final store = context.watch<NavigationStore>();
+    final module = store.activeModule;
     _tabs = _tabsForModule(module);
     _tabController?.dispose();
     _tabController = TabController(length: _tabs.length, vsync: this);
     if (module == Module.Finances) {
-      _tabController!.index = navigationStore.activeFinancesTabIndex;
+      _tabController!.index = store.activeFinancesTabIndex;
       _tabController!.addListener(() {
         if (!_tabController!.indexIsChanging) {
-          navigationStore.setActiveFinancesTabIndex(_tabController!.index);
+          store.setActiveFinancesTabIndex(_tabController!.index);
         }
       });
     }
@@ -109,10 +108,62 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       return const WorkScreen();
     } else if (module == Module.Finances) {
       switch (tab) {
-        case 'Accounts':     return const BankAccountsTab();
-        case 'Budgets':      return const BudgetsTab();
-        case 'Transactions': return const TransactionsTab();
-        case 'Stocks':       return const StocksTab();
+        case 'Accounts':
+          return ControlBarRegistrar(
+            financeTabIndex: 0,
+            buttons: [
+              ControlBarButtonModel(
+                icon: Icons.add,
+                label: 'Add Account',
+                onPressed: () {
+                  // showDialog(context: context, builder: (_) => const AddBankAccountDialog());
+                },
+              ),
+            ],
+            child: const BankAccountsTab(),
+          );
+        case 'Budgets':
+          return ControlBarRegistrar(
+            financeTabIndex: 1,
+            buttons: [
+              ControlBarButtonModel(
+                icon: Icons.add,
+                label: 'Add Budget',
+                onPressed: () {
+                  // showDialog(context: context, builder: (_) => const AddBudgetDialog());
+                },
+              ),
+            ],
+            child: const BudgetsTab(),
+          );
+        case 'Transactions':
+          return ControlBarRegistrar(
+            financeTabIndex: 2,
+            buttons: [
+              ControlBarButtonModel(
+                icon: Icons.add,
+                label: 'Add Transaction',
+                onPressed: () {
+                  // showDialog(context: context, builder: (_) => const AddTransactionDialog());
+                },
+              ),
+            ],
+            child: const TransactionsTab(),
+          );
+        case 'Stocks':
+          return ControlBarRegistrar(
+            financeTabIndex: 3,
+            buttons: [
+              ControlBarButtonModel(
+                icon: Icons.add,
+                label: 'Add Stock',
+                onPressed: () {
+                  // showDialog(context: context, builder: (_) => const AddStockDialog());
+                },
+              ),
+            ],
+            child: const StocksTab(),
+          );
       }
     } else if (module == Module.HomeLife) {
       return const HomelifeScreen();
@@ -135,10 +186,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final navigationStore = context.watch<NavigationStore>();
+    final store = context.watch<NavigationStore>();
     final isLargeScreen = MediaQuery.of(context).size.width >= 800;
-    final activeModule = navigationStore.activeModule;
-    final moduleOrder = navigationStore.moduleOrder;
+    final activeModule = store.activeModule;
+    final modules = store.moduleOrder;
     final theme = Theme.of(context);
 
     return GlobalGestureDetector(
@@ -176,12 +227,11 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               children: [
                 if (isLargeScreen)
                   NavigationRail(
-                    selectedIndex: moduleOrder.indexOf(activeModule),
-                    onDestinationSelected: (index) {
-                      context.read<NavigationStore>().setActiveModule(moduleOrder[index]);
-                    },
+                    selectedIndex: modules.indexOf(activeModule),
+                    onDestinationSelected: (index) =>
+                        store.setActiveModule(modules[index]),
                     labelType: NavigationRailLabelType.all,
-                    destinations: moduleOrder.map((m) {
+                    destinations: modules.map((m) {
                       return NavigationRailDestination(
                         icon: Icon(_moduleIcon(m)),
                         label: Text(m.toString().split('.').last),
@@ -196,10 +246,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 ),
               ],
             ),
-            if (navigationStore.hqActive) const HQNavigationOverlay(),
+            if (store.hqActive) const HQNavigationOverlay(),
           ],
         ),
-        bottomNavigationBar: navigationStore.hqActive ? null : const PageControlBar(),
+        bottomNavigationBar: store.hqActive ? null : const PageControlBar(),
       ),
     );
   }

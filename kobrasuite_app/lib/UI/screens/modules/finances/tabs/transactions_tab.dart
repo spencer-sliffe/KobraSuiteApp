@@ -1,42 +1,26 @@
+// lib/modules/finances/tabs/transactions_tab.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:kobrasuite_app/models/finance/transaction.dart' as finance_tx;
 import 'package:kobrasuite_app/providers/finance/transaction_provider.dart';
-import 'package:kobrasuite_app/UI/nav/providers/control_bar_provider.dart';
 
 class TransactionsTab extends StatefulWidget {
-  const TransactionsTab({Key? key}) : super(key: key);
+  const TransactionsTab({super.key});
 
   @override
   State<TransactionsTab> createState() => _TransactionsTabState();
 }
 
-class _TransactionsTabState extends State<TransactionsTab>
-    with AutomaticKeepAliveClientMixin {
-  late final ControlBarButtonModel _addTransactionButton;
-
+class _TransactionsTabState extends State<TransactionsTab> with AutomaticKeepAliveClientMixin {
   @override
-  bool get wantKeepAlive => false; // Force disposal
+  bool get wantKeepAlive => false;
 
   @override
   void initState() {
     super.initState();
-    _addTransactionButton = ControlBarButtonModel(
-      icon: Icons.add,
-      label: 'Add Transaction',
-      onPressed: _showCreateTransactionDialog,
-    );
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ControlBarProvider>().addEphemeralButton(_addTransactionButton);
       context.read<TransactionProvider>().loadTransactions();
     });
-  }
-
-  @override
-  void dispose() {
-    context.read<ControlBarProvider>().removeEphemeralButton(_addTransactionButton);
-    super.dispose();
   }
 
   @override
@@ -78,23 +62,16 @@ class _TransactionsTabState extends State<TransactionsTab>
       ),
     );
   }
-
-  void _showCreateTransactionDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => const _AddTransactionDialog(),
-    );
-  }
 }
 
-class _AddTransactionDialog extends StatefulWidget {
-  const _AddTransactionDialog({Key? key}) : super(key: key);
+class AddTransactionDialog extends StatefulWidget {
+  const AddTransactionDialog({super.key});
 
   @override
-  State<_AddTransactionDialog> createState() => _AddTransactionDialogState();
+  State<AddTransactionDialog> createState() => _AddTransactionDialogState();
 }
 
-class _AddTransactionDialogState extends State<_AddTransactionDialog> {
+class _AddTransactionDialogState extends State<AddTransactionDialog> {
   final _formKey = GlobalKey<FormState>();
   String _selectedType = 'EXPENSE';
   final _amountCtrl = TextEditingController();
@@ -182,8 +159,14 @@ class _AddTransactionDialogState extends State<_AddTransactionDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-        ElevatedButton(onPressed: _saveTransaction, child: const Text('Save')),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: _saveTransaction,
+          child: const Text('Save'),
+        ),
       ],
     );
   }

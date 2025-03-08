@@ -2,41 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:kobrasuite_app/models/finance/budget.dart';
 import 'package:kobrasuite_app/providers/finance/budget_provider.dart';
-import 'package:kobrasuite_app/UI/nav/providers/control_bar_provider.dart';
 
 class BudgetsTab extends StatefulWidget {
-  const BudgetsTab({Key? key}) : super(key: key);
+  const BudgetsTab({super.key});
 
   @override
   State<BudgetsTab> createState() => _BudgetsTabState();
 }
 
-class _BudgetsTabState extends State<BudgetsTab>
-    with AutomaticKeepAliveClientMixin {
-  late final ControlBarButtonModel _addBudgetButton;
-
+class _BudgetsTabState extends State<BudgetsTab> with AutomaticKeepAliveClientMixin {
   @override
-  bool get wantKeepAlive => false; // Force disposal
+  bool get wantKeepAlive => false;
 
   @override
   void initState() {
     super.initState();
-    _addBudgetButton = ControlBarButtonModel(
-      icon: Icons.add,
-      label: 'Add Budget',
-      onPressed: _showAddBudgetDialog,
-    );
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ControlBarProvider>().addEphemeralButton(_addBudgetButton);
       context.read<BudgetProvider>().loadBudgets();
     });
-  }
-
-  @override
-  void dispose() {
-    context.read<ControlBarProvider>().removeEphemeralButton(_addBudgetButton);
-    super.dispose();
   }
 
   @override
@@ -62,11 +45,12 @@ class _BudgetsTabState extends State<BudgetsTab>
                 itemCount: budgets.length,
                 separatorBuilder: (_, __) => const Divider(),
                 itemBuilder: (context, index) {
-                  final Budget budget = budgets[index];
+                  final budget = budgets[index];
                   return ListTile(
                     title: Text('${budget.name} - \$${budget.totalAmount.toStringAsFixed(2)}'),
                     subtitle: Text(
-                      'Active: ${budget.isActive ? 'Yes' : 'No'} | ${budget.startDate} to ${budget.endDate}',
+                      'Active: ${budget.isActive ? 'Yes' : 'No'} | '
+                          '${budget.startDate} to ${budget.endDate}',
                     ),
                     trailing: IconButton(
                       icon: const Icon(Icons.delete),
@@ -80,23 +64,16 @@ class _BudgetsTabState extends State<BudgetsTab>
       ),
     );
   }
-
-  void _showAddBudgetDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => const _AddBudgetDialog(),
-    );
-  }
 }
 
-class _AddBudgetDialog extends StatefulWidget {
-  const _AddBudgetDialog({Key? key}) : super(key: key);
+class AddBudgetDialog extends StatefulWidget {
+  const AddBudgetDialog({super.key});
 
   @override
-  State<_AddBudgetDialog> createState() => _AddBudgetDialogState();
+  State<AddBudgetDialog> createState() => _AddBudgetDialogState();
 }
 
-class _AddBudgetDialogState extends State<_AddBudgetDialog> {
+class _AddBudgetDialogState extends State<AddBudgetDialog> {
   final _formKey = GlobalKey<FormState>();
   final _nameCtrl = TextEditingController();
   final _amountCtrl = TextEditingController();
@@ -132,8 +109,8 @@ class _AddBudgetDialogState extends State<_AddBudgetDialog> {
 
   Future<void> _saveBudget() async {
     if (_formKey.currentState!.validate() && _startDate != null && _endDate != null) {
-      final budgetProvider = context.read<BudgetProvider>();
-      final success = await budgetProvider.createBudget(
+      final provider = context.read<BudgetProvider>();
+      final success = await provider.createBudget(
         name: _nameCtrl.text,
         totalAmount: double.parse(_amountCtrl.text),
         startDate: _startDate!.toIso8601String().split('T').first,
@@ -173,14 +150,22 @@ class _AddBudgetDialogState extends State<_AddBudgetDialog> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => _pickDate(context, true),
-                      child: Text(_startDate == null ? 'Select Start Date' : _startDate!.toLocal().toString().split(' ')[0]),
+                      child: Text(
+                        _startDate == null
+                            ? 'Select Start Date'
+                            : _startDate!.toLocal().toString().split(' ')[0],
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => _pickDate(context, false),
-                      child: Text(_endDate == null ? 'Select End Date' : _endDate!.toLocal().toString().split(' ')[0]),
+                      child: Text(
+                        _endDate == null
+                            ? 'Select End Date'
+                            : _endDate!.toLocal().toString().split(' ')[0],
+                      ),
                     ),
                   ),
                 ],

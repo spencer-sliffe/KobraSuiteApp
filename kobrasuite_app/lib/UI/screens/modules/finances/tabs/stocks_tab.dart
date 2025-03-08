@@ -1,35 +1,26 @@
+// lib/modules/finances/tabs/stocks_tab.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:kobrasuite_app/models/finance/portfolio_stock.dart';
 import 'package:kobrasuite_app/models/finance/watchlist_stock.dart';
 import 'package:kobrasuite_app/providers/finance/stock_portfolio_provider.dart';
 import 'package:kobrasuite_app/providers/finance/stock_provider.dart';
-import 'package:kobrasuite_app/UI/nav/providers/control_bar_provider.dart';
 
 class StocksTab extends StatefulWidget {
-  const StocksTab({Key? key}) : super(key: key);
+  const StocksTab({super.key});
 
   @override
   State<StocksTab> createState() => _StocksTabState();
 }
 
 class _StocksTabState extends State<StocksTab> with AutomaticKeepAliveClientMixin {
-  late final ControlBarButtonModel _addStockButton;
-
   @override
-  bool get wantKeepAlive => false; // Force disposal
+  bool get wantKeepAlive => false;
 
   @override
   void initState() {
     super.initState();
-    _addStockButton = ControlBarButtonModel(
-      icon: Icons.add,
-      label: 'Add Stock',
-      onPressed: _showAddStockDialog,
-    );
-
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      context.read<ControlBarProvider>().addEphemeralButton(_addStockButton);
       final portfolioProvider = context.read<StockPortfolioProvider>();
       final watchlistProvider = context.read<StockProvider>();
       await portfolioProvider.loadStockPortfolio();
@@ -39,17 +30,10 @@ class _StocksTabState extends State<StocksTab> with AutomaticKeepAliveClientMixi
   }
 
   @override
-  void dispose() {
-    context.read<ControlBarProvider>().removeEphemeralButton(_addStockButton);
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     super.build(context);
     final portfolioProvider = context.watch<StockPortfolioProvider>();
     final watchlistProvider = context.watch<StockProvider>();
-
     final isLoading = portfolioProvider.isLoading || watchlistProvider.isLoading;
     final error = portfolioProvider.errorMessage.isNotEmpty
         ? portfolioProvider.errorMessage
@@ -72,7 +56,9 @@ class _StocksTabState extends State<StocksTab> with AutomaticKeepAliveClientMixi
             ...portfolioStocks.map((stock) => Card(
               child: ListTile(
                 title: Text(stock.ticker),
-                subtitle: Text('${stock.numberOfShares} shares @ ${stock.ppsAtPurchase}'),
+                subtitle: Text(
+                  '${stock.numberOfShares} shares @ ${stock.ppsAtPurchase}',
+                ),
                 trailing: IconButton(
                   icon: const Icon(Icons.delete),
                   onPressed: () => _removePortfolioStock(stock),
@@ -97,13 +83,6 @@ class _StocksTabState extends State<StocksTab> with AutomaticKeepAliveClientMixi
     );
   }
 
-  void _showAddStockDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => const _AddStockDialog(),
-    );
-  }
-
   Future<void> _removePortfolioStock(PortfolioStock stock) async {
     final provider = context.read<StockPortfolioProvider>();
     await provider.removeStock(stock.ticker);
@@ -115,14 +94,14 @@ class _StocksTabState extends State<StocksTab> with AutomaticKeepAliveClientMixi
   }
 }
 
-class _AddStockDialog extends StatefulWidget {
-  const _AddStockDialog({Key? key}) : super(key: key);
+class AddStockDialog extends StatefulWidget {
+  const AddStockDialog({super.key});
 
   @override
-  State<_AddStockDialog> createState() => _AddStockDialogState();
+  State<AddStockDialog> createState() => _AddStockDialogState();
 }
 
-class _AddStockDialogState extends State<_AddStockDialog> {
+class _AddStockDialogState extends State<AddStockDialog> {
   final _formKey = GlobalKey<FormState>();
   final _tickerCtrl = TextEditingController();
   final _sharesCtrl = TextEditingController();

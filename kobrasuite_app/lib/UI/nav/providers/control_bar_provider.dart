@@ -1,4 +1,3 @@
-// lib/UI/nav/providers/control_bar_provider.dart
 import 'package:flutter/material.dart';
 
 class ControlBarButtonModel {
