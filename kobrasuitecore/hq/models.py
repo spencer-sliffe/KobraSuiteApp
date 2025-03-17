@@ -1,7 +1,8 @@
 import math
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
+
 from django.db import models
+from django.utils import timezone
+
 from customer.models import User
 from homelife.models import Household
 from school.models import Course, University
@@ -16,6 +17,7 @@ class UserProfile(models.Model):
     profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
     preferences = models.JSONField(null=True, blank=True)
 
+    # TODO: (JAKE, USER PROFILE MODEL) Fix these broken garbage functions
     def experience(self):
         return sum(e.experience_amount for e in self.module_experiences.all())
 
@@ -26,9 +28,9 @@ class UserProfile(models.Model):
         rank_sum = 0
         for e in self.module_experiences.all():
             rank_sum += math.floor(math.log2(e.experience_amount + 1))
-        v1 = max(1, math.log(total_population, 100)) if total_population > 0 else 1
+        v1 = max(1, math.log(total_population, 10)) if total_population > 0 else 1
         v2 = max(1, math.log2(top_streak)) if top_streak > 0 else 1
-        return (v1 + v2) / 2 + rank_sum * 0.1
+        return (v1 + v2) / 2 + rank_sum
 
     def get_status(self):
         return {
@@ -81,22 +83,6 @@ class HomeLifeProfile(models.Model):
 
     def __str__(self):
         return f"HomeLife Profile of {self.user.username}"
-
-
-class Multiplier(models.Model):
-    profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='multipliers')
-    multiplier_profile_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,
-                                                        related_name='multiplier_profiles')
-    multiplier_profile_object_id = models.PositiveIntegerField()
-    multiplier_profile = GenericForeignKey('multiplier_profile_content_type', 'multiplier_profile_object_id')
-    multiplier_obj_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,
-                                                    related_name='multiplier_objects')
-    multiplier_obj_object_id = models.PositiveIntegerField()
-    multiplier_obj = GenericForeignKey('multiplier_obj_content_type', 'multiplier_obj_object_id')
-    multiplier = models.FloatField(default=1.0)
-
-    def __str__(self):
-        return f"Multiplier for {self.profile.user.username}"
 
 
 class Wallet(models.Model):
@@ -171,13 +157,14 @@ class CalendarEvent(models.Model):
     def __str__(self):
         return f"CalendarEvent {self.title} for {self.profile.user.username}"
 
-
+# TODO: (JAKE) Update the name of this in the docs or here
+#   and also update name of completion count/category id if those are inconsistent
 class TaskCategoryProgress(models.Model):
     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='task_category_progresses')
     module = models.CharField(max_length=1, choices=ModuleType.choices)
     category_id = models.PositiveIntegerField()
     completion_count = models.PositiveIntegerField(default=0)
-    last_renewed_at = models.DateTimeField(auto_now_add=True)
+    last_renewed_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         unique_together = ('profile', 'module', 'category_id')
@@ -186,7 +173,8 @@ class TaskCategoryProgress(models.Model):
         return f"{self.profile.user.username} {self.module} Cat {self.category_id} Progress"
 
 
-class TaskCategorySlot(models.Model):
+# TODO: (JAKE) Update name of this and its fields in docs
+class TaskCategorySlots(models.Model):
     progress = models.ForeignKey(TaskCategoryProgress, on_delete=models.CASCADE, related_name='slots')
     slots = models.BigIntegerField(default=0)
     completed = models.BigIntegerField(default=0)
