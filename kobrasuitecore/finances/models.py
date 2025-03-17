@@ -1,7 +1,7 @@
 """
 ------------------Prologue--------------------
 File Name: stock_utils.py
-Path: kobrasuitecore\finances\utils\stock_utils.py
+Path: kobrasuitecore\finances\models.py
 
 Description:
 Structures and creates Django Models to be used within the Finance module
