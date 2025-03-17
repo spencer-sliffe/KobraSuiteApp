@@ -25,7 +25,7 @@ import secrets
 from work.types import WorkPlaceField
 
 
-class WorkPlace(models.Model):
+class WorkPlace(models.Model): # creates Work Place serializer
     name = models.CharField(max_length=100)
     field = models.CharField(max_length=50, choices=WorkPlaceField.choices, default=WorkPlaceField.OTHER)
     website = models.URLField(max_length=500, blank=True, null=True)
@@ -34,7 +34,7 @@ class WorkPlace(models.Model):
     identity_image = models.ImageField(upload_to='workplace_identity/', blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs): # function used to save the worplace
         if not self.invite_code:
             code = secrets.token_urlsafe(8)[:20]
             while WorkPlace.objects.filter(invite_code=code).exists():
@@ -43,9 +43,9 @@ class WorkPlace(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
+        return self.name # str representaoin
 
-    @property
+    @property # stores amount of people in company
     def member_count(self):
         return self.work_profiles.count()
 
