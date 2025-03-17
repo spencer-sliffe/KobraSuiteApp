@@ -1,8 +1,25 @@
+"""
+------------------Prologue--------------------
+File Name: stock_utils.py
+Path: kobrasuitecore\finances\utils\stock_utils.py
+
+Description:
+Extracts data from various external api and frameworks such as yfinance cleans the data 
+
+Input:
+Tickers and dates
+
+Output:
+Various data extracted from api and yfinance
+
+Collaborators: SPENCER SLIFFE,Charlie Gillund
+---------------------------------------------
+"""
 import requests
 import yfinance as yf
 import pandas as pd
 
-
+#Function to get the stocks current price given the input of the ticker
 def get_current_stock_price(ticker):
     try:
         df = yf.Ticker(ticker).history(period='1d')
@@ -12,7 +29,7 @@ def get_current_stock_price(ticker):
     except:
         return None
 
-
+# retrieves the stock price from yfinance at provided date Inputs : Ticker and date
 def get_stock_price_at_date(ticker, date):
     if not date:
         return get_current_stock_price(ticker)
@@ -29,7 +46,7 @@ def get_stock_price_at_date(ticker, date):
     except:
         return None
 
-
+# Checks if a stock is able to be retrieved from yfinance
 def check_stock_validity(ticker):
     try:
         info = yf.Ticker(ticker).info
@@ -39,7 +56,7 @@ def check_stock_validity(ticker):
     except:
         return False
 
-
+# This function returns all of the market info on the stock given its ticker and formats the data given from yfinance
 def get_stock_results_data(ticker):
     try:
         info = yf.Ticker(ticker).info
@@ -69,7 +86,7 @@ def get_stock_results_data(ticker):
     except:
         return None
 
-
+# retrieves the info and chart 
 def get_stock_chart(ticker):
     try:
         df = yf.Ticker(ticker).history(period='5y')
@@ -80,7 +97,7 @@ def get_stock_chart(ticker):
     except:
         return None
 
-
+# Uses yahoo-finance rapid api to retrieve market data then formats the data into a response
 def get_hot_stocks(api_key, budget=None):
     url = 'https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-movers'
     headers = {'X-RapidAPI-Key': api_key, 'X-RapidAPI-Host': 'apidojo-yahoo-finance-v1.p.rapidapi.com'}
@@ -102,6 +119,7 @@ def get_hot_stocks(api_key, budget=None):
     except:
         return []
 
+## Uses yahoo-finance rapid api to retrieve market new then formats the news into a JSON response
 
 def get_news_articles(api_key, query='stock market', page=1):
     try:
