@@ -21,11 +21,11 @@ from rest_framework import serializers
 from work.models import WorkPlace
 from customer.serializers.user_serializers import UserSerializer
 
-
+# creaets Work PLace Serializer
 class WorkPlaceSerializer(serializers.ModelSerializer):
     owner = UserSerializer(read_only=True)
     member_count = serializers.ReadOnlyField()
-
+# serializer Structure
     class Meta:
         model = WorkPlace
         fields = ['id', 'name', 'field', 'website', 'invite_code', 'owner', 'identity_image', 'created_at', 'member_count']

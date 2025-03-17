@@ -22,20 +22,20 @@ from django.utils import timezone
 from homelife.types import HouseholdType, ChoreFrequency, MealType
 
 
-class Household(models.Model):
+class Household(models.Model): # Creates household model
     name = models.CharField(max_length=100)
     household_type = models.CharField(max_length=20, choices=HouseholdType.choices, default=HouseholdType.FAMILY)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
-
+        return self.name # creates string format
+#stores household meta data
     class Meta:
         ordering = ['name']
 
 
-class Pet(models.Model):
+class Pet(models.Model): # creates pet model
     household = models.ForeignKey(Household, on_delete=models.CASCADE, related_name='pets')
     name = models.CharField(max_length=100)
     pet_type = models.CharField(max_length=50)
@@ -47,13 +47,13 @@ class Pet(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.name} ({self.pet_type})"
-
+        return f"{self.name} ({self.pet_type})" # makes string representation of 
+# stores meta data for pet
     class Meta:
         ordering = ['name']
 
 
-class Chore(models.Model):
+class Chore(models.Model): # creates chore model
     household = models.ForeignKey(Household, on_delete=models.CASCADE, related_name='chores')
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
@@ -66,13 +66,13 @@ class Chore(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.title} - {self.household.name}"
-
+        return f"{self.title} - {self.household.name}" # creates string representation of Chore model
+# stores meta data for chores
     class Meta:
         ordering = ['-created_at']
 
 
-class ChoreCompletion(models.Model):
+class ChoreCompletion(models.Model): # model for completed chores
     chore = models.ForeignKey(Chore, on_delete=models.CASCADE, related_name='completions')
     profile = models.ForeignKey('hq.HomeLifeProfile', on_delete=models.CASCADE, related_name='chore_completions')
     completed_at = models.DateTimeField(default=timezone.now)
@@ -80,13 +80,13 @@ class ChoreCompletion(models.Model):
     points = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.profile.user.username} completed {self.chore.title}"
-
+        return f"{self.profile.user.username} completed {self.chore.title}" # string representation of completed chores 
+# stores meta data
     class Meta:
         ordering = ['-completed_at']
 
 
-class SharedCalendarEvent(models.Model):
+class SharedCalendarEvent(models.Model): # creates Calendar event model
     household = models.ForeignKey(Household, on_delete=models.CASCADE, related_name='calendar_events')
     title = models.CharField(max_length=100)
     start_datetime = models.DateTimeField()
@@ -96,13 +96,13 @@ class SharedCalendarEvent(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"{self.title} ({self.household.name})"
-
+        return f"{self.title} ({self.household.name})" # string Representation of event
+# stores meta data
     class Meta:
         ordering = ['start_datetime']
 
 
-class MealPlan(models.Model):
+class MealPlan(models.Model): # creates meal plan Model
     household = models.ForeignKey(Household, on_delete=models.CASCADE, related_name='meal_plans')
     date = models.DateField()
     meal_type = models.CharField(max_length=50, choices=MealType.choices)
@@ -111,13 +111,14 @@ class MealPlan(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"{self.recipe_name} on {self.date} ({self.household.name})"
+        return f"{self.recipe_name} on {self.date} ({self.household.name})"# string Representation
+# stores creation date
 
     class Meta:
         ordering = ['-date']
 
 
-class GroceryItem(models.Model):
+class GroceryItem(models.Model): # Creates Grocery Model
     household = models.ForeignKey(Household, on_delete=models.CASCADE, related_name='grocery_items')
     name = models.CharField(max_length=100)
     quantity = models.CharField(max_length=50, blank=True)
@@ -125,13 +126,13 @@ class GroceryItem(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"{self.name} ({self.household.name})"
-
+        return f"{self.name} ({self.household.name})" # string representaion of Grocery ite
+# stores meta data
     class Meta:
         ordering = ['purchased', 'name']
 
 
-class Medication(models.Model):
+class Medication(models.Model): # creates Medication model
     household = models.ForeignKey(Household, on_delete=models.CASCADE, related_name='medications')
     name = models.CharField(max_length=100)
     dosage = models.CharField(max_length=50)
@@ -141,13 +142,13 @@ class Medication(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"{self.name} ({self.household.name})"
-
+        return f"{self.name} ({self.household.name})" # string representation of model
+# stores meta data
     class Meta:
         ordering = ['name']
 
 
-class MedicalAppointment(models.Model):
+class MedicalAppointment(models.Model): # create appt model
     household = models.ForeignKey(Household, on_delete=models.CASCADE, related_name='medical_appointments')
     title = models.CharField(max_length=100)
     appointment_datetime = models.DateTimeField()
@@ -157,13 +158,14 @@ class MedicalAppointment(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"{self.title} ({self.household.name})"
+        return f"{self.title} ({self.household.name})" # string representation of Medical appt
+# stores appt  date
 
     class Meta:
         ordering = ['appointment_datetime']
 
 
-class WorkoutRoutine(models.Model):
+class WorkoutRoutine(models.Model): # creates workout model
     household = models.ForeignKey(Household, on_delete=models.CASCADE, related_name='workout_routines')
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
@@ -172,13 +174,13 @@ class WorkoutRoutine(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"{self.title} ({self.household.name})"
-
+        return f"{self.title} ({self.household.name})" # string representation of workout
+# stores meta data for workout
     class Meta:
         ordering = ['title']
 
 
-class ChildProfile(models.Model):
+class ChildProfile(models.Model): # creates child profile model
     parent_profile = models.ForeignKey('hq.HomeLifeProfile', on_delete=models.CASCADE, related_name='child_profiles')
     name = models.CharField(max_length=100)
     date_of_birth = models.DateField(null=True, blank=True)
@@ -186,13 +188,13 @@ class ChildProfile(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
-
+        return self.name # string representation
+# stores meta data
     class Meta:
         ordering = ['name']
 
 
-class HouseholdInvite(models.Model):
+class HouseholdInvite(models.Model): # model for Invitation
     inviter = models.ForeignKey('hq.HomeLifeProfile', on_delete=models.CASCADE, related_name='sent_invites')
     household = models.ForeignKey(Household, on_delete=models.CASCADE, related_name='invites')
     code = models.CharField(max_length=20, unique=True)
@@ -201,7 +203,7 @@ class HouseholdInvite(models.Model):
     redeemed_by = models.ForeignKey('hq.HomeLifeProfile', null=True, blank=True, on_delete=models.SET_NULL, related_name='received_invites')
 
     def __str__(self):
-        return f"Invite {self.code} by {self.inviter.user.username}"
-
+        return f"Invite {self.code} by {self.inviter.user.username}" # string representation of invite
+# stores creation date
     class Meta:
         ordering = ['-created_at']
