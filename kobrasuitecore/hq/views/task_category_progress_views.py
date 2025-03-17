@@ -1,3 +1,26 @@
+"""
+------------------Prologue--------------------
+File Name: task_category_progress_views.py
+Path: kobrasuitecore/hq/views/task_category_progress_views.py
+
+Date Created:
+2025-03-12
+
+Date Updated:
+2025-03-16
+
+Description:
+(TEMP) Manages task category progress for users, handling completion and reward application
+
+Input:
+(TEMP) User authentication, module/task parameters, and optional task data
+
+Output:
+(TEMP) Updated task progress records and reward application status responses
+
+Collaborators: JAKE BERNARD, QWQ 32B
+---------------------------------------------
+"""
 
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
@@ -12,13 +35,18 @@ from hq.utils.task_utils import apply_task_rewards
 
 
 class TaskCategoryProgressViewSet(viewsets.ModelViewSet):
+    # (TEMP) Base queryset for task category progress objects
     queryset = TaskCategoryProgress.objects.all()
+    # (TEMP) Serializer for task category progress data
     serializer_class = TaskCategoryProgressSerializer
+    # (TEMP) Permission requiring authentication or read-only access, with owner/admin checks
     permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrAdmin)
 
     @action(methods=['post'], detail=True)
     def complete(self, request, module, task_category_num, task_slot_id=-1, data=None):
+        # (TEMP) Retrieve user profile from request object
         profile = getattr(request.user, 'user_profile', None)
+        # (TEMP) Apply task completion logic and reward calculation
         return apply_task_rewards(profile, module, task_category_num, task_slot_id, data)
 
     # TODO: (JAKE, TASK VIEWS) Do we need these? These methods should already exist
