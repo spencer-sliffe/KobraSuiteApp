@@ -61,6 +61,9 @@ dependencies:
 
   async: any
   web_socket_channel: any
+
+  flutter_svg: ^2.0.7
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -81,6 +84,9 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/fonts/
+    - assets/images/tent.svg
+    - assets/images/house1.svg
+    - assets/images/house2.svg
 
   # Fonts configuration (example)
   fonts:
@@ -91,8 +97,3 @@ flutter:
           weight: 700
         - asset: assets/fonts/Roboto-Italic.ttf
           style: italic
-
-# Additional notes:
-# - Ensure your assets folder structure matches the paths in this file.
-# - Update version numbers in dependencies if newer versions are available.
-# - Remove unused dependencies for a cleaner setup.
