@@ -20,6 +20,14 @@ CORS_ALLOW_CREDENTIALS = True
 
 BASE_URL = os.getenv('BASE_URL', 'http://0.0.0.0:8000')
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'kobrareset@gmail.com'
+EMAIL_HOST_PASSWORD = 'cadjsxamlsltabau'
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'noreply@kobrasuite.com'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

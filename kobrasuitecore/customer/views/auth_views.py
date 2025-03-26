@@ -26,7 +26,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 from django.contrib.auth import get_user_model
 
-from customer.serializers.auth_serializers import RegisterSerializer, LoginSerializer
+from customer.serializers.auth_serializers import RegisterSerializer, LoginSerializer, PasswordResetRequestSerializer, \
+    PasswordResetConfirmSerializer
 from customer.serializers.user_serializers import UserSerializer
 from customer.models import Role
 
@@ -43,10 +44,14 @@ class AuthViewSet(viewsets.GenericViewSet):
             return LoginSerializer
         elif self.action == 'whoami':
             return UserSerializer
+        if self.action == 'password_reset':
+            return PasswordResetRequestSerializer
+        if self.action == 'password_reset_confirm':
+            return PasswordResetConfirmSerializer
         return UserSerializer
 
     def get_permissions(self):
-        if self.action in ['register', 'login']:
+        if self.action in ['register', 'login', 'password_reset', 'password_reset_confirm']:
             self.permission_classes = [AllowAny]
         elif self.action in ['logout', 'whoami']:
             self.permission_classes = [IsAuthenticated]
@@ -127,3 +132,19 @@ class AuthViewSet(viewsets.GenericViewSet):
         ).get(pk=request.user.pk)
         serializer = UserSerializer(user)
         return Response({"user": serializer.data}, status=status.HTTP_200_OK)
+
+    @action(methods=['post'], detail=False)
+    def password_reset(self, request):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.send_password_reset_email()
+            return Response({"success": True, "message": "Password reset email sent."}, status=status.HTTP_200_OK)
+        return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=['post'], detail=False)
+    def password_reset_confirm(self, request):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"success": True, "message": "Password has been reset."}, status=status.HTTP_200_OK)
+        return Response({"success": False, "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)

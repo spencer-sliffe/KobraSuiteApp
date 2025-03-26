@@ -1,39 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../providers/general/auth_provider.dart';
+import '../../../../providers/general/auth_provider.dart';
 import 'buttons/primary_button.dart';
 import 'inputs/rounded_text_field.dart';
-import 'register_screen.dart';
-import 'forgot_password_screen.dart';
+import 'login_screen.dart';
+import 'password_reset_confirm_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class ForgotPasswordScreen extends StatefulWidget {
+  const ForgotPasswordScreen({super.key});
 
   @override
-  LoginScreenState createState() => LoginScreenState();
+  ForgotPasswordScreenState createState() => ForgotPasswordScreenState();
 }
 
-class LoginScreenState extends State<LoginScreen> {
-  final _usernameCtrl = TextEditingController();
-  final _passwordCtrl = TextEditingController();
-
-  Future<void> _onLogin() async {
-    final authProvider = context.read<AuthProvider>();
-    authProvider.clearError();
-    final success = await authProvider.login(
-      _usernameCtrl.text.trim(),
-      _passwordCtrl.text.trim(),
-    );
-    if (success && mounted) {
-      Navigator.pushReplacementNamed(context, '/home');
-    }
-  }
+class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+  final _emailCtrl = TextEditingController();
 
   @override
   void dispose() {
-    _usernameCtrl.dispose();
-    _passwordCtrl.dispose();
+    _emailCtrl.dispose();
     super.dispose();
+  }
+
+  Future<void> _onRequestReset() async {
+    final authProvider = context.read<AuthProvider>();
+    authProvider.clearError();
+    final success = await authProvider.passwordResetRequest(_emailCtrl.text.trim());
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password reset email sent. Check your inbox.')),
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const PasswordResetConfirmScreen()),
+      );
+    }
   }
 
   @override
@@ -42,8 +43,7 @@ class LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final width =
-          constraints.maxWidth > 500 ? 400.0 : constraints.maxWidth * 0.9;
+          final width = constraints.maxWidth > 500 ? 400.0 : constraints.maxWidth * 0.9;
           return Center(
             child: SingleChildScrollView(
               child: SizedBox(
@@ -51,23 +51,18 @@ class LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.asset(
-                      'assets/images/KS_SHORT.png',
-                      width: 300,
-                      height: 300,
-                    ),
                     Transform.translate(
                       offset: const Offset(0, -70),
                       child: Column(
                         children: [
                           Text(
-                            'Welcome Back',
+                            'Forgot Password',
                             style: Theme.of(context).textTheme.titleLarge,
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Login to continue',
+                            'Enter your email to reset your password',
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           const SizedBox(height: 24),
@@ -89,21 +84,14 @@ class LoginScreenState extends State<LoginScreen> {
                                     ),
                                   ),
                                 RoundedTextField(
-                                  controller: _usernameCtrl,
-                                  hintText: 'Username or Email',
-                                  prefixIcon: const Icon(Icons.person),
-                                ),
-                                const SizedBox(height: 16),
-                                RoundedTextField(
-                                  controller: _passwordCtrl,
-                                  hintText: 'Password',
-                                  obscureText: true,
-                                  prefixIcon: const Icon(Icons.lock),
+                                  controller: _emailCtrl,
+                                  hintText: 'Email',
+                                  prefixIcon: const Icon(Icons.email),
                                 ),
                                 const SizedBox(height: 24),
                                 PrimaryButton(
-                                  onPressed: _onLogin,
-                                  text: 'Login',
+                                  onPressed: _onRequestReset,
+                                  text: 'Send Reset Email',
                                   isLoading: authProvider.isLoading,
                                 ),
                                 const SizedBox(height: 16),
@@ -111,32 +99,11 @@ class LoginScreenState extends State<LoginScreen> {
                                   onTap: () {
                                     Navigator.pushReplacement(
                                       context,
-                                      MaterialPageRoute(
-                                          builder: (_) => const RegisterScreen()),
+                                      MaterialPageRoute(builder: (_) => const LoginScreen()),
                                     );
                                   },
                                   child: Text(
-                                    "Don't have an account? Register here",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
-                                    );
-                                  },
-                                  child: Text(
-                                    "Forgot password? Reset Here",
+                                    "Back to Login",
                                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                       color: Theme.of(context).colorScheme.primary,
                                     ),
