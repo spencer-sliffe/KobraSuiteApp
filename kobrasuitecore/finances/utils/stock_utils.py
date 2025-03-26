@@ -1,20 +1,18 @@
-"""
-------------------Prologue--------------------
-File Name: stock_utils.py
-Path: kobrasuitecore\finances\utils\stock_utils.py
-
-Description:
-Extracts data from various external api and frameworks such as yfinance cleans the data 
-
-Input:
-Tickers and dates
-
-Output:
-Various data extracted from api and yfinance
-
-Collaborators: SPENCER SLIFFE,Charlie Gillund
----------------------------------------------
-"""
+# ------------------Prologue--------------------
+# File Name: stock_utils.py
+# Path: kobrasuitecore\finances\utils\stock_utils.py
+#
+# Description:
+# Extracts data from various external api and frameworks such as yfinance cleans the data
+#
+# Input:
+# Tickers and dates
+#
+# Output:
+# Various data extracted from api and yfinance
+#
+# Collaborators: SPENCER SLIFFE,Charlie Gillund
+# ---------------------------------------------
 import requests
 import yfinance as yf
 import pandas as pd
