@@ -1,3 +1,5 @@
+// lib/UI/nav/providers/control_bar_registrar.dart
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:kobrasuite_app/UI/nav/providers/control_bar_provider.dart';
@@ -37,38 +39,40 @@ class _ControlBarRegistrarState extends State<ControlBarRegistrar> {
     _navStore = context.read<NavigationStore>();
     _controlBarProvider = context.read<ControlBarProvider>();
     _listener = _updateButtons;
+
+    // Listen for changes in NavigationStore so we know if the user
+    // switched modules/tabs
     _navStore.addListener(_listener);
+
+    // Run once after build
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateButtons());
   }
 
   void _updateButtons() {
+    final module = _navStore.activeModule;
     bool shouldShow = false;
-    if (widget.schoolTabIndex != null) {
-      shouldShow = shouldShow ||
-          (_navStore.activeModule == Module.School &&
-              _navStore.activeSchoolTabIndex == widget.schoolTabIndex);
+
+    if (widget.financeTabIndex != null && module == Module.Finances) {
+      shouldShow = (_navStore.activeFinancesTabIndex == widget.financeTabIndex);
     }
-    if (widget.homelifeTabIndex != null) {
-      shouldShow = shouldShow ||
-          (_navStore.activeModule == Module.HomeLife &&
-              _navStore.activeHomeLifeTabIndex == widget.homelifeTabIndex);
+    if (widget.schoolTabIndex != null && module == Module.School) {
+      shouldShow = (_navStore.activeSchoolTabIndex == widget.schoolTabIndex);
     }
-    if (widget.workTabIndex != null) {
-      shouldShow = shouldShow ||
-          (_navStore.activeModule == Module.Work &&
-              _navStore.activeWorkTabIndex == widget.workTabIndex);
+    if (widget.workTabIndex != null && module == Module.Work) {
+      shouldShow = (_navStore.activeWorkTabIndex == widget.workTabIndex);
     }
-    if (widget.financeTabIndex != null) {
-      shouldShow = shouldShow ||
-          (_navStore.activeModule == Module.Finances &&
-              _navStore.activeFinancesTabIndex == widget.financeTabIndex);
+    if (widget.homelifeTabIndex != null && module == Module.HomeLife) {
+      shouldShow = (_navStore.activeHomeLifeTabIndex == widget.homelifeTabIndex);
     }
+
     if (shouldShow && !_buttonsAdded) {
+      // We want these ephemeral buttons, but haven't added them yet
       for (final button in widget.buttons) {
         _controlBarProvider.addEphemeralButton(button);
       }
       _buttonsAdded = true;
     } else if (!shouldShow && _buttonsAdded) {
+      // We previously added ephemeral, but we no longer need them
       for (final button in widget.buttons) {
         _controlBarProvider.removeEphemeralButton(button);
       }
@@ -79,6 +83,7 @@ class _ControlBarRegistrarState extends State<ControlBarRegistrar> {
   @override
   void dispose() {
     _navStore.removeListener(_listener);
+    // If we had ephemeral buttons added, remove them on dispose
     if (_buttonsAdded) {
       for (final button in widget.buttons) {
         _controlBarProvider.removeEphemeralButton(button);

@@ -10,10 +10,6 @@ class WorkScreen extends StatelessWidget {
       body: Column(
         children: [
           const SizedBox(height: 16),
-          Text(
-            'Work Module',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
           const Divider(),
           Expanded(
             child: GridView.count(
