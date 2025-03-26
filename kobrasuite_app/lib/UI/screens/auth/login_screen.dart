@@ -4,6 +4,7 @@ import '../../../providers/general/auth_provider.dart';
 import 'buttons/primary_button.dart';
 import 'inputs/rounded_text_field.dart';
 import 'register_screen.dart';
+// import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -41,7 +42,8 @@ class LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final width = constraints.maxWidth > 500 ? 400.0 : constraints.maxWidth * 0.9;
+          final width =
+          constraints.maxWidth > 500 ? 400.0 : constraints.maxWidth * 0.9;
           return Center(
             child: SingleChildScrollView(
               child: SizedBox(
@@ -49,67 +51,105 @@ class LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.lock_outline, size: 64),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Welcome Back',
-                      style: Theme.of(context).textTheme.titleLarge,
-                      textAlign: TextAlign.center,
+                    Image.asset(
+                      'assets/images/KS_SHORT.png',
+                      width: 300,
+                      height: 300,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Login to continue',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 24),
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).cardTheme.color,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
+                    Transform.translate(
+                      offset: const Offset(0, -70),
                       child: Column(
                         children: [
-                          if (authProvider.errorMessage.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              child: Text(
-                                authProvider.errorMessage,
-                                style: const TextStyle(color: Colors.red),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          RoundedTextField(
-                            controller: _usernameCtrl,
-                            hintText: 'Username or Email',
-                            prefixIcon: const Icon(Icons.person),
+                          Text(
+                            'Welcome Back',
+                            style: Theme.of(context).textTheme.titleLarge,
+                            textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 16),
-                          RoundedTextField(
-                            controller: _passwordCtrl,
-                            hintText: 'Password',
-                            obscureText: true,
-                            prefixIcon: const Icon(Icons.lock),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Login to continue',
+                            style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           const SizedBox(height: 24),
-                          PrimaryButton(
-                            onPressed: _onLogin,
-                            text: 'Login',
-                            isLoading: authProvider.isLoading,
-                          ),
-                          const SizedBox(height: 16),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(builder: (_) => const RegisterScreen()),
-                              );
-                            },
-                            child: Text(
-                              "Don't have an account? Register here",
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).cardTheme.color,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Column(
+                              children: [
+                                if (authProvider.errorMessage.isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 16),
+                                    child: Text(
+                                      authProvider.errorMessage,
+                                      style: const TextStyle(color: Colors.red),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                RoundedTextField(
+                                  controller: _usernameCtrl,
+                                  hintText: 'Username or Email',
+                                  prefixIcon: const Icon(Icons.person),
+                                ),
+                                const SizedBox(height: 16),
+                                RoundedTextField(
+                                  controller: _passwordCtrl,
+                                  hintText: 'Password',
+                                  obscureText: true,
+                                  prefixIcon: const Icon(Icons.lock),
+                                ),
+                                const SizedBox(height: 24),
+                                PrimaryButton(
+                                  onPressed: _onLogin,
+                                  text: 'Login',
+                                  isLoading: authProvider.isLoading,
+                                ),
+                                const SizedBox(height: 16),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) => const RegisterScreen()),
+                                    );
+                                  },
+                                  child: Text(
+                                    "Don't have an account? Register here",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                GestureDetector(
+                                  onTap: () {
+                                    // Navigator.push(
+                                    //   context,
+                                    //   MaterialPageRoute(
+                                    //       builder: (_) =>
+                                    //       const ForgotPasswordScreen()),
+                                    // );
+                                  },
+                                  child: Text(
+                                    "Forgot password? Reset Here",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],

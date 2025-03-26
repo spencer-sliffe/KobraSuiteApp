@@ -87,6 +87,7 @@ flutter:
     - assets/images/tent.svg
     - assets/images/house1.svg
     - assets/images/house2.svg
+    - assets/images/KS_SHORT.png
 
   # Fonts configuration (example)
   fonts:
