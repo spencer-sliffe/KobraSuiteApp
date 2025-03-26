@@ -10,7 +10,7 @@ import '../../../../../nav/control_bar/page_control_bar.dart';
 import '../../../../../nav/providers/control_bar_provider.dart';
 import '../../../../../nav/providers/control_bar_registrar.dart';
 import '../../../../../widgets/animation/abstract_banner_animation.dart';
-import '../../../../../widgets/cards/university_news_card.dart';
+import '../../../../../widgets/cards/school/university_news_card.dart';
 
 class UniversityDetailScreen extends StatefulWidget {
   final University university;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../models/school/university.dart';
+import '../../../../models/school/university.dart';
 
 class UniversityCard extends StatelessWidget {
   final University university;

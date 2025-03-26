@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:kobrasuite_app/models/school/course.dart';
 import 'package:kobrasuite_app/providers/school/course_provider.dart';
-import 'package:kobrasuite_app/UI/widgets/cards/course_card.dart';
+import 'package:kobrasuite_app/UI/widgets/cards/school/course_card.dart';
 import 'package:kobrasuite_app/UI/widgets/school/add_course_bottom_sheet.dart';
 
 import 'course/course_detail_screen.dart';

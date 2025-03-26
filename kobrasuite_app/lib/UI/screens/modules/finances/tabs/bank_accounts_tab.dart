@@ -33,7 +33,7 @@ class BankAccountsTab extends StatelessWidget {
         const SizedBox(height: 16),
         ElevatedButton.icon(
           onPressed: () {
-            // Implement sync or add bank account action
+
           },
           icon: const Icon(Icons.sync),
           label: const Text('Sync Accounts'),

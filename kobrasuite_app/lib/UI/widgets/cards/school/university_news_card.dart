@@ -1,6 +1,6 @@
 // File: lib/UI/widgets/cards/university_news_card.dart
 import 'package:flutter/material.dart';
-import '../../../models/school/university_news.dart';
+import '../../../../models/school/university_news.dart';
 
 class UniversityNewsCard extends StatelessWidget {
   final UniversityNews news;

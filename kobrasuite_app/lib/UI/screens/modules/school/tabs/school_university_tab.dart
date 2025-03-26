@@ -6,8 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:kobrasuite_app/providers/school/university_provider.dart';
 import 'package:kobrasuite_app/services/image/banner_image_service.dart';
-import 'package:kobrasuite_app/UI/widgets/cards/university_card.dart';
-import 'package:kobrasuite_app/UI/widgets/cards/university_news_card.dart';
+import 'package:kobrasuite_app/UI/widgets/cards/school/university_card.dart';
+import 'package:kobrasuite_app/UI/widgets/cards/school/university_news_card.dart';
 import 'package:kobrasuite_app/UI/widgets/school/school_profile_banner.dart';
 
 import '../../../../widgets/animation/abstract_banner_animation.dart';

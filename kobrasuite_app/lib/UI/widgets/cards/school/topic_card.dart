@@ -1,6 +1,6 @@
 // File location: lib/UI/widgets/course_detail/topic_card.dart
 import 'package:flutter/material.dart';
-import '../../../models/school/topic.dart';
+import '../../../../models/school/topic.dart';
 
 class TopicCard extends StatelessWidget {
   final Topic topic;
