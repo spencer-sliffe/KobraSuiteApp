@@ -1,0 +1,23 @@
+{
+  "finance": [
+    {
+      "name"            : "exampleTask",
+      "slot_limit"      : 20,  
+      "completion_limit": 12, 
+      "renewal_period"  : 1,
+      "eval_func"       : "example_task_eval"
+    }
+  ],
+
+
+  "homelife": [
+  ],
+
+
+  "school": [
+  ],
+
+
+  "work": [
+  ]
+}
