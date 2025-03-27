@@ -1,8 +1,8 @@
 from django.db import models
-
+from ..kobrasuitecore.task_config.module_symbols import ModuleSymbols
 
 class ModuleType(models.TextChoices):
-    SCHOOL = 'SCHOOL', 'School'
-    WORK = 'WORK', 'Work'
-    HOMELIFE = 'HOMELIFE', 'HomeLife'
-    FINANCE = 'FINANCE', 'Finance'
+    SCHOOL = ModuleSymbols.school, 'School'
+    WORK = ModuleSymbols.work, 'Work'
+    HOMELIFE = ModuleSymbols.homelife, 'HomeLife'
+    FINANCE = ModuleSymbols.finance, 'Finance'

@@ -1,6 +1,7 @@
 from rest_framework_nested import routers
 
 from customer.views.auth_views import AuthViewSet
+from hq.views.task_category_progress_views import TaskCategoryProgressViewSet
 from hq.views.work_profile_views import WorkProfileViewSet
 from hq.views.homelife_profile_views import HomeLifeProfileViewSet
 from hq.views.finance_profile_views import FinanceProfileViewSet
@@ -43,6 +44,9 @@ user_router.register(r'work_profile', WorkProfileViewSet, basename='work_profile
 user_router.register(r'finance_profile', FinanceProfileViewSet, basename='finance_profile')
 user_router.register(r'homelife_profile', HomeLifeProfileViewSet, basename='homelife_profile')
 
+hq_router = routers.NestedDefaultRouter(user_router, r'hq', lookup='hq')
+hq_router.register(r'tasks', TaskCategoryProgressViewSet, 'task')
+
 homelife_profile_router = routers.NestedDefaultRouter(user_router, r'homelife_profile', lookup='homelife_profile')
 
 school_profile_router = routers.NestedDefaultRouter(user_router, r'school_profile', lookup='school_profile')
@@ -77,6 +81,7 @@ stock_portfolio_router.register(r'portfolio_stocks', PortfolioStockViewSet, base
 stock_portfolio_router.register(r'watchlist_stocks', WatchlistStockViewSet, basename='watchlist_stock')
 
 router.register(r'misc_invest', MiscInvestViewSet, basename='misc_invests')
+
 
 urlpatterns = [
     *router.urls,
