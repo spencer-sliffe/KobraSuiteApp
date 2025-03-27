@@ -59,6 +59,9 @@ class AuthProvider extends ChangeNotifier {
       _financeProfilePk = userData['finance_profile'] != null
           ? (userData['finance_profile']['id'] ?? 0)
           : 0;
+      _homeLifeProfilePk = userData['homelife_profile'] != null
+          ? (userData['homelife_profile']['id'] ?? 0)
+          : 0;
     } else {
       _errorMessage = result['errors']?.toString() ?? 'Failed to confirm login.';
     }
@@ -90,6 +93,9 @@ class AuthProvider extends ChangeNotifier {
             : 0;
         _financeProfilePk = userData['finance_profile'] != null
             ? userData['finance_profile']['id']
+            : 0;
+        _homeLifeProfilePk = userData['homelife_profile'] != null
+            ? userData['homelife_profile']['id']
             : 0;
         _isLoading = false;
         notifyListeners();
@@ -137,6 +143,9 @@ class AuthProvider extends ChangeNotifier {
         _financeProfilePk = userData['finance_profile'] != null
             ? userData['finance_profile']['id']
             : 0;
+        _homeLifeProfilePk = userData['homelife_profile'] != null
+            ? userData['homelife_profile']['id']
+            : 0;
         _isLoading = false;
         notifyListeners();
         return true;
@@ -168,6 +177,7 @@ class AuthProvider extends ChangeNotifier {
         _userProfilePk = null;
         _workProfilePk = null;
         _financeProfilePk = null;
+        _homeLifeProfilePk = null;
         _isLoading = false;
         notifyListeners();
         return true;
@@ -180,5 +190,47 @@ class AuthProvider extends ChangeNotifier {
     _isLoading = false;
     notifyListeners();
     return false;
+  }
+
+  Future<bool> passwordResetRequest(String email) async {
+    if (email.isEmpty) {
+      _errorMessage = 'Email is required';
+      notifyListeners();
+      return false;
+    }
+    _errorMessage = '';
+    _isLoading = true;
+    notifyListeners();
+    final result = await _authService.requestPasswordReset(email);
+    _isLoading = false;
+    if (result['success'] == true) {
+      notifyListeners();
+      return true;
+    } else {
+      _errorMessage = result['errors']?.toString() ?? 'Failed to send reset email';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> passwordResetConfirm(String uid, String token, String newPassword) async {
+    if (uid.isEmpty || token.isEmpty || newPassword.isEmpty) {
+      _errorMessage = 'All fields are required';
+      notifyListeners();
+      return false;
+    }
+    _errorMessage = '';
+    _isLoading = true;
+    notifyListeners();
+    final result = await _authService.confirmPasswordReset(uid, token, newPassword);
+    _isLoading = false;
+    if (result['success'] == true) {
+      notifyListeners();
+      return true;
+    } else {
+      _errorMessage = result['errors']?.toString() ?? 'Failed to reset password';
+      notifyListeners();
+      return false;
+    }
   }
 }

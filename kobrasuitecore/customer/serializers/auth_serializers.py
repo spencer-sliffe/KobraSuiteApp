@@ -19,11 +19,14 @@ Collaborators: SPENCER SLIFFE
 
 from django.contrib.auth import get_user_model, authenticate
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
 
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from customer.serializers.user_serializers import UserSerializer
+from kobrasuitecore import settings
 
 User = get_user_model()
 
@@ -119,3 +122,53 @@ class LoginSerializer(serializers.Serializer):
             'access': access,
             'refresh': refresh,
         }
+
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        if not User.objects.filter(email=value).exists():
+            raise serializers.ValidationError('No account found with this email.')
+        return value
+
+    def send_password_reset_email(self):
+        email = self.validated_data['email']
+        user = User.objects.filter(email=email).first()
+        token = default_token_generator.make_token(user)
+        reset_url = f"{settings.BASE_URL}/api/auth/password_reset_confirm/?uid={user.pk}&token={token}"
+        send_mail(
+            'Password Reset Request',
+            f"Visit the following link to reset your password: {reset_url}",
+            settings.DEFAULT_FROM_EMAIL,
+            [email],
+            fail_silently=False,
+        )
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    uid = serializers.CharField()
+    token = serializers.CharField()
+    new_password = serializers.CharField(write_only=True)
+
+    def validate(self, attrs):
+        uid = attrs.get('uid')
+        token = attrs.get('token')
+        new_password = attrs.get('new_password')
+        try:
+            user = User.objects.get(pk=uid)
+        except User.DoesNotExist:
+            raise serializers.ValidationError('Invalid user.')
+
+        if not default_token_generator.check_token(user, token):
+            raise serializers.ValidationError('Invalid or expired token.')
+        attrs['user'] = user
+        attrs['new_password'] = new_password
+        return attrs
+
+    def save(self):
+        user = self.validated_data['user']
+        new_password = self.validated_data['new_password']
+        user.set_password(new_password)
+        user.save()
+        return user

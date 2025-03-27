@@ -244,6 +244,52 @@ class AuthService extends ChangeNotifier {
     }
   }
 
+  Future<Map<String, dynamic>> requestPasswordReset(String email) async {
+    try {
+      final response = await _dio.post(
+        '/api/auth/password_reset/',
+        data: {'email': email},
+      );
+      if (response.statusCode == 200) {
+        return {'success': true, 'message': response.data['message'] ?? 'Check your email'};
+      }
+      return {'success': false, 'errors': 'Invalid response: ${response.statusCode}'};
+    } on DioException catch (e) {
+      if (e.response != null) {
+        return {'success': false, 'errors': e.response?.data ?? 'Unknown error occurred.'};
+      } else {
+        return {'success': false, 'errors': 'Connection error: ${e.message}'};
+      }
+    } catch (e) {
+      return {'success': false, 'errors': 'Password reset request failed: $e'};
+    }
+  }
+
+  Future<Map<String, dynamic>> confirmPasswordReset(String uid, String token, String newPassword) async {
+    try {
+      final response = await _dio.post(
+        '/api/auth/password_reset_confirm/',
+        data: {
+          'uid': uid,
+          'token': token,
+          'new_password': newPassword,
+        },
+      );
+      if (response.statusCode == 200) {
+        return {'success': true, 'message': response.data['message'] ?? 'Password has been reset'};
+      }
+      return {'success': false, 'errors': 'Invalid response: ${response.statusCode}'};
+    } on DioException catch (e) {
+      if (e.response != null) {
+        return {'success': false, 'errors': e.response?.data ?? 'Unknown error occurred.'};
+      } else {
+        return {'success': false, 'errors': 'Connection error: ${e.message}'};
+      }
+    } catch (e) {
+      return {'success': false, 'errors': 'Password reset confirm failed: $e'};
+    }
+  }
+
   Future<bool> refreshTokens() async {
     if (_refreshToken == null) return false;
 

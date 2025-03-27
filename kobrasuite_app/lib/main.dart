@@ -35,6 +35,8 @@ import 'package:kobrasuite_app/providers/finance/bank_account_provider.dart';
 import 'package:kobrasuite_app/providers/finance/budget_provider.dart';
 import 'package:kobrasuite_app/providers/finance/budget_category_provider.dart';
 import 'package:kobrasuite_app/providers/finance/transaction_provider.dart';
+import 'UI/screens/auth/forgot_password_screen.dart';
+import 'UI/screens/auth/password_reset_confirm_screen.dart';
 import 'UI/screens/main_screen.dart';
 import 'auth_wrapper.dart';
 
@@ -277,6 +279,8 @@ class KobraSuiteApp extends StatelessWidget {
         '/register': (context) => const RegisterScreen(),
         '/home': (context) => const MainScreen(),
         '/settings': (context) => const SettingsScreen(),
+        '/forgot-password': (context) => const ForgotPasswordScreen(),
+        '/reset-confirm': (context) => const PasswordResetConfirmScreen(),
       },
     );
   }
