@@ -27,7 +27,7 @@ import sys
 from types import ModuleType
 
 # (TEMP) path to the JSON configuration file containing module symbols
-path_to_file = "/../../config/module_symbols.json"
+path_to_file = "../config/module_symbols.json"
 
 # (TEMP) open the JSON configuration file in read mode
 with open(path_to_file, "r") as file:

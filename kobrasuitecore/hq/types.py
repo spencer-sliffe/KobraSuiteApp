@@ -1,5 +1,5 @@
 from django.db import models
-from ..kobrasuitecore.task_config.module_symbols import ModuleSymbols
+from hq.task_config.module_symbols import ModuleSymbols
 
 class ModuleType(models.TextChoices):
     SCHOOL = ModuleSymbols.school, 'School'

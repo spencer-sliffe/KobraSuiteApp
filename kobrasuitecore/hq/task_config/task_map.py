@@ -25,12 +25,12 @@ Collaborators: JAKE BERNARD, QWQ 32B
 import json
 import sys
 from types import ModuleType
-from module_symbols import ModuleSymbols as ms
+from hq.task_config.module_symbols import ModuleSymbols as ms
 
-from finance_task_eval_functions import FinanceTaskEvalFunctions
-from homelife_task_eval_functions import HomelifeTaskEvalFunctions
-from school_task_eval_functions import SchoolTaskEvalFunctions
-from work_task_eval_functions import WorkTaskEvalFunctions
+from hq.task_config.finance_task_eval_functions import FinanceTaskEvalFunctions
+from hq.task_config.homelife_task_eval_functions import HomelifeTaskEvalFunctions
+from hq.task_config.school_task_eval_functions import SchoolTaskEvalFunctions
+from hq.task_config.work_task_eval_functions import WorkTaskEvalFunctions
 
 # (TEMP) map module symbols to classes containing the evaluation functions for each module
 module_function_map = {
@@ -56,7 +56,7 @@ class TaskCategoryConfig:
         # (TEMP) extract evaluation function reference from configuration
         self.eval_func = task_config['eval_func']
 
-path_to_file = "../../../config/task_config.json"  # (TEMP) path to the task configuration JSON file
+path_to_file = "../config/task_config.json"  # (TEMP) path to the task configuration JSON file
 
 with open(path_to_file, "r") as file:
   try:
@@ -82,6 +82,7 @@ for module in task_dict.keys():
     # (TEMP) add login task to module's task list
     module_task_arr.append(login_task)
     task_num = 0  # (TEMP) initialize task counter
+    module_symbol = ms.__dict__[module]
     for task in task_dict[module]:
         # (TEMP) increment task number counter
         task_num = task_num + 1
@@ -90,12 +91,12 @@ for module in task_dict.keys():
         if task_cfg.eval_func:
             # (TEMP) resolve evaluation function reference to actual function
             task_cfg.eval_func = (
-                module_function_map[module].__dict__
+                module_function_map[module_symbol].__dict__
             )[task_cfg.eval_func]
         # (TEMP) add configured task to module's list
         module_task_arr.append(task_cfg)
     # (TEMP) map module name to its processed task configurations
-    modified_task_dict[module] = module_task_arr
+    modified_task_dict[module_symbol] = module_task_arr
 
 # (TEMP) dynamically create new module object
 module = ModuleType(__name__)
