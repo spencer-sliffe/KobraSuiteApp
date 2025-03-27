@@ -76,6 +76,20 @@ class StockService {
     return false;
   }
 
+  Future<bool> removeWatchlistStock({
+    required int userPk,
+    required int financeProfilePk,
+    required int stockPortfolioPk,
+    required int watchlistStockId,
+  }) async {
+    final path = '/api/users/$userPk/finance_profile/$financeProfilePk/stock_portfolio/$stockPortfolioPk/watchlist_stocks/$watchlistStockId';
+    try {
+      final response = await _dio.delete(path);
+      return response.statusCode == 200;
+    } catch (_) {}
+    return false;
+  }
+
   Future<Map<String, dynamic>?> getPortfolioAnalysis({
     required int userPk,
     required int financeProfilePk,
@@ -117,20 +131,6 @@ class StockService {
     try {
       final response = await _dio.post(path, data: {'ticker': ticker});
       return response.statusCode == 201 || response.statusCode == 200;
-    } catch (_) {}
-    return false;
-  }
-
-  Future<bool> removeWatchlistStock({
-    required int userPk,
-    required int financeProfilePk,
-    required int stockPortfolioPk,
-    required String ticker,
-  }) async {
-    final path = '/api/users/$userPk/finance_profile/$financeProfilePk/stock_portfolio/$stockPortfolioPk/watchlist_stocks/$ticker';
-    try {
-      final response = await _dio.delete(path);
-      return response.statusCode == 200;
     } catch (_) {}
     return false;
   }

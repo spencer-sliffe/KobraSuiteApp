@@ -1,27 +1,26 @@
 """
 ------------------Prologue--------------------
-File Name: stock_serializers.py
-Path: kobrasuitecore/finances/serializers/stock_serializers.py
+File Name: stock_serializer.py
+Path: kobrasuitecore\finances\serializers\banking_serializers.py
 
 Description:
-Contains serializer classes for the stock-related data models, including stock portfolios,
-individual holdings, and favorites/watchlists. Validates and structures data for storage
-and retrieval.
+Converts Django models into JSON for sendable format
 
 Input:
-Incoming stock data such as ticker symbols, purchase info, and portfolio references.
+Django models
 
 Output:
-Validated JSON structures representing stocks, portfolios, and watchlist/favorites entries.
+JSON representation of Django Models
 
-Collaborators: SPENCER SLIFFE
+Collaborators: SPENCER SLIFFE,Charlie Gillund
 ---------------------------------------------
 """
 from rest_framework import serializers
 from finances.models import StockPortfolio, PortfolioStock, WatchlistStock
 
-
+# Serializer for the Portfolio stock
 class PortfolioStockSerializer(serializers.ModelSerializer):
+#defines the structure for the serializer
     class Meta:
         model = PortfolioStock
         fields = [
@@ -33,9 +32,10 @@ class PortfolioStockSerializer(serializers.ModelSerializer):
             'updated_at'
         ]
 
-
+#declares the serializer for the Portfolio of Stokc
 class StockPortfolioSerializer(serializers.ModelSerializer):
     stocks = PortfolioStockSerializer(many=True, read_only=True)
+# defines the structure for the serializer
     class Meta:
         model = StockPortfolio
         fields = [
@@ -46,7 +46,7 @@ class StockPortfolioSerializer(serializers.ModelSerializer):
             'stocks'
         ]
 
-
+# Defines the Watchlist Serialzier and its structure
 class WatchlistStockSerializer(serializers.ModelSerializer):
     class Meta:
         model = WatchlistStock

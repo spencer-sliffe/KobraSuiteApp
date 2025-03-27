@@ -1,7 +1,7 @@
 // File location: lib/UI/widgets/course_detail/assignment_card.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../models/school/assignment.dart';
+import '../../../../models/school/assignment.dart';
 
 class AssignmentCard extends StatelessWidget {
   final Assignment assignment;

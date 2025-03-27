@@ -42,25 +42,29 @@ from finances.services.stock_services import (
 from finances.utils.stock_utils import check_stock_validity
 
 
-class StockPortfolioViewSet(viewsets.ModelViewSet):
+class StockPortfolioViewSet(viewsets.ModelViewSet): # Viewset for portfolio
     queryset = StockPortfolio.objects.all()
     serializer_class = StockPortfolioSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
-    def get_queryset(self):
+
+    def get_queryset(self): # gets users portfolio
         user_pk = self.kwargs.get('user_pk')
         finance_profile_pk = self.kwargs.get('finance_profile_pk')
         return self.queryset.filter(profile__user__id=user_pk, profile__id=finance_profile_pk)
-    def create(self, request, user_pk=None, finance_profile_pk=None):
+
+    def create(self, request, user_pk=None, finance_profile_pk=None): # creates portfolio
         profile = get_object_or_404(FinanceProfile, pk=finance_profile_pk, user_id=user_pk)
         portfolio = get_or_create_stock_portfolio(profile)
         serializer = self.get_serializer(portfolio)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    @action(detail=True, methods=['get'])
+
+    @action(detail=True, methods=['get'])   # gets stocks from portfolio
     def stocks(self, request, pk=None, user_pk=None, finance_profile_pk=None):
         profile = get_object_or_404(FinanceProfile, pk=finance_profile_pk, user_id=user_pk)
         data = get_portfolio_stocks(profile, pk)
         return Response(data, status=status.HTTP_200_OK)
-    @action(detail=True, methods=['post'])
+
+    @action(detail=True, methods=['post']) # adds stocks to portfolio
     def add_stock(self, request, pk=None, user_pk=None, finance_profile_pk=None):
         profile = get_object_or_404(FinanceProfile, pk=finance_profile_pk, user_id=user_pk)
         ticker = request.data.get('ticker')
@@ -76,14 +80,16 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
         if success:
             return Response({'message': f'{ticker} added.'}, status=status.HTTP_200_OK)
         return Response({'error': 'Failed to add stock'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    @action(detail=True, methods=['delete'], url_path='remove_stock/(?P<ticker>[^/.]+)')
+
+    @action(detail=True, methods=['delete'], url_path='remove_stock/(?P<ticker>[^/.]+)') # removes stock from portfolio
     def remove_stock(self, request, ticker=None, pk=None, user_pk=None, finance_profile_pk=None):
         profile = get_object_or_404(FinanceProfile, pk=finance_profile_pk, user_id=user_pk)
         success = remove_stock_from_portfolio(profile, pk, ticker)
         if success:
             return Response({'message': f'{ticker} removed.'}, status=status.HTTP_200_OK)
         return Response({'error': 'Failed to remove stock'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    @action(detail=True, methods=['get'])
+
+    @action(detail=True, methods=['get']) # performs the analysis on the portfolio 
     def analysis(self, request, pk=None, user_pk=None, finance_profile_pk=None):
         profile = get_object_or_404(FinanceProfile, pk=finance_profile_pk, user_id=user_pk)
         stocks_data = get_portfolio_stocks(profile, pk)
@@ -91,23 +97,24 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
             return Response({'error': 'No stocks in portfolio'}, status=status.HTTP_404_NOT_FOUND)
         structure = {}
         for s in stocks_data:
-            structure[s['ticker']] = s['number_of_shares']
+            structure[s['ticker']] = s['number_of_shares'] # 
         result = portfolio_analysis(structure)
         if not result:
             return Response({'error': 'Error analyzing portfolio'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(result, status=status.HTTP_200_OK)
 
 
-class PortfolioStockViewSet(viewsets.ReadOnlyModelViewSet):
+class PortfolioStockViewSet(viewsets.ReadOnlyModelViewSet): # stock viewset
     queryset = PortfolioStock.objects.all()
     serializer_class = PortfolioStockSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
 
 
-class WatchlistStockViewSet(viewsets.ModelViewSet):
-    queryset = WatchlistStock.objects.all()
+class WatchlistStockViewSet(viewsets.ModelViewSet): # Watchlist viewset
+    queryset = WatchlistStock.objects.all() 
     serializer_class = WatchlistStockSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
-    def get_queryset(self):
+
+    def get_queryset(self): # gets users watchlisr
         stock_portfolio_pk = self.kwargs.get('stock_portfolio_pk')
         return self.queryset.filter(portfolio__pk=stock_portfolio_pk)

@@ -8,7 +8,6 @@ class HomelifeScreen extends StatelessWidget {
       body: Column(
         children: [
           const SizedBox(height: 16),
-          Text('Homelife Module', style: Theme.of(context).textTheme.headlineSmall),
           const Divider(),
           Expanded(
             child: GridView.count(

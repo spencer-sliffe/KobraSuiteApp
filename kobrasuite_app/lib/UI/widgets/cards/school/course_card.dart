@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../models/school/course.dart';
+import '../../../../models/school/course.dart';
 
 class CourseCard extends StatelessWidget {
   final Course course;

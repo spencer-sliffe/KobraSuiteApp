@@ -6,8 +6,8 @@ import 'package:kobrasuite_app/providers/school/assignment_provider.dart';
 import 'package:kobrasuite_app/providers/school/topic_provider.dart';
 import 'package:kobrasuite_app/services/image/banner_image_service.dart';
 import 'package:kobrasuite_app/UI/widgets/animation/abstract_banner_animation.dart';
-import 'package:kobrasuite_app/UI/widgets/cards/assignment_card.dart';
-import 'package:kobrasuite_app/UI/widgets/cards/topic_card.dart';
+import 'package:kobrasuite_app/UI/widgets/cards/school/assignment_card.dart';
+import 'package:kobrasuite_app/UI/widgets/cards/school/topic_card.dart';
 import 'package:kobrasuite_app/UI/widgets/school/assignment_detail_popup.dart';
 import 'package:kobrasuite_app/UI/widgets/school/topic_detail_popup.dart';
 
