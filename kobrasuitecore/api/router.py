@@ -43,9 +43,7 @@ user_router.register(r'user_profile', UserProfileViewSet, basename='user_profile
 user_router.register(r'work_profile', WorkProfileViewSet, basename='work_profile')
 user_router.register(r'finance_profile', FinanceProfileViewSet, basename='finance_profile')
 user_router.register(r'homelife_profile', HomeLifeProfileViewSet, basename='homelife_profile')
-
-hq_router = routers.NestedDefaultRouter(user_router, r'hq', lookup='hq')
-hq_router.register(r'tasks', TaskCategoryProgressViewSet, 'task')
+user_router.register(r'task', TaskCategoryProgressViewSet, basename='task_category_progress')
 
 homelife_profile_router = routers.NestedDefaultRouter(user_router, r'homelife_profile', lookup='homelife_profile')
 

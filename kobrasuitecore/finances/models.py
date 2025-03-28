@@ -1,19 +1,19 @@
-"""
-------------------Prologue--------------------
-File Name: stock_utils.py
-Path: kobrasuitecore\finances\models.py
-
-Description:
-Structures and creates Django Models to be used within the Finance module
-Input:
-N/A
-
-Output:
-Django Models
-
-Collaborators: SPENCER SLIFFE,Charlie Gillund
----------------------------------------------
-"""
+# """
+# ------------------Prologue--------------------
+# File Name: stock_utils.py
+# Path: kobrasuitecore\finances\models.py
+#
+# Description:
+# Structures and creates Django Models to be used within the Finance module
+# Input:
+# N/A
+#
+# Output:
+# Django Models
+#
+# Collaborators: SPENCER SLIFFE,Charlie Gillund
+# ---------------------------------------------
+# """
 from django.db import models
 from django.utils import timezone
 from hq.models import FinanceProfile

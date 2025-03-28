@@ -37,7 +37,7 @@ from django.utils import timezone
 # importing our stuff
 from hq.models import TaskCategoryProgress, TaskCategorySlots, TaskPerformanceBounds, ModuleExperience, ModuleStatus, \
     ModulePopulation, Wallet, UserProfile
-from ...kobrasuitecore.task_config.task_map import TaskMap
+from hq.task_config.task_map import TaskMap
 
 # setting up logger
 logger = logging.getLogger(__name__)
