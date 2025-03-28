@@ -1,20 +1,20 @@
-"""
-------------------Prologue--------------------
-File Name: stock_serializer.py
-Path: kobrasuitecore\finances\serializers\banking_serializers.py
-
-Description:
-Converts Django models into JSON for sendable format
-
-Input:
-Django models
-
-Output:
-JSON representation of Django Models
-
-Collaborators: SPENCER SLIFFE,Charlie Gillund
----------------------------------------------
-"""
+# """
+# ------------------Prologue--------------------
+# File Name: stock_serializer.py
+# Path: kobrasuitecore\finances\serializers\banking_serializers.py
+#
+# Description:
+# Converts Django models into JSON for sendable format
+#
+# Input:
+# Django models
+#
+# Output:
+# JSON representation of Django Models
+#
+# Collaborators: SPENCER SLIFFE,Charlie Gillund
+# ---------------------------------------------
+# """
 from rest_framework import serializers
 from finances.models import StockPortfolio, PortfolioStock, WatchlistStock
 
