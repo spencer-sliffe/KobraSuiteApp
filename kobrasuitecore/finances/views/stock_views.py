@@ -42,79 +42,168 @@ from finances.services.stock_services import (
 from finances.utils.stock_utils import check_stock_validity
 
 
-class StockPortfolioViewSet(viewsets.ModelViewSet): # Viewset for portfolio
+class StockPortfolioViewSet(viewsets.ModelViewSet):
     queryset = StockPortfolio.objects.all()
     serializer_class = StockPortfolioSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
 
-    def get_queryset(self): # gets users portfolio
+    def get_queryset(self):
+        """
+        Enforces nested lookup:
+        /users/<user_pk>/profile/<profile_pk>/finance_profile/<finance_profile_pk>/stock_portfolio/
+        """
         user_pk = self.kwargs.get('user_pk')
+        profile_pk = self.kwargs.get('profile_pk')
         finance_profile_pk = self.kwargs.get('finance_profile_pk')
-        return self.queryset.filter(profile__user__id=user_pk, profile__id=finance_profile_pk)
 
-    def create(self, request, user_pk=None, finance_profile_pk=None): # creates portfolio
-        profile = get_object_or_404(FinanceProfile, pk=finance_profile_pk, user_id=user_pk)
-        portfolio = get_or_create_stock_portfolio(profile)
+        # 'profile' is the ForeignKey on StockPortfolio referencing FinanceProfile
+        # 'FinanceProfile.profile' references UserProfile
+        # 'UserProfile.user' references the User
+        return self.queryset.filter(
+            profile_id=finance_profile_pk,             # Match FinanceProfile ID
+            profile__profile_id=profile_pk,            # Match UserProfile ID
+            profile__profile__user__id=user_pk         # Match User ID
+        )
+
+    def create(self, request, user_pk=None, profile_pk=None, finance_profile_pk=None):
+        """
+        Creates or retrieves a StockPortfolio for the given FinanceProfile.
+        """
+        finance_profile = get_object_or_404(
+            FinanceProfile,
+            pk=finance_profile_pk,
+            profile__id=profile_pk,
+            profile__user__id=user_pk
+        )
+        portfolio = get_or_create_stock_portfolio(finance_profile)
         serializer = self.get_serializer(portfolio)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['get'])   # gets stocks from portfolio
-    def stocks(self, request, pk=None, user_pk=None, finance_profile_pk=None):
-        profile = get_object_or_404(FinanceProfile, pk=finance_profile_pk, user_id=user_pk)
-        data = get_portfolio_stocks(profile, pk)
+    @action(detail=True, methods=['get'])
+    def stocks(self, request, pk=None, user_pk=None, profile_pk=None, finance_profile_pk=None):
+        """
+        Retrieves all stocks within the specified portfolio.
+        """
+        finance_profile = get_object_or_404(
+            FinanceProfile,
+            pk=finance_profile_pk,
+            profile__id=profile_pk,
+            profile__user__id=user_pk
+        )
+        data = get_portfolio_stocks(finance_profile, portfolio_id=pk)
         return Response(data, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['post']) # adds stocks to portfolio
-    def add_stock(self, request, pk=None, user_pk=None, finance_profile_pk=None):
-        profile = get_object_or_404(FinanceProfile, pk=finance_profile_pk, user_id=user_pk)
+    @action(detail=True, methods=['post'])
+    def add_stock(self, request, pk=None, user_pk=None, profile_pk=None, finance_profile_pk=None):
+        """
+        Adds a stock to the specified portfolio.
+        """
+        finance_profile = get_object_or_404(
+            FinanceProfile,
+            pk=finance_profile_pk,
+            profile__id=profile_pk,
+            profile__user__id=user_pk
+        )
         ticker = request.data.get('ticker')
         num_shares = request.data.get('num_shares')
         if not ticker or num_shares is None:
-            return Response({'error': 'ticker and num_shares are required'}, status=status.HTTP_400_BAD_REQUEST)
-        valid = check_stock_validity(ticker)
-        if not valid:
-            return Response({'error': 'Invalid stock ticker'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'error': 'ticker and num_shares are required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not check_stock_validity(ticker):
+            return Response(
+                {'error': 'Invalid stock ticker'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         date_str = request.data.get('purchase_date')
         dt = parse_datetime(date_str) if date_str else None
-        success = add_stock_to_portfolio(profile, pk, ticker, float(num_shares), dt)
+        success = add_stock_to_portfolio(finance_profile, pk, ticker, float(num_shares), dt)
         if success:
             return Response({'message': f'{ticker} added.'}, status=status.HTTP_200_OK)
-        return Response({'error': 'Failed to add stock'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {'error': 'Failed to add stock'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
-    @action(detail=True, methods=['delete'], url_path='remove_stock/(?P<ticker>[^/.]+)') # removes stock from portfolio
-    def remove_stock(self, request, ticker=None, pk=None, user_pk=None, finance_profile_pk=None):
-        profile = get_object_or_404(FinanceProfile, pk=finance_profile_pk, user_id=user_pk)
-        success = remove_stock_from_portfolio(profile, pk, ticker)
+    @action(
+        detail=True,
+        methods=['delete'],
+        url_path='remove_stock/(?P<ticker>[^/.]+)'
+    )
+    def remove_stock(self, request, ticker=None, pk=None, user_pk=None, profile_pk=None, finance_profile_pk=None):
+        """
+        Removes the given ticker from the specified portfolio.
+        """
+        finance_profile = get_object_or_404(
+            FinanceProfile,
+            pk=finance_profile_pk,
+            profile__id=profile_pk,
+            profile__user__id=user_pk
+        )
+        success = remove_stock_from_portfolio(finance_profile, pk, ticker)
         if success:
             return Response({'message': f'{ticker} removed.'}, status=status.HTTP_200_OK)
-        return Response({'error': 'Failed to remove stock'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {'error': 'Failed to remove stock'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
-    @action(detail=True, methods=['get']) # performs the analysis on the portfolio 
-    def analysis(self, request, pk=None, user_pk=None, finance_profile_pk=None):
-        profile = get_object_or_404(FinanceProfile, pk=finance_profile_pk, user_id=user_pk)
-        stocks_data = get_portfolio_stocks(profile, pk)
+    @action(detail=True, methods=['get'])
+    def analysis(self, request, pk=None, user_pk=None, profile_pk=None, finance_profile_pk=None):
+        """
+        Performs a portfolio analysis (like weighting, value, etc.) for the specified portfolio.
+        """
+        finance_profile = get_object_or_404(
+            FinanceProfile,
+            pk=finance_profile_pk,
+            profile__id=profile_pk,
+            profile__user__id=user_pk
+        )
+        stocks_data = get_portfolio_stocks(finance_profile, pk)
         if not stocks_data:
-            return Response({'error': 'No stocks in portfolio'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {'error': 'No stocks in this portfolio.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
         structure = {}
         for s in stocks_data:
-            structure[s['ticker']] = s['number_of_shares'] # 
+            structure[s['ticker']] = s['number_of_shares']
         result = portfolio_analysis(structure)
         if not result:
-            return Response({'error': 'Error analyzing portfolio'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {'error': 'Error analyzing portfolio'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
         return Response(result, status=status.HTTP_200_OK)
 
 
-class PortfolioStockViewSet(viewsets.ReadOnlyModelViewSet): # stock viewset
+class PortfolioStockViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Read-only view for PortfolioStock objects.
+    Typically, you'd nest this under a specific StockPortfolio in the router
+    if you want to browse or retrieve individual stock entries.
+    """
     queryset = PortfolioStock.objects.all()
     serializer_class = PortfolioStockSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
 
 
-class WatchlistStockViewSet(viewsets.ModelViewSet): # Watchlist viewset
-    queryset = WatchlistStock.objects.all() 
+class WatchlistStockViewSet(viewsets.ModelViewSet):
+    """
+    CRUD for WatchlistStock objects, also typically nested under a specific StockPortfolio.
+    """
+    queryset = WatchlistStock.objects.all()
     serializer_class = WatchlistStockSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
 
-    def get_queryset(self): # gets users watchlisr
+    def get_queryset(self):
+        """
+        /users/<user_pk>/profile/<profile_pk>/finance_profile/<finance_profile_pk>/
+            stock_portfolio/<stock_portfolio_pk>/watchlist_stocks/
+        Filter by the relevant 'stock_portfolio_pk'.
+        """
         stock_portfolio_pk = self.kwargs.get('stock_portfolio_pk')
         return self.queryset.filter(portfolio__pk=stock_portfolio_pk)

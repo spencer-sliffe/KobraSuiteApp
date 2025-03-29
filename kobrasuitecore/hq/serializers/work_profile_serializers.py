@@ -6,6 +6,4 @@ from hq.models import WorkProfile
 class WorkProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkProfile
-        fields = [
-            'id'
-        ]
+        fields = ['id', 'profile', 'work_places']

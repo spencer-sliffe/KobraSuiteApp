@@ -8,11 +8,14 @@ from hq.models import UserProfile
 from hq.serializers.user_profile_serializers import UserProfileSerializer
 
 class UserProfileViewSet(viewsets.ModelViewSet):
-    queryset = UserProfile.objects.all().select_related('user')
+    queryset = UserProfile.objects.select_related('user').all()
     serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
 
     def get_queryset(self):
+        """
+        /users/<user_pk>/profile/<profile_pk>/
+        """
         user_pk = self.kwargs.get('user_pk')
         return self.queryset.filter(user__id=user_pk)
 
@@ -22,4 +25,6 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         serializer.save(user=user)
 
     def perform_update(self, serializer):
-        serializer.save(user=self.get_object().user)
+        # Keep the existing user relationship
+        instance = self.get_object()
+        serializer.save(user=instance.user)

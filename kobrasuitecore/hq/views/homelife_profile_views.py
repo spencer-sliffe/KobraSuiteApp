@@ -9,7 +9,7 @@ from hq.serializers.homelife_profile_serializers import HomeLifeProfileSerialize
 
 
 class HomeLifeProfileViewSet(viewsets.ModelViewSet):
-    queryset = HomeLifeProfile.objects.all().select_related('user')
+    queryset = HomeLifeProfile.objects.select_related('profile__user').prefetch_related('courses')
     serializer_class = HomeLifeProfileSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
 

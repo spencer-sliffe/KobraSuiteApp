@@ -18,16 +18,18 @@ Collaborators: SPENCER SLIFFE
 ---------------------------------------------
 """
 from rest_framework import permissions
+
+from hq.models import UserProfile
 from school.models import University, Course, Assignment
 
 
 class IsThreadMember(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        user = request.user
-        if not hasattr(user, 'school_profile'):
+        profile = UserProfile.objects.filter(user=request.user)
+        if not hasattr(profile, 'school_profile'):
             return False
 
-        school_profile = user.school_profile
+        school_profile = profile.school_profile
 
         if isinstance(obj.scope, University):
             user_uni = getattr(school_profile, 'university', None)

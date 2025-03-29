@@ -16,7 +16,7 @@ class KobraDrawer extends StatelessWidget {
             const SizedBox(height: 16),
             const CircleAvatar(
               radius: 40,
-              backgroundImage: AssetImage('assets/images/profile_placeholder.png'),
+              backgroundImage: AssetImage('assets/images/house1.svgs'),
             ),
             const SizedBox(height: 8),
             Text('Welcome, User!', style: Theme.of(context).textTheme.titleMedium),

@@ -32,7 +32,6 @@ class BudgetCategoriesTab extends StatelessWidget {
             ),
           ),
         ),
-        // ... more dummy categories ...
       ],
     );
   }

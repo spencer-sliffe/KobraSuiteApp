@@ -6,6 +6,4 @@ from hq.models import HomeLifeProfile
 class HomeLifeProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = HomeLifeProfile
-        fields = [
-            'id',
-        ]
+        fields = ['id', 'profile', 'household']

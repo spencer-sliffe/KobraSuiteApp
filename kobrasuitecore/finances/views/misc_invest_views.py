@@ -73,10 +73,10 @@ class MiscInvestViewSet(viewsets.ViewSet):
         key = os.environ.get('RAPIDAPI_KEY')
         if not key:
             return Response({'error': 'No RapidAPI key found'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        user = request.user
+        profile = request.user.profile
         budget = 0
-        if hasattr(user, 'finance_profile'):
-            budget = user.finance_profile.budget
+        if hasattr(profile, 'finance_profile'):
+            budget = profile.finance_profile.budget
         hot = get_hot_stocks(key, budget)
         return Response(hot, status=status.HTTP_200_OK)
 

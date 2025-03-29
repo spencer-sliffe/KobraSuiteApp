@@ -29,7 +29,7 @@ User = get_user_model()
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.select_related(
-        'profile', 'school_profile', 'work_profile', 'finance_profile', 'homelife_profile'
+        'profile'
     ).all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
