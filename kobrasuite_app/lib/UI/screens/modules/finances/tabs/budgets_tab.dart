@@ -39,14 +39,6 @@ class BudgetsTab extends StatelessWidget {
             subtitle: const Text('Placeholder for trend analysis'),
           ),
         ),
-        const SizedBox(height: 16),
-        ElevatedButton.icon(
-          onPressed: () {
-            // Action to add a new budget can be implemented here.
-          },
-          icon: const Icon(Icons.add),
-          label: const Text('Add New Budget'),
-        ),
       ],
     );
   }

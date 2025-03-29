@@ -33,8 +33,6 @@ from customer.models import Role
 
 
 class AuthViewSet(viewsets.GenericViewSet):
-    queryset = Role.objects.all()
-
     def get_serializer_class(self):
         if self.action == 'register':
             return RegisterSerializer
@@ -128,7 +126,7 @@ class AuthViewSet(viewsets.GenericViewSet):
     def whoami(self, request):
         User = get_user_model()
         user = User.objects.select_related(
-            'profile', 'school_profile', 'work_profile', 'finance_profile', 'homelife_profile'
+            'profile'
         ).get(pk=request.user.pk)
         serializer = UserSerializer(user)
         return Response({"user": serializer.data}, status=status.HTTP_200_OK)

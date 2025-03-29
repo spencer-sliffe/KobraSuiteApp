@@ -59,7 +59,7 @@ class TransactionViewSet(viewsets.ModelViewSet): # transaction view set
 
     def perform_create(self, serializer): # used to create transactions
         with transaction.atomic(): # makes transactions atomic and update corresponding models
-            instance = serializer.save(profile=self.request.user.finance_profile)
+            instance = serializer.save(profile=self.request.user.profile.finance_profile)
             if instance.bank_account and instance.transaction_type in ['EXPENSE', 'INCOME']:
                 if instance.transaction_type == 'EXPENSE':
                     if instance.amount > instance.bank_account.balance:

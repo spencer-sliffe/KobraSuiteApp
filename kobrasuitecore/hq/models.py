@@ -48,41 +48,52 @@ class UserProfile(models.Model):
 
 
 class SchoolProfile(models.Model):
-    profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='school_profile')
-    university = models.ForeignKey(University, null=True, blank=True, on_delete=models.SET_NULL,
-                                   related_name='school_profiles')
-    courses = models.ManyToManyField(Course, related_name='school_profiles', blank=True)
+    profile = models.OneToOneField(
+        UserProfile,
+        on_delete=models.CASCADE,
+        related_name='school_profile'
+    )
+    university = models.ForeignKey(
+        University,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='school_profiles'
+    )
+    courses = models.ManyToManyField(
+        Course,
+        related_name='school_profiles',
+        blank=True
+    )
 
     def __str__(self):
-        return f"School Profile of {self.user.username}"
+        return f"School Profile of {self.profile.user.username}"
 
 
 class WorkProfile(models.Model):
-    profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='work_profile')
+    profile = models.OneToOneField(UserProfile, on_delete=models.CASCADE, related_name='work_profile')
     work_places = models.ManyToManyField(WorkPlace, related_name='work_profiles', blank=True)
 
     def __str__(self):
-        return f"Work profile of {self.user.username}"
-
+        return f"Work profile of {self.profile.user.username}"
 
 class FinanceProfile(models.Model):
-    profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='finance_profile')
+    profile = models.OneToOneField(UserProfile, on_delete=models.CASCADE, related_name='finance_profile')
 
     def __str__(self):
         return f"Finance Profile of {self.user.username}"
 
 
 class HomeLifeProfile(models.Model):
-    profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='homelife_profile')
+    profile = models.OneToOneField(UserProfile, on_delete=models.CASCADE, related_name='homelife_profile')
     household = models.ForeignKey(Household, null=True, blank=True, on_delete=models.SET_NULL,
                                   related_name='homelife_profiles')
 
     def __str__(self):
-        return f"HomeLife Profile of {self.user.username}"
-
+        return f"HomeLife profile of {self.profile.user.username}"
 
 class Wallet(models.Model):
-    profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='wallet')
+    profile = models.OneToOneField(UserProfile, on_delete=models.CASCADE, related_name='wallet')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     balance = models.IntegerField(default=0)

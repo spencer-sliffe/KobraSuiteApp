@@ -57,14 +57,14 @@ class WorkPlaceViewSet(viewsets.ModelViewSet):
         workplace = WorkPlace.objects.filter(invite_code=code).first()
         if not workplace:
             return Response({"detail": "Invalid invite code."}, status=status.HTTP_404_NOT_FOUND)
-        profile = request.user.work_profile
+        profile = request.user.profile.work_profile
         profile.work_places.add(workplace)
         return Response({"detail": "Joined workplace."}, status=status.HTTP_200_OK)
 
     @action(methods=['post'], detail=True, url_path='leave', permission_classes=[IsAuthenticated])
     def leave_workplace(self, request, pk=None):
         workplace = self.get_object()
-        profile = request.user.work_profile
+        profile = request.user.profile.work_profile
         if not profile.work_places.filter(id=workplace.id).exists():
             return Response({"detail": "Not a member of this workplace."}, status=status.HTTP_400_BAD_REQUEST)
         if workplace.owner == request.user:

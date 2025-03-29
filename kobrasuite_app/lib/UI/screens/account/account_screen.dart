@@ -117,7 +117,7 @@ class _AccountScreenState extends State<AccountScreen> {
               radius: 36,
               backgroundImage: (profile?.profilePicture?.isNotEmpty == true)
                   ? NetworkImage(profile!.profilePicture!)
-                  : const AssetImage('assets/images/profile_placeholder.png') as ImageProvider,
+                  : const AssetImage('assets/images/house1.svg') as ImageProvider,
             ),
             const SizedBox(width: 16),
             // Basic user data

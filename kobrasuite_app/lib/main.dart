@@ -35,6 +35,8 @@ import 'package:kobrasuite_app/providers/finance/bank_account_provider.dart';
 import 'package:kobrasuite_app/providers/finance/budget_provider.dart';
 import 'package:kobrasuite_app/providers/finance/budget_category_provider.dart';
 import 'package:kobrasuite_app/providers/finance/transaction_provider.dart';
+import 'UI/nav/providers/navigation_store.dart';
+import 'UI/screens/account/account_screen.dart';
 import 'UI/screens/auth/forgot_password_screen.dart';
 import 'UI/screens/auth/password_reset_confirm_screen.dart';
 import 'UI/screens/main_screen.dart';
@@ -190,6 +192,7 @@ void main() async {
             return transactionProvider;
           },
         ),
+        ChangeNotifierProvider<NavigationStore>(create: (_) => NavigationStore()),
         ChangeNotifierProvider<ThemeNotifier>(create: (_) => ThemeNotifier()),
         ChangeNotifierProvider<RealtimeService>(create: (_) => serviceLocator<RealtimeService>()),
         ChangeNotifierProxyProvider2<AuthProvider, FinanceProfileProvider, StockPortfolioProvider>(
@@ -279,6 +282,7 @@ class KobraSuiteApp extends StatelessWidget {
         '/register': (context) => const RegisterScreen(),
         '/home': (context) => const MainScreen(),
         '/settings': (context) => const SettingsScreen(),
+        '/account': (context) => const AccountScreen(),
         '/forgot-password': (context) => const ForgotPasswordScreen(),
         '/reset-confirm': (context) => const PasswordResetConfirmScreen(),
       },
