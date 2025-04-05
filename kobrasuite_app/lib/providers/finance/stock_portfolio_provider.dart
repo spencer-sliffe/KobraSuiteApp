@@ -7,6 +7,7 @@ import '../../../models/finance/portfolio_stock.dart';
 class StockPortfolioProvider extends ChangeNotifier {
   final StockService _service;
   int _userPk;
+  int _userProfilePk;
   int _financeProfilePk;
   int _stockPortfolioPk;
 
@@ -17,9 +18,11 @@ class StockPortfolioProvider extends ChangeNotifier {
 
   StockPortfolioProvider({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
     required int stockPortfolioPk,
   })  : _userPk = userPk,
+        _userProfilePk = userProfilePk,
         _financeProfilePk = financeProfilePk,
         _stockPortfolioPk = stockPortfolioPk,
         _service = serviceLocator<StockService>();
@@ -30,15 +33,18 @@ class StockPortfolioProvider extends ChangeNotifier {
   List<PortfolioStock> get portfolioStocks => _portfolioStocks;
 
   int get userPk => _userPk;
+  int get userProfilePk => _userProfilePk;
   int get financeProfilePk => _financeProfilePk;
   int get stockPortfolioPk => _stockPortfolioPk;
 
   void update({
     required int newUserPk,
+    required int newUserProfilePk,
     required int newFinanceProfilePk,
     required int newStockPortfolioPk,
   }) {
     _userPk = newUserPk;
+    _userProfilePk = newUserProfilePk;
     _financeProfilePk = newFinanceProfilePk;
     _stockPortfolioPk = newStockPortfolioPk;
     notifyListeners();
@@ -51,6 +57,7 @@ class StockPortfolioProvider extends ChangeNotifier {
     try {
       final portfolio = await _service.getStockPortfolio(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         financeProfilePk: _financeProfilePk,
         stockPortfolioPk: _stockPortfolioPk,
       );
@@ -69,6 +76,7 @@ class StockPortfolioProvider extends ChangeNotifier {
     try {
       final stocks = await _service.getPortfolioStocks(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         financeProfilePk: _financeProfilePk,
         stockPortfolioPk: _stockPortfolioPk,
       );
@@ -91,6 +99,7 @@ class StockPortfolioProvider extends ChangeNotifier {
     try {
       final success = await _service.addStock(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         financeProfilePk: _financeProfilePk,
         stockPortfolioPk: _stockPortfolioPk,
         ticker: ticker,
@@ -117,6 +126,7 @@ class StockPortfolioProvider extends ChangeNotifier {
     try {
       final success = await _service.removeStock(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         financeProfilePk: _financeProfilePk,
         stockPortfolioPk: _stockPortfolioPk,
         ticker: ticker,

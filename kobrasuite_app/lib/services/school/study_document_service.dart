@@ -13,33 +13,43 @@ class StudyDocumentService {
   /// Constructs the base path for study documents based on user, university, course, and topic IDs.
   String getStudyDocumentsBasePath({
     required int userPk,
+    required int userProfilePk,
+    required int schoolProfilePk,
     required int universityPk,
     required int coursePk,
     required int topicPk,
   }) {
-    return '/api/users/$userPk/school_profile/universities/$universityPk/courses/$coursePk/topics/$topicPk/study_documents/';
+    return '/api/users/$userPk/profile/$userProfilePk/school_profile/$schoolProfilePk'
+        '/universities/$universityPk/courses/$coursePk/topics/$topicPk/study_documents/';
   }
 
   /// Constructs the URL for a specific study document.
   String getStudyDocumentDetailPath({
     required int userPk,
+    required int userProfilePk,
+    required int schoolProfilePk,
     required int universityPk,
     required int coursePk,
     required int topicPk,
     required int studyDocumentPk,
   }) {
-    return '/api/users/$userPk/school_profile/universities/$universityPk/courses/$coursePk/topics/$topicPk/study_documents/$studyDocumentPk/';
+    return '/api/users/$userPk/profile/$userProfilePk/universities/$universityPk'
+        '/courses/$coursePk/topics/$topicPk/study_documents/$studyDocumentPk/';
   }
 
   /// Retrieves study documents for a specific topic.
   Future<List<StudyDocument>> getStudyDocumentsByTopic({
     required int userPk,
+    required int userProfilePk,
+    required int schoolProfilePk,
     required int universityPk,
     required int coursePk,
     required int topicPk,
   }) async {
     final url = getStudyDocumentsBasePath(
       userPk: userPk,
+      userProfilePk: userProfilePk,
+      schoolProfilePk: schoolProfilePk,
       universityPk: universityPk,
       coursePk: coursePk,
       topicPk: topicPk,
@@ -62,6 +72,8 @@ class StudyDocumentService {
   /// Uploads a new study document to a specific topic.
   Future<StudyDocument?> uploadStudyDocument({
     required int userPk,
+    required int userProfilePk,
+    required int schoolProfilePk,
     required int universityPk,
     required int coursePk,
     required int topicPk,
@@ -70,6 +82,8 @@ class StudyDocumentService {
   }) async {
     final url = getStudyDocumentsBasePath(
       userPk: userPk,
+      userProfilePk: userProfilePk,
+      schoolProfilePk: schoolProfilePk,
       universityPk: universityPk,
       coursePk: coursePk,
       topicPk: topicPk,
@@ -107,6 +121,8 @@ class StudyDocumentService {
   /// Updates an existing study document.
   Future<StudyDocument?> updateStudyDocument({
     required int userPk,
+    required int userProfilePk,
+    required int schoolProfilePk,
     required int universityPk,
     required int coursePk,
     required int topicPk,
@@ -115,6 +131,8 @@ class StudyDocumentService {
   }) async {
     final url = getStudyDocumentDetailPath(
       userPk: userPk,
+      userProfilePk: userProfilePk,
+      schoolProfilePk: schoolProfilePk,
       universityPk: universityPk,
       coursePk: coursePk,
       topicPk: topicPk,
@@ -138,6 +156,8 @@ class StudyDocumentService {
   /// Deletes a study document.
   Future<bool> deleteStudyDocument({
     required int userPk,
+    required int userProfilePk,
+    required int schoolProfilePk,
     required int universityPk,
     required int coursePk,
     required int topicPk,
@@ -145,6 +165,8 @@ class StudyDocumentService {
   }) async {
     final url = getStudyDocumentDetailPath(
       userPk: userPk,
+      userProfilePk: userProfilePk,
+      schoolProfilePk: schoolProfilePk,
       universityPk: universityPk,
       coursePk: coursePk,
       topicPk: topicPk,

@@ -6,6 +6,7 @@ import '../../../models/finance/transaction.dart';
 class TransactionProvider extends ChangeNotifier {
   final BankingService _service;
   int _userPk;
+  int _userProfilePk;
   int _financeProfilePk;
 
   bool _isLoading = false;
@@ -14,8 +15,10 @@ class TransactionProvider extends ChangeNotifier {
 
   TransactionProvider({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
   })  : _userPk = userPk,
+        _userProfilePk = userProfilePk,
         _financeProfilePk = financeProfilePk,
         _service = serviceLocator<BankingService>();
 
@@ -24,13 +27,16 @@ class TransactionProvider extends ChangeNotifier {
   List<Transaction> get transactions => _transactions;
 
   int get userPk => _userPk;
+  int get userProfilePk => _userProfilePk;
   int get financeProfilePk => _financeProfilePk;
 
   void update({
     required int newUserPk,
+    required int newUserProfilePk,
     required int newFinanceProfilePk,
   }) {
     _userPk = newUserPk;
+    _userProfilePk = newUserProfilePk;
     _financeProfilePk = newFinanceProfilePk;
     notifyListeners();
   }
@@ -42,6 +48,7 @@ class TransactionProvider extends ChangeNotifier {
     try {
       final list = await _service.getTransactions(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         financeProfilePk: _financeProfilePk,
       );
       _transactions = list;
@@ -66,6 +73,7 @@ class TransactionProvider extends ChangeNotifier {
     try {
       final success = await _service.createTransaction(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         financeProfilePk: _financeProfilePk,
         transactionType: transactionType,
         amount: amount,
@@ -94,6 +102,7 @@ class TransactionProvider extends ChangeNotifier {
     try {
       final success = await _service.deleteTransaction(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         financeProfilePk: _financeProfilePk,
         transactionId: transactionId,
       );

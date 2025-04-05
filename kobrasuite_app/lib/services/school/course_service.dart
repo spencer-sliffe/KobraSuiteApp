@@ -17,11 +17,12 @@ class CourseService {
 
   Future<Course> createCourseInUniversity({
     required int userPk,
+    required int userProfilePk,
     required int schoolProfilePk,
     required int universityPk,
     required Map<String, dynamic> courseData,
   }) async {
-    final uri = '/api/users/$userPk/school_profile/$schoolProfilePk'
+    final uri = '/api/users/$userPk/profile/$userProfilePk/school_profile/$schoolProfilePk'
         '/universities/$universityPk/courses/add_new_course/';
     try {
       final response = await _dio.post(uri, data: courseData);
@@ -43,6 +44,7 @@ class CourseService {
 
   Future<List<Course>> searchCoursesInUniversity({
     required int userPk,
+    required int userProfilePk,
     required int schoolProfilePk,
     required int universityPk,
     String? query,
@@ -51,7 +53,7 @@ class CourseService {
     if (query != null && query.isNotEmpty) {
       queryParameters['query'] = query;
     }
-    final uri = '/api/users/$userPk/school_profile/$schoolProfilePk'
+    final uri = '/api/users/$userPk/profile/$userProfilePk/school_profile/$schoolProfilePk'
         '/universities/$universityPk/courses/search/';
     try {
       final response = await _dio.get(uri, queryParameters: queryParameters);
@@ -69,11 +71,12 @@ class CourseService {
 
   Future<void> addCourseToSchoolProfile({
     required int userPk,
+    required int userProfilePk,
     required int schoolProfilePk,
     required int universityPk,
     required int courseId,
   }) async {
-    final uri = '/api/users/$userPk/school_profile/$schoolProfilePk'
+    final uri = '/api/users/$userPk/profile/$userProfilePk/school_profile/$schoolProfilePk'
         '/universities/$universityPk/courses/add_course_to_profile/';
     final body = {'course_id': courseId};
     try {
@@ -88,11 +91,12 @@ class CourseService {
 
   Future<void> removeCourseFromSchoolProfile({
     required int userPk,
+    required int userProfilePk,
     required int schoolProfilePk,
     required int universityPk,
     required int courseId,
   }) async {
-    final uri = '/api/users/$userPk/school_profile/$schoolProfilePk'
+    final uri = '/api/users/$userPk/profile/$userProfilePk/school_profile/$schoolProfilePk'
         '/universities/$universityPk/courses/remove_course_from_profile/';
     final body = {'course_id': courseId};
     try {
@@ -108,11 +112,12 @@ class CourseService {
 
   Future<Map<String, dynamic>> verifyCourse({
     required int userPk,
+    required int userProfilePk,
     required int schoolProfilePk,
     required int universityPk,
     required Map<String, dynamic> courseData,
   }) async {
-    final uri = '/api/users/$userPk/school_profile/$schoolProfilePk'
+    final uri = '/api/users/$userPk/profile/$userProfilePk/school_profile/$schoolProfilePk'
         '/universities/$universityPk/verify_course_existence/verify_course/';
     final response = await _dio.post(uri, data: courseData);
     if (response.statusCode == 200) {

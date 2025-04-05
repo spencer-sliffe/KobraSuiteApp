@@ -12,9 +12,10 @@ class HomeLifeProfileService {
   /// Retrieves the HomeLifeProfile for a specific user and HomeLifeProfile ID.
   Future<HomeLifeProfile?> getHomeLifeProfile({
     required int userPk,
+    required int userProfilePk,
     required int homeLifeProfilePk,
   }) async {
-    final uri = '/api/users/$userPk/homelife_profile/$homeLifeProfilePk/';
+    final uri = '/api/users/$userPk/profile/$userProfilePk/homelife_profile/$homeLifeProfilePk/';
     try {
       final response = await _dio.get(
         uri,
@@ -32,10 +33,11 @@ class HomeLifeProfileService {
   /// Updates the HomeLifeProfile for a specific user and homeLifeProfile ID.
   Future<HomeLifeProfile?> updateHomeLifeProfile({
     required int userPk,
+    required int userProfilePk,
     required int homeLifeProfilePk,
     required Map<String, dynamic> updatedData,
   }) async {
-    final uri = '/api/users/$userPk/homelife_profile/$homeLifeProfilePk/';
+    final uri = '/api/users/$userPk/profile/$userProfilePk/homelife_profile/$homeLifeProfilePk/';
     try {
       final response = await _dio.put(
         uri,

@@ -12,9 +12,10 @@ class SchoolProfileService {
   /// Retrieves the SchoolProfile for a specific user and schoolProfile ID.
   Future<SchoolProfile?> getSchoolProfile({
     required int userPk,
+    required int userProfilePk,
     required int schoolProfilePk,
   }) async {
-    final uri = '/api/users/$userPk/school_profile/$schoolProfilePk/';
+    final uri = '/api/users/$userPk/profile/$userProfilePk/school_profile/$schoolProfilePk/';
     try {
       final response = await _dio.get(
         uri,
@@ -32,10 +33,11 @@ class SchoolProfileService {
   /// Updates the SchoolProfile for a specific user and schoolProfile ID.
   Future<SchoolProfile?> updateSchoolProfile({
     required int userPk,
+    required int userProfilePk,
     required int schoolProfilePk,
     required Map<String, dynamic> updatedData,
   }) async {
-    final uri = '/api/users/$userPk/school_profile/$schoolProfilePk/';
+    final uri = '/api/users/$userPk/profile/$userProfilePk/school_profile/$schoolProfilePk/';
     try {
       final response = await _dio.put(
         uri,

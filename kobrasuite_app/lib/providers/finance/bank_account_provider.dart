@@ -6,6 +6,7 @@ import '../../../models/finance/bank_account.dart';
 class BankAccountProvider extends ChangeNotifier {
   final BankingService _service;
   int _userPk;
+  int _userProfilePk;
   int _financeProfilePk;
 
   bool _isLoading = false;
@@ -14,8 +15,10 @@ class BankAccountProvider extends ChangeNotifier {
 
   BankAccountProvider({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
   })  : _userPk = userPk,
+        _userProfilePk = userProfilePk,
         _financeProfilePk = financeProfilePk,
         _service = serviceLocator<BankingService>();
 
@@ -24,13 +27,16 @@ class BankAccountProvider extends ChangeNotifier {
   List<BankAccount> get bankAccounts => _bankAccounts;
 
   int get userPk => _userPk;
+  int get userProfilePk => _userProfilePk;
   int get financeProfilePk => _financeProfilePk;
 
   void update({
     required int newUserPk,
+    required int newUserProfilePk,
     required int newFinanceProfilePk,
   }) {
     _userPk = newUserPk;
+    _userProfilePk = newUserProfilePk;
     _financeProfilePk = newFinanceProfilePk;
     notifyListeners();
   }
@@ -42,6 +48,7 @@ class BankAccountProvider extends ChangeNotifier {
     try {
       final accounts = await _service.getBankAccounts(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         financeProfilePk: _financeProfilePk,
       );
       _bankAccounts = accounts;
@@ -65,6 +72,7 @@ class BankAccountProvider extends ChangeNotifier {
     try {
       final success = await _service.createBankAccount(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         financeProfilePk: _financeProfilePk,
         accountName: accountName,
         accountNumber: accountNumber,
@@ -92,6 +100,7 @@ class BankAccountProvider extends ChangeNotifier {
     try {
       final success = await _service.deleteBankAccount(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         financeProfilePk: _financeProfilePk,
         bankAccountId: bankAccountId,
       );

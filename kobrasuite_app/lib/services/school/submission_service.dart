@@ -13,44 +13,59 @@ class SubmissionService {
   /// Constructs the base path for submissions based on user, university, course, and assignment IDs.
   String getSubmissionsBasePath({
     required int userPk,
+    required int userProfilePk,
+    required int schoolProfilePk,
     required int universityPk,
     required int coursePk,
     required int assignmentPk,
   }) {
-    return '/api/users/$userPk/school_profile/universities/$universityPk/courses/$coursePk/assignments/$assignmentPk/submissions/';
+    return '/api/users/$userPk/profile/$userProfilePk/school_profile/$schoolProfilePk/'
+        'universities/$universityPk/courses/$coursePk/assignments/$assignmentPk/submissions/';
   }
 
   /// Constructs the URL for a specific submission.
   String getSubmissionDetailPath({
     required int userPk,
+    required int userProfilePk,
+    required int schoolProfilePk,
     required int universityPk,
     required int coursePk,
     required int assignmentPk,
     required int submissionPk,
   }) {
-    return '/api/users/$userPk/school_profile/universities/$universityPk/courses/$coursePk/assignments/$assignmentPk/submissions/$submissionPk/';
+    return '/api/users/$userPk/profile/$userProfilePk/school_profile/$schoolProfilePk/'
+        'universities/$universityPk/courses/$coursePk/assignments/$assignmentPk/'
+        'submissions/$submissionPk/';
   }
 
   /// Constructs the URL for adding a comment to a submission.
   String getAddCommentPath({
     required int userPk,
+    required int userProfilePk,
+    required int schoolProfilePk,
     required int universityPk,
     required int coursePk,
     required int assignmentPk,
     required int submissionPk,
   }) {
-    return '/api/users/$userPk/school_profile/universities/$universityPk/courses/$coursePk/assignments/$assignmentPk/submissions/$submissionPk/add_comment/';
+    return '/api/users/$userPk/profile/$userProfilePk/school_profile/$schoolProfilePk/'
+        'universities/$universityPk/courses/$coursePk/assignments/$assignmentPk/'
+        'submissions/$submissionPk/add_comment/';
   }
 
   /// Retrieves submissions for a specific assignment.
   Future<List<Submission>> getSubmissionsByAssignment({
     required int userPk,
+    required int userProfilePk,
+    required int schoolProfilePk,
     required int universityPk,
     required int coursePk,
     required int assignmentPk,
   }) async {
     final url = getSubmissionsBasePath(
       userPk: userPk,
+      userProfilePk: userProfilePk,
+      schoolProfilePk: schoolProfilePk,
       universityPk: universityPk,
       coursePk: coursePk,
       assignmentPk: assignmentPk,
@@ -73,6 +88,8 @@ class SubmissionService {
   /// Creates a new submission for an assignment.
   Future<Submission?> createSubmission({
     required int userPk,
+    required int userProfilePk,
+    required int schoolProfilePk,
     required int universityPk,
     required int coursePk,
     required int assignmentPk,
@@ -80,6 +97,8 @@ class SubmissionService {
   }) async {
     final url = getSubmissionsBasePath(
       userPk: userPk,
+      userProfilePk: userProfilePk,
+      schoolProfilePk: schoolProfilePk,
       universityPk: universityPk,
       coursePk: coursePk,
       assignmentPk: assignmentPk,
@@ -102,6 +121,8 @@ class SubmissionService {
   /// Uploads an answer file to a submission.
   Future<bool> uploadAnswer({
     required int userPk,
+    required int userProfilePk,
+    required int schoolProfilePk,
     required int universityPk,
     required int coursePk,
     required int assignmentPk,
@@ -112,6 +133,8 @@ class SubmissionService {
     try {
       final url = getSubmissionDetailPath(
         userPk: userPk,
+        userProfilePk: userProfilePk,
+        schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         coursePk: coursePk,
         assignmentPk: assignmentPk,
@@ -148,6 +171,8 @@ class SubmissionService {
   /// Adds a comment to a submission.
   Future<bool> addComment({
     required int userPk,
+    required int userProfilePk,
+    required int schoolProfilePk,
     required int universityPk,
     required int coursePk,
     required int assignmentPk,
@@ -156,6 +181,8 @@ class SubmissionService {
   }) async {
     final url = getAddCommentPath(
       userPk: userPk,
+      userProfilePk: userProfilePk,
+      schoolProfilePk: schoolProfilePk,
       universityPk: universityPk,
       coursePk: coursePk,
       assignmentPk: assignmentPk,
@@ -179,6 +206,8 @@ class SubmissionService {
   /// Retrieves details of a specific submission.
   Future<Submission?> getSubmissionDetail({
     required int userPk,
+    required int userProfilePk,
+    required int schoolProfilePk,
     required int universityPk,
     required int coursePk,
     required int assignmentPk,
@@ -186,6 +215,8 @@ class SubmissionService {
   }) async {
     final url = getSubmissionDetailPath(
       userPk: userPk,
+      userProfilePk: userProfilePk,
+      schoolProfilePk: schoolProfilePk,
       universityPk: universityPk,
       coursePk: coursePk,
       assignmentPk: assignmentPk,

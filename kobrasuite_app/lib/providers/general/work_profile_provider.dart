@@ -6,26 +6,31 @@ import '../../services/service_locator.dart';
 class WorkProfileProvider extends ChangeNotifier {
   final WorkProfileService _workProfileService;
   int _userPk;
+  int _userProfilePk;
   int _workProfilePk;
   bool _isLoading = false;
   String _errorMessage = '';
-  WorkProfile? _profile;
+  WorkProfile? _workProfile;
 
   WorkProfileProvider({
     required int userPk,
+    required int userProfilePk,
     required int workProfilePk,
   })  : _userPk = userPk,
+        _userProfilePk = userProfilePk,
         _workProfilePk = workProfilePk,
         _workProfileService = serviceLocator<WorkProfileService>();
 
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
-  WorkProfile? get profile => _profile;
+  WorkProfile? get profile => _workProfile;
   int get userPk => _userPk;
+  int get userProfilePk => _userProfilePk;
   int get workProfilePk => _workProfilePk;
 
-  void update(int newUserPk, int newWorkProfilePk) {
+  void update(int newUserPk, int newUserProfilePk, int newWorkProfilePk) {
     _userPk = newUserPk;
+    _userProfilePk = newUserProfilePk;
     _workProfilePk = newWorkProfilePk;
     notifyListeners();
   }
@@ -35,12 +40,13 @@ class WorkProfileProvider extends ChangeNotifier {
     _errorMessage = '';
     notifyListeners();
     try {
-      final fetchedProfile = await _workProfileService.getWorkProfile(
+      final fetchedWorkProfile = await _workProfileService.getWorkProfile(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         workProfilePk: _workProfilePk,
       );
-      if (fetchedProfile != null) {
-        _profile = fetchedProfile;
+      if (fetchedWorkProfile != null) {
+        _workProfile = fetchedWorkProfile;
         _isLoading = false;
         notifyListeners();
         return true;
@@ -62,13 +68,14 @@ class WorkProfileProvider extends ChangeNotifier {
     _errorMessage = '';
     notifyListeners();
     try {
-      final updatedProfile = await _workProfileService.updateWorkProfile(
+      final updatedWorkProfile = await _workProfileService.updateWorkProfile(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         workProfilePk: _workProfilePk,
         updatedData: updatedData,
       );
-      if (updatedProfile != null) {
-        _profile = updatedProfile;
+      if (updatedWorkProfile != null) {
+        _workProfile = updatedWorkProfile;
         _isLoading = false;
         notifyListeners();
         return true;
@@ -86,7 +93,7 @@ class WorkProfileProvider extends ChangeNotifier {
   }
 
   void clear() {
-    _profile = null;
+    _workProfile = null;
     _errorMessage = '';
     notifyListeners();
   }

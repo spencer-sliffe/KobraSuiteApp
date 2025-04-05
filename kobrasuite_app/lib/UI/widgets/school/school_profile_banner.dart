@@ -27,7 +27,7 @@ class _SchoolProfileBannerState extends State<SchoolProfileBanner> {
   @override
   void initState() {
     super.initState();
-    final profile = Provider.of<SchoolProfileProvider>(context, listen: false).profile;
+    final profile = Provider.of<SchoolProfileProvider>(context, listen: false).schoolProfile;
     final prompt = "University, ${profile?.universityDetail?.name ?? ''}";
     _bannerColorsFuture = BannerImageService().getBannerColors(prompt);
   }
@@ -35,7 +35,7 @@ class _SchoolProfileBannerState extends State<SchoolProfileBanner> {
   @override
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<SchoolProfileProvider>(context);
-    final SchoolProfile? profile = profileProvider.profile;
+    final SchoolProfile? profile = profileProvider.schoolProfile;
     String smallText = 'No School Profile Loaded';
     if (profile != null) {
       if (profile.universityDetail != null) {

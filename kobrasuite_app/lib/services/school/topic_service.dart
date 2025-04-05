@@ -8,11 +8,13 @@ class TopicService {
 
   Future<List<Topic>> getTopicsByCourse({
     required int userPk,
+    required int userProfilePk,
     required int schoolProfilePk,
     required int universityPk,
     required int coursePk,
   }) async {
-    final uri = '/api/users/$userPk/school_profile/$schoolProfilePk/universities/$universityPk/courses/$coursePk/topics/';
+    final uri = '/api/users/$userPk/profile/$userProfilePk/school_profile/'
+        '$schoolProfilePk/universities/$universityPk/courses/$coursePk/topics/';
     final response = await _dio.get(uri);
     if (response.statusCode == 200) {
       List data = response.data;
@@ -23,12 +25,15 @@ class TopicService {
 
   Future<Topic> addTopic({
     required int userPk,
+    required int userProfilePk,
     required int schoolProfilePk,
     required int universityPk,
     required int coursePk,
     required String name,
   }) async {
-    final uri = '/api/users/$userPk/school_profile/$schoolProfilePk/universities/$universityPk/courses/$coursePk/topics/add_new_topic/';
+    final uri = '/api/users/$userPk/profile/$userProfilePk/school_profile/'
+        '$schoolProfilePk/universities/$universityPk/courses/'
+        '$coursePk/topics/add_new_topic/';
     final payload = {
       'name': name,
       'course': coursePk,
@@ -42,25 +47,31 @@ class TopicService {
 
   Future<bool> deleteTopic({
     required int userPk,
+    required int userProfilePk,
     required int schoolProfilePk,
     required int universityPk,
     required int coursePk,
     required int topicId,
   }) async {
-    final uri = '/api/users/$userPk/school_profile/$schoolProfilePk/universities/$universityPk/courses/$coursePk/topics/$topicId/remove_study_document/';
+    final uri = '/api/users/$userPk/profile/$userProfilePk/school_profile/'
+        '$schoolProfilePk/universities/$universityPk/courses/'
+        '$coursePk/topics/$topicId/remove_study_document/';
     final response = await _dio.delete(uri);
     return response.statusCode == 200;
   }
 
   Future<Topic> updateTopic({
     required int userPk,
+    required int userProfilePk,
     required int schoolProfilePk,
     required int universityPk,
     required int coursePk,
     required int topicId,
     required String newName,
   }) async {
-    final uri = '/api/users/$userPk/school_profile/$schoolProfilePk/universities/$universityPk/courses/$coursePk/topics/$topicId/update_study_document/';
+    final uri = '/api/users/$userPk/profile/$userProfilePk/school_profile/'
+        '$schoolProfilePk/universities/$universityPk/courses/'
+        '$coursePk/topics/$topicId/update_study_document/';
     final payload = {
       'name': newName,
     };

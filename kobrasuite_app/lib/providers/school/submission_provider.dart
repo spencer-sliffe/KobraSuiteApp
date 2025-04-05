@@ -60,10 +60,14 @@ class SubmissionProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final userPk = _schoolProfileProvider.userPk;
+      final userProfilePk = _schoolProfileProvider.userProfilePk;
+      final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
       final universityPk = _universityProvider.currentUniversity!.id;
       final coursePk = _courseProvider.currentCourse!.id;
       final fetchedSubmissions = await _submissionService.getSubmissionsByAssignment(
         userPk: userPk,
+        userProfilePk: userProfilePk,
+        schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         coursePk: coursePk,
         assignmentPk: assignmentId,
@@ -83,10 +87,14 @@ class SubmissionProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final userPk = _schoolProfileProvider.userPk;
+      final userProfilePk = _schoolProfileProvider.userProfilePk;
+      final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
       final universityPk = _universityProvider.currentUniversity!.id;
       final coursePk = _courseProvider.currentCourse!.id;
       final submission = await _submissionService.createSubmission(
         userPk: userPk,
+        userProfilePk: userProfilePk,
+        schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         coursePk: coursePk,
         assignmentPk: assignmentId,
@@ -119,10 +127,14 @@ class SubmissionProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final userPk = _schoolProfileProvider.userPk;
+      final userProfilePk = _schoolProfileProvider.userProfilePk;
+      final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
       final universityPk = _universityProvider.currentUniversity!.id;
       final coursePk = _courseProvider.currentCourse!.id;
       final success = await _submissionService.uploadAnswer(
         userPk: userPk,
+        userProfilePk: userProfilePk,
+        schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         coursePk: coursePk,
         assignmentPk: assignmentId,
@@ -156,10 +168,14 @@ class SubmissionProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final userPk = _schoolProfileProvider.userPk;
+      final userProfilePk = _schoolProfileProvider.userProfilePk;
+      final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
       final universityPk = _universityProvider.currentUniversity!.id;
       final coursePk = _courseProvider.currentCourse!.id;
       final success = await _submissionService.addComment(
         userPk: userPk,
+        userProfilePk: userProfilePk,
+        schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         coursePk: coursePk,
         assignmentPk: assignmentId,
@@ -188,10 +204,14 @@ class SubmissionProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final userPk = _schoolProfileProvider.userPk;
+      final userProfilePk = _schoolProfileProvider.userProfilePk;
+      final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
       final universityPk = _universityProvider.currentUniversity!.id;
       final coursePk = _courseProvider.currentCourse!.id;
       final submission = await _submissionService.getSubmissionDetail(
         userPk: userPk,
+        userProfilePk: userProfilePk,
+        schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         coursePk: coursePk,
         assignmentPk: assignmentId,

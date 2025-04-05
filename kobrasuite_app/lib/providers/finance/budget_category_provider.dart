@@ -6,6 +6,7 @@ import '../../../models/finance/budget_category.dart';
 class BudgetCategoryProvider extends ChangeNotifier {
   final BankingService _service;
   int _userPk;
+  int _userProfilePk;
   int _financeProfilePk;
 
   bool _isLoading = false;
@@ -14,8 +15,10 @@ class BudgetCategoryProvider extends ChangeNotifier {
 
   BudgetCategoryProvider({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
   })  : _userPk = userPk,
+        _userProfilePk = userProfilePk,
         _financeProfilePk = financeProfilePk,
         _service = serviceLocator<BankingService>();
 
@@ -24,13 +27,16 @@ class BudgetCategoryProvider extends ChangeNotifier {
   List<BudgetCategory> get categories => _categories;
 
   int get userPk => _userPk;
+  int get userProfilePk => _userProfilePk;
   int get financeProfilePk => _financeProfilePk;
 
   void update({
     required int newUserPk,
+    required int newUserProfilePk,
     required int newFinanceProfilePk,
   }) {
     _userPk = newUserPk;
+    _userProfilePk = newUserProfilePk;
     _financeProfilePk = newFinanceProfilePk;
     notifyListeners();
   }
@@ -42,6 +48,7 @@ class BudgetCategoryProvider extends ChangeNotifier {
     try {
       final list = await _service.getBudgetCategories(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         financeProfilePk: _financeProfilePk,
       );
       _categories = list;
@@ -64,6 +71,7 @@ class BudgetCategoryProvider extends ChangeNotifier {
     try {
       final success = await _service.createBudgetCategory(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         financeProfilePk: _financeProfilePk,
         budgetId: budgetId,
         name: name,
@@ -90,6 +98,7 @@ class BudgetCategoryProvider extends ChangeNotifier {
     try {
       final success = await _service.deleteBudgetCategory(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         financeProfilePk: _financeProfilePk,
         categoryId: categoryId,
       );

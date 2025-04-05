@@ -6,26 +6,31 @@ import '../../services/service_locator.dart';
 class HomeLifeProfileProvider extends ChangeNotifier {
   final HomeLifeProfileService _homeLifeProfileService;
   int _userPk;
+  int _userProfilePk;
   int _homeLifeProfilePk;
   bool _isLoading = false;
   String _errorMessage = '';
-  HomeLifeProfile? _profile;
+  HomeLifeProfile? _homeLifeProfile;
 
   HomeLifeProfileProvider({
     required int userPk,
+    required int userProfilePk,
     required int homeLifeProfilePk,
   })  : _userPk = userPk,
+        _userProfilePk = userProfilePk,
         _homeLifeProfilePk = homeLifeProfilePk,
         _homeLifeProfileService = serviceLocator<HomeLifeProfileService>();
 
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
-  HomeLifeProfile? get profile => _profile;
+  HomeLifeProfile? get homeLifeProfile => _homeLifeProfile;
   int get userPk => _userPk;
+  int get userProfilePk => _userProfilePk;
   int get homeLifeProfilePk => _homeLifeProfilePk;
 
-  void update(int newUserPk, int newHomeLifeProfilePk) {
+  void update(int newUserPk, int newUserProfilePk, int newHomeLifeProfilePk) {
     _userPk = newUserPk;
+    _userProfilePk = newUserProfilePk;
     _homeLifeProfilePk = newHomeLifeProfilePk;
     notifyListeners();
   }
@@ -35,12 +40,13 @@ class HomeLifeProfileProvider extends ChangeNotifier {
     _errorMessage = '';
     notifyListeners();
     try {
-      final fetchedProfile = await _homeLifeProfileService.getHomeLifeProfile(
+      final fetchedHomeLifeProfile = await _homeLifeProfileService.getHomeLifeProfile(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         homeLifeProfilePk: _homeLifeProfilePk,
       );
-      if (fetchedProfile != null) {
-        _profile = fetchedProfile;
+      if (fetchedHomeLifeProfile != null) {
+        _homeLifeProfile = fetchedHomeLifeProfile;
         _isLoading = false;
         notifyListeners();
         return true;
@@ -59,13 +65,14 @@ class HomeLifeProfileProvider extends ChangeNotifier {
     _errorMessage = '';
     notifyListeners();
     try {
-      final updatedProfile = await _homeLifeProfileService.updateHomeLifeProfile(
+      final updatedHomeLifeProfile = await _homeLifeProfileService.updateHomeLifeProfile(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         homeLifeProfilePk: _homeLifeProfilePk,
         updatedData: updatedData,
       );
-      if (updatedProfile != null) {
-        _profile = updatedProfile;
+      if (updatedHomeLifeProfile != null) {
+        _homeLifeProfile = updatedHomeLifeProfile;
         _isLoading = false;
         notifyListeners();
         return true;
@@ -80,7 +87,7 @@ class HomeLifeProfileProvider extends ChangeNotifier {
   }
 
   void clear() {
-    _profile = null;
+    _homeLifeProfile = null;
     _errorMessage = '';
     notifyListeners();
   }

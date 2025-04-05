@@ -6,6 +6,7 @@ import '../../models/finance/watchlist_stock.dart';
 class StockProvider extends ChangeNotifier {
   final StockService _service;
   int _userPk;
+  int _userProfilePk;
   int _financeProfilePk;
   int _stockPortfolioPk;
 
@@ -15,9 +16,11 @@ class StockProvider extends ChangeNotifier {
 
   StockProvider({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
     required int stockPortfolioPk,
   })  : _userPk = userPk,
+        _userProfilePk = userProfilePk,
         _financeProfilePk = financeProfilePk,
         _stockPortfolioPk = stockPortfolioPk,
         _service = serviceLocator<StockService>();
@@ -27,15 +30,18 @@ class StockProvider extends ChangeNotifier {
   List<WatchlistStock> get watchlistStocks => _watchlistStocks;
 
   int get userPk => _userPk;
+  int get userProfilePk => _userProfilePk;
   int get financeProfilePk => _financeProfilePk;
   int get stockPortfolioPk => _stockPortfolioPk;
 
   void update({
     required int newUserPk,
+    required int newUserProfilePk,
     required int newFinanceProfilePk,
     required int newStockPortfolioPk,
   }) {
     _userPk = newUserPk;
+    _userProfilePk = newUserProfilePk;
     _financeProfilePk = newFinanceProfilePk;
     _stockPortfolioPk = newStockPortfolioPk;
     notifyListeners();
@@ -48,6 +54,7 @@ class StockProvider extends ChangeNotifier {
     try {
       final list = await _service.getWatchlistStocks(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         financeProfilePk: _financeProfilePk,
         stockPortfolioPk: _stockPortfolioPk,
       );
@@ -66,6 +73,7 @@ class StockProvider extends ChangeNotifier {
     try {
       final success = await _service.addWatchlistStock(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         financeProfilePk: _financeProfilePk,
         stockPortfolioPk: _stockPortfolioPk,
         ticker: ticker,
@@ -90,6 +98,7 @@ class StockProvider extends ChangeNotifier {
     try {
       final success = await _service.removeWatchlistStock(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         financeProfilePk: _financeProfilePk,
         stockPortfolioPk: _stockPortfolioPk,
         watchlistStockId: watchlistStockId,

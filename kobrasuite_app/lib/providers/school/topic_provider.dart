@@ -57,11 +57,13 @@ class TopicProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final userPk = _schoolProfileProvider.userPk;
+      final userProfilePk = _schoolProfileProvider.userProfilePk;
       final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
       final universityPk = _universityProvider.currentUniversity!.id;
       final coursePk = _courseProvider.currentCourse!.id;
       final fetchedTopics = await _topicService.getTopicsByCourse(
         userPk: userPk,
+        userProfilePk: userProfilePk,
         schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         coursePk: coursePk,
@@ -86,11 +88,13 @@ class TopicProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final userPk = _schoolProfileProvider.userPk;
+      final userProfilePk = _schoolProfileProvider.userProfilePk;
       final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
       final universityPk = _universityProvider.currentUniversity!.id;
       final coursePk = _courseProvider.currentCourse!.id;
       final topic = await _topicService.addTopic(
         userPk: userPk,
+        userProfilePk: userProfilePk,
         schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         coursePk: coursePk,
@@ -119,11 +123,13 @@ class TopicProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final userPk = _schoolProfileProvider.userPk;
+      final userProfilePk = _schoolProfileProvider.userProfilePk;
       final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
       final universityPk = _universityProvider.currentUniversity!.id;
       final coursePk = _courseProvider.currentCourse!.id;
       final updated = await _topicService.updateTopic(
         userPk: userPk,
+        userProfilePk: userProfilePk,
         schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         coursePk: coursePk,
@@ -156,11 +162,13 @@ class TopicProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final userPk = _schoolProfileProvider.userPk;
+      final userProfilePk = _schoolProfileProvider.userProfilePk;
       final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
       final universityPk = _universityProvider.currentUniversity!.id;
       final coursePk = _courseProvider.currentCourse!.id;
       final success = await _topicService.deleteTopic(
         userPk: userPk,
+        userProfilePk: userProfilePk,
         schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         coursePk: coursePk,
