@@ -44,58 +44,50 @@ class DioClient {
           return handler.next(options);
         },
         onResponse: (response, handler) {
-          debugPrint(
-              'RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}');
+          debugPrint('RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}');
           return handler.next(response);
         },
         onError: (DioException error, handler) async {
-          debugPrint(
-              'ERROR[${error.response?.statusCode}] => PATH: ${error.requestOptions.path}');
-
-          // Handle Unauthorized Error (401) - Attempt to refresh token
+          debugPrint('ERROR[${error.response?.statusCode}] => PATH: ${error.requestOptions.path}');
           if (error.response?.statusCode == 401) {
             RequestOptions options = error.requestOptions;
-
             try {
               bool tokenRefreshed = await serviceLocator<AuthService>().refreshTokens();
               if (tokenRefreshed) {
-                // Retry the original request with new token
-                final String? newAccessToken = serviceLocator<AuthService>().accessToken;
+                String? newAccessToken = serviceLocator<AuthService>().accessToken;
                 if (newAccessToken != null) {
                   options.headers['Authorization'] = 'Bearer $newAccessToken';
                   final cloneReq = await dio.request(
                     options.path,
                     data: options.data,
                     queryParameters: options.queryParameters,
-                    options: Options(
-                      method: options.method,
-                      headers: options.headers,
-                    ),
+                    options: Options(method: options.method, headers: options.headers),
                   );
                   return handler.resolve(cloneReq);
                 }
               }
-            } catch (e) {
-              debugPrint('Token refresh failed: $e');
-              // Optionally, trigger logout or other actions
+              await serviceLocator<AuthService>().logout();
+              return handler.reject(error);
+            } catch (_) {
+              await serviceLocator<AuthService>().logout();
+              return handler.reject(error);
             }
           }
-
           return handler.next(error);
         },
       ),
     );
-
-    // Optionally, add a logging interceptor for development
     if (kDebugMode) {
-      dio.interceptors.add(LogInterceptor(
-        request: true,
-        requestBody: true,
-        responseBody: true,
-        responseHeader: false,
-        error: true,
-        logPrint: (object) => debugPrint(object.toString()),
-      ));
+      dio.interceptors.add(
+        LogInterceptor(
+          request: true,
+          requestBody: true,
+          responseBody: true,
+          responseHeader: false,
+          error: true,
+          logPrint: (object) => debugPrint(object.toString()),
+        ),
+      );
     }
   }
 }

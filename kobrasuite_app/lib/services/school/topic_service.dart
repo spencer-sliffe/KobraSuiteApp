@@ -13,14 +13,18 @@ class TopicService {
     required int universityPk,
     required int coursePk,
   }) async {
-    final uri = '/api/users/$userPk/profile/$userProfilePk/school_profile/'
-        '$schoolProfilePk/universities/$universityPk/courses/$coursePk/topics/';
-    final response = await _dio.get(uri);
-    if (response.statusCode == 200) {
-      List data = response.data;
-      return data.map((e) => Topic.fromJson(e)).toList();
+    try {
+      final uri = '/api/users/$userPk/profile/$userProfilePk/school_profile/'
+          '$schoolProfilePk/universities/$universityPk/courses/$coursePk/topics/';
+      final response = await _dio.get(uri);
+      if (response.statusCode == 200) {
+        List data = response.data;
+        return data.map((e) => Topic.fromJson(e)).toList();
+      }
+      throw Exception('Failed to fetch topics: ${response.statusCode}');
+    } catch (e) {
+      throw Exception('Error fetching topics: $e');
     }
-    throw Exception('Failed to fetch topics: ${response.statusCode}');
   }
 
   Future<Topic> addTopic({
@@ -31,18 +35,22 @@ class TopicService {
     required int coursePk,
     required String name,
   }) async {
-    final uri = '/api/users/$userPk/profile/$userProfilePk/school_profile/'
-        '$schoolProfilePk/universities/$universityPk/courses/'
-        '$coursePk/topics/add_new_topic/';
-    final payload = {
-      'name': name,
-      'course': coursePk,
-    };
-    final response = await _dio.post(uri, data: payload);
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      return Topic.fromJson(response.data);
+    try {
+      final uri = '/api/users/$userPk/profile/$userProfilePk/school_profile/'
+          '$schoolProfilePk/universities/$universityPk/courses/'
+          '$coursePk/topics/add_new_topic/';
+      final payload = {
+        'name': name,
+        'course': coursePk,
+      };
+      final response = await _dio.post(uri, data: payload);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return Topic.fromJson(response.data);
+      }
+      throw Exception('Failed to add topic: ${response.statusCode}');
+    } catch (e) {
+      throw Exception('Error adding topic: $e');
     }
-    throw Exception('Failed to add topic: ${response.statusCode}');
   }
 
   Future<bool> deleteTopic({
@@ -53,11 +61,15 @@ class TopicService {
     required int coursePk,
     required int topicId,
   }) async {
-    final uri = '/api/users/$userPk/profile/$userProfilePk/school_profile/'
-        '$schoolProfilePk/universities/$universityPk/courses/'
-        '$coursePk/topics/$topicId/remove_study_document/';
-    final response = await _dio.delete(uri);
-    return response.statusCode == 200;
+    try {
+      final uri = '/api/users/$userPk/profile/$userProfilePk/school_profile/'
+          '$schoolProfilePk/universities/$universityPk/courses/'
+          '$coursePk/topics/$topicId/remove_topic/';
+      final response = await _dio.delete(uri);
+      return response.statusCode == 200;
+    } catch (e) {
+      throw Exception('Error deleting topic: $e');
+    }
   }
 
   Future<Topic> updateTopic({
@@ -69,16 +81,20 @@ class TopicService {
     required int topicId,
     required String newName,
   }) async {
-    final uri = '/api/users/$userPk/profile/$userProfilePk/school_profile/'
-        '$schoolProfilePk/universities/$universityPk/courses/'
-        '$coursePk/topics/$topicId/update_study_document/';
-    final payload = {
-      'name': newName,
-    };
-    final response = await _dio.put(uri, data: payload);
-    if (response.statusCode == 200) {
-      return Topic.fromJson(response.data);
+    try {
+      final uri = '/api/users/$userPk/profile/$userProfilePk/school_profile/'
+          '$schoolProfilePk/universities/$universityPk/courses/'
+          '$coursePk/topics/$topicId/update_topic';
+      final payload = {
+        'name': newName,
+      };
+      final response = await _dio.put(uri, data: payload);
+      if (response.statusCode == 200) {
+        return Topic.fromJson(response.data);
+      }
+      throw Exception('Failed to update topic: ${response.statusCode}');
+    } catch (e) {
+      throw Exception('Error updating topic: $e');
     }
-    throw Exception('Failed to update topic: ${response.statusCode}');
   }
 }

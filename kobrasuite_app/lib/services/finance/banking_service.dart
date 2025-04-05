@@ -15,16 +15,20 @@ class BankingService {
     required int userProfilePk,
     required int financeProfilePk,
   }) async {
-    final url =
-        '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
-        '$financeProfilePk/bank_accounts/';
-    final response = await _dio.get(url);
-    if (response.statusCode == 200) {
-      final map = response.data as Map<String, dynamic>;
-      final results = map['results'] as List;
-      return results.map((e) => BankAccount.fromJson(e)).toList();
+    try {
+      final url =
+          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '$financeProfilePk/bank_accounts/';
+      final response = await _dio.get(url);
+      if (response.statusCode == 200) {
+        final map = response.data as Map<String, dynamic>;
+        final results = map['results'] as List;
+        return results.map((e) => BankAccount.fromJson(e)).toList();
+      }
+      return [];
+    } catch (e) {
+      rethrow;
     }
-    return [];
   }
 
   Future<bool> createBankAccount({
@@ -37,18 +41,22 @@ class BankingService {
     required double balance,
     String currency = 'USD',
   }) async {
-    final url =
-        '/api/users/$userPk/profile/$userProfilePk/'
-        'finance_profile/$financeProfilePk/bank_accounts/';
-    final body = {
-      'account_name': accountName,
-      'account_number': accountNumber,
-      'institution_name': institutionName,
-      'balance': balance,
-      'currency': currency,
-    };
-    final response = await _dio.post(url, data: body);
-    return response.statusCode == 201 || response.statusCode == 200;
+    try {
+      final url =
+          '/api/users/$userPk/profile/$userProfilePk/'
+          'finance_profile/$financeProfilePk/bank_accounts/';
+      final body = {
+        'account_name': accountName,
+        'account_number': accountNumber,
+        'institution_name': institutionName,
+        'balance': balance,
+        'currency': currency,
+      };
+      final response = await _dio.post(url, data: body);
+      return response.statusCode == 201 || response.statusCode == 200;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<bool> deleteBankAccount({
@@ -57,11 +65,15 @@ class BankingService {
     required int financeProfilePk,
     required int bankAccountId,
   }) async {
-    final url =
-        '/api/users/$userPk/profile/$userProfilePk/'
-        'finance_profile/$financeProfilePk/bank_accounts/$bankAccountId/';
-    final response = await _dio.delete(url);
-    return response.statusCode == 204 || response.statusCode == 200;
+    try {
+      final url =
+          '/api/users/$userPk/profile/$userProfilePk/'
+          'finance_profile/$financeProfilePk/bank_accounts/$bankAccountId/';
+      final response = await _dio.delete(url);
+      return response.statusCode == 204 || response.statusCode == 200;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   // Budgets
@@ -70,15 +82,19 @@ class BankingService {
     required int userProfilePk,
     required int financeProfilePk,
   }) async {
-    final url = '/api/users/$userPk/profile/$userProfilePk/'
-        'finance_profile/$financeProfilePk/budgets/';
-    final response = await _dio.get(url);
-    if (response.statusCode == 200) {
-      final map = response.data as Map<String, dynamic>;
-      final results = map['results'] as List;
-      return results.map((e) => Budget.fromJson(e)).toList();
+    try {
+      final url = '/api/users/$userPk/profile/$userProfilePk/'
+          'finance_profile/$financeProfilePk/budgets/';
+      final response = await _dio.get(url);
+      if (response.statusCode == 200) {
+        final map = response.data as Map<String, dynamic>;
+        final results = map['results'] as List;
+        return results.map((e) => Budget.fromJson(e)).toList();
+      }
+      return [];
+    } catch (e) {
+      rethrow;
     }
-    return [];
   }
 
   Future<bool> createBudget({
@@ -91,17 +107,21 @@ class BankingService {
     required String endDate,
     bool isActive = true,
   }) async {
-    final url = '/api/users/$userPk/profile/$userProfilePk'
-        '/finance_profile/$financeProfilePk/budgets/';
-    final body = {
-      'name': name,
-      'total_amount': totalAmount,
-      'start_date': startDate,
-      'end_date': endDate,
-      'is_active': isActive,
-    };
-    final response = await _dio.post(url, data: body);
-    return response.statusCode == 200 || response.statusCode == 201;
+    try {
+      final url = '/api/users/$userPk/profile/$userProfilePk'
+          '/finance_profile/$financeProfilePk/budgets/';
+      final body = {
+        'name': name,
+        'total_amount': totalAmount,
+        'start_date': startDate,
+        'end_date': endDate,
+        'is_active': isActive,
+      };
+      final response = await _dio.post(url, data: body);
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<bool> deleteBudget({
@@ -110,11 +130,15 @@ class BankingService {
     required int financeProfilePk,
     required int budgetId,
   }) async {
-    final url =
-        '/api/users/$userPk/profile/$userProfilePk'
-        '/finance_profile/$financeProfilePk/budgets/$budgetId/';
-    final response = await _dio.delete(url);
-    return response.statusCode == 204 || response.statusCode == 200;
+    try {
+      final url =
+          '/api/users/$userPk/profile/$userProfilePk'
+          '/finance_profile/$financeProfilePk/budgets/$budgetId/';
+      final response = await _dio.delete(url);
+      return response.statusCode == 204 || response.statusCode == 200;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   // Budget Categories
@@ -123,16 +147,20 @@ class BankingService {
     required int userProfilePk,
     required int financeProfilePk,
   }) async {
-    final url =
-        '/api/users/$userPk/profile/$userProfilePk/'
-        'finance_profile/$financeProfilePk/budget_categories/';
-    final response = await _dio.get(url);
-    if (response.statusCode == 200) {
-      final map = response.data as Map<String, dynamic>;
-      final results = map['results'] as List;
-      return results.map((e) => BudgetCategory.fromJson(e)).toList();
+    try {
+      final url =
+          '/api/users/$userPk/profile/$userProfilePk/'
+          'finance_profile/$financeProfilePk/budget_categories/';
+      final response = await _dio.get(url);
+      if (response.statusCode == 200) {
+        final map = response.data as Map<String, dynamic>;
+        final results = map['results'] as List;
+        return results.map((e) => BudgetCategory.fromJson(e)).toList();
+      }
+      return [];
+    } catch (e) {
+      rethrow;
     }
-    return [];
   }
 
   Future<bool> createBudgetCategory({
@@ -144,17 +172,21 @@ class BankingService {
     required double allocatedAmount,
     required String categoryType,
   }) async {
-    final url =
-        '/api/users/$userPk/profile/$userProfilePk/'
-        'finance_profile/$financeProfilePk/budget_categories/';
-    final body = {
-      'budget': budgetId,
-      'name': name,
-      'allocated_amount': allocatedAmount,
-      'category_type': categoryType,
-    };
-    final response = await _dio.post(url, data: body);
-    return response.statusCode == 200 || response.statusCode == 201;
+    try {
+      final url =
+          '/api/users/$userPk/profile/$userProfilePk/'
+          'finance_profile/$financeProfilePk/budget_categories/';
+      final body = {
+        'budget': budgetId,
+        'name': name,
+        'allocated_amount': allocatedAmount,
+        'category_type': categoryType,
+      };
+      final response = await _dio.post(url, data: body);
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<bool> deleteBudgetCategory({
@@ -163,11 +195,15 @@ class BankingService {
     required int financeProfilePk,
     required int categoryId,
   }) async {
-    final url =
-        '/api/users/$userPk/profile/$userProfilePk/'
-        'finance_profile/$financeProfilePk/budget_categories/$categoryId/';
-    final response = await _dio.delete(url);
-    return response.statusCode == 204 || response.statusCode == 200;
+    try {
+      final url =
+          '/api/users/$userPk/profile/$userProfilePk/'
+          'finance_profile/$financeProfilePk/budget_categories/$categoryId/';
+      final response = await _dio.delete(url);
+      return response.statusCode == 204 || response.statusCode == 200;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   // Transactions
@@ -176,16 +212,20 @@ class BankingService {
     required int userProfilePk,
     required int financeProfilePk,
   }) async {
-    final url =
-        '/api/users/$userPk/profile/$userProfilePk/'
-        'finance_profile/$financeProfilePk/transactions/';
-    final response = await _dio.get(url);
-    if (response.statusCode == 200) {
-      final map = response.data as Map<String, dynamic>;
-      final results = map['results'] as List;
-      return results.map((e) => Transaction.fromJson(e)).toList();
+    try {
+      final url =
+          '/api/users/$userPk/profile/$userProfilePk/'
+          'finance_profile/$financeProfilePk/transactions/';
+      final response = await _dio.get(url);
+      if (response.statusCode == 200) {
+        final map = response.data as Map<String, dynamic>;
+        final results = map['results'] as List;
+        return results.map((e) => Transaction.fromJson(e)).toList();
+      }
+      return [];
+    } catch (e) {
+      rethrow;
     }
-    return [];
   }
 
   Future<bool> createTransaction({
@@ -199,18 +239,22 @@ class BankingService {
     String? description,
     String? dateIso,
   }) async {
-    final url =
-        '/api/users/$userPk/profile/$userProfilePk/finance_profile/$financeProfilePk/transactions/';
-    final body = {
-      'transaction_type': transactionType,
-      'amount': amount,
-      if (bankAccountId != null) 'bank_account': bankAccountId,
-      if (budgetCategoryId != null) 'budget_category': budgetCategoryId,
-      if (description != null) 'description': description,
-      if (dateIso != null) 'date': dateIso,
-    };
-    final response = await _dio.post(url, data: body);
-    return response.statusCode == 200 || response.statusCode == 201;
+    try {
+      final url =
+          '/api/users/$userPk/profile/$userProfilePk/finance_profile/$financeProfilePk/transactions/';
+      final body = {
+        'transaction_type': transactionType,
+        'amount': amount,
+        if (bankAccountId != null) 'bank_account': bankAccountId,
+        if (budgetCategoryId != null) 'budget_category': budgetCategoryId,
+        if (description != null) 'description': description,
+        if (dateIso != null) 'date': dateIso,
+      };
+      final response = await _dio.post(url, data: body);
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<bool> deleteTransaction({
@@ -219,10 +263,14 @@ class BankingService {
     required int financeProfilePk,
     required int transactionId,
   }) async {
-    final url =
-        '/api/users/$userPk/profile/$userProfilePk/'
-        'finance_profile/$financeProfilePk/transactions/$transactionId/';
-    final response = await _dio.delete(url);
-    return response.statusCode == 204 || response.statusCode == 200;
+    try {
+      final url =
+          '/api/users/$userPk/profile/$userProfilePk/'
+          'finance_profile/$financeProfilePk/transactions/$transactionId/';
+      final response = await _dio.delete(url);
+      return response.statusCode == 204 || response.statusCode == 200;
+    } catch (e) {
+      rethrow;
+    }
   }
 }

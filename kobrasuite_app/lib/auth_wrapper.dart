@@ -41,9 +41,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
     if (authProvider.isLoggedIn) {
       return MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (_) => NavigationStore()),
           ChangeNotifierProvider(create: (context) => HQModeProvider(context.read<NavigationStore>())),
-          ChangeNotifierProvider(create: (_) => ControlBarProvider()),
         ],
         child: const MainScreen(),
       );

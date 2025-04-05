@@ -23,19 +23,23 @@ class AssignmentService {
     required int universityPk,
     required int coursePk,
   }) async {
-    final url = getAssignmentsBasePath(
-      userPk: userPk,
-      userProfilePk: userProfilePk,
-      schoolProfilePk: schoolProfilePk,
-      universityPk: universityPk,
-      coursePk: coursePk,
-    );
-    final response = await _dio.get(url);
-    if (response.statusCode == 200) {
-      final data = response.data as List;
-      return data.map((e) => Assignment.fromJson(e)).toList();
+    try {
+      final url = getAssignmentsBasePath(
+        userPk: userPk,
+        userProfilePk: userProfilePk,
+        schoolProfilePk: schoolProfilePk,
+        universityPk: universityPk,
+        coursePk: coursePk,
+      );
+      final response = await _dio.get(url);
+      if (response.statusCode == 200) {
+        final data = response.data as List;
+        return data.map((e) => Assignment.fromJson(e)).toList();
+      }
+      throw Exception('Failed to load assignments: ${response.statusCode}');
+    } catch (e) {
+      throw Exception('Error loading assignments: $e');
     }
-    throw Exception('Failed to load assignments: ${response.statusCode}');
   }
 
   Future<bool> addAssignment({
@@ -46,15 +50,19 @@ class AssignmentService {
     required int coursePk,
     required Map<String, dynamic> assignmentData,
   }) async {
-    final url = getAssignmentsBasePath(
-      userPk: userPk,
-      userProfilePk: userProfilePk,
-      schoolProfilePk: schoolProfilePk,
-      universityPk: universityPk,
-      coursePk: coursePk,
-    );
-    final response = await _dio.post(url, data: assignmentData);
-    return response.statusCode == 201;
+    try {
+      final url = getAssignmentsBasePath(
+        userPk: userPk,
+        userProfilePk: userProfilePk,
+        schoolProfilePk: schoolProfilePk,
+        universityPk: universityPk,
+        coursePk: coursePk,
+      );
+      final response = await _dio.post(url, data: assignmentData);
+      return response.statusCode == 201;
+    } catch (e) {
+      throw Exception('Error adding assignment: $e');
+    }
   }
 
   Future<bool> deleteAssignment({
@@ -65,8 +73,12 @@ class AssignmentService {
     required int coursePk,
     required int assignmentId,
   }) async {
-    final url = '${getAssignmentsBasePath(userPk: userPk, userProfilePk: userProfilePk, schoolProfilePk: schoolProfilePk, universityPk: universityPk, coursePk: coursePk)}$assignmentId/';
-    final response = await _dio.delete(url);
-    return response.statusCode == 204;
+    try {
+      final url = '${getAssignmentsBasePath(userPk: userPk, userProfilePk: userProfilePk, schoolProfilePk: schoolProfilePk, universityPk: universityPk, coursePk: coursePk)}$assignmentId/';
+      final response = await _dio.delete(url);
+      return response.statusCode == 204;
+    } catch (e) {
+      throw Exception('Error deleting assignment: $e');
+    }
   }
 }

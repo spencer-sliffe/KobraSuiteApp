@@ -14,7 +14,7 @@ class UserProfileService {
     required int userPk,
     required int userProfilePk,
   }) async {
-    final uri = '/api/users/$userPk/user_profile/$userProfilePk/';
+    final uri = '/api/users/$userPk/profile/$userProfilePk/';
     try {
       final response = await _dio.get(
         uri,
@@ -35,7 +35,7 @@ class UserProfileService {
     required int userProfilePk,
     required Map<String, dynamic> updatedData,
   }) async {
-    final uri = '/api/users/$userPk/user_profile/$userProfilePk/';
+    final uri = '/api/users/$userPk/profile/$userProfilePk/';
     try {
       final response = await _dio.put(
         uri,

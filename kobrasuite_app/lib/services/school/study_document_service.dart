@@ -33,8 +33,9 @@ class StudyDocumentService {
     required int topicPk,
     required int studyDocumentPk,
   }) {
-    return '/api/users/$userPk/profile/$userProfilePk/universities/$universityPk'
-        '/courses/$coursePk/topics/$topicPk/study_documents/$studyDocumentPk/';
+    return '/api/users/$userPk/profile/$userProfilePk/school_profile/'
+        '$schoolProfilePk/universities/$universityPk/courses/$coursePk/'
+        'topics/$topicPk/study_documents/$studyDocumentPk/';
   }
 
   /// Retrieves study documents for a specific topic.
