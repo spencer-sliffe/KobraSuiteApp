@@ -17,7 +17,6 @@ Aggregated or computed investment data, including predictions and news articles.
 Collaborators: SPENCER SLIFFE
 ---------------------------------------------
 """
-
 import os
 from rest_framework import viewsets, status
 from rest_framework.response import Response
@@ -35,8 +34,12 @@ from finances.services.stock_prediction_services import get_predictions
 class MiscInvestViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
-    @action(detail=False, methods=['get']) # gets stock data 
+    @action(detail=False, methods=['get'])
     def stock_data(self, request):
+        """
+        Retrieves detailed stock information for a specified ticker
+        using yfinance. Returns an error if ticker is missing or data is not found.
+        """
         ticker = request.query_params.get('ticker')
         if not ticker:
             return Response({'error': 'Missing ticker'}, status=status.HTTP_400_BAD_REQUEST)
@@ -45,16 +48,25 @@ class MiscInvestViewSet(viewsets.ViewSet):
             return Response({'error': f'No data found for {ticker}'}, status=status.HTTP_404_NOT_FOUND)
         return Response(data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['get']) # gets stpck chart
+    @action(detail=False, methods=['get'])
     def stock_chart(self, request):
+        """
+        Retrieves up to 5 years of historical data for a specified ticker
+        from yfinance and returns the most recent 60 data points.
+        Default ticker is 'AAPL' if none is provided.
+        """
         ticker = request.query_params.get('ticker', 'AAPL')
         chart = get_stock_chart(ticker)
         if not chart:
             return Response({'error': 'Could not generate chart.'}, status=status.HTTP_404_NOT_FOUND)
         return Response(chart, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['get']) # gets stock predictions 
+    @action(detail=False, methods=['get'])
     def predictions(self, request):
+        """
+        Retrieves various technical indicator-based predictions (MACD, RSI, etc.)
+        for a specified ticker. Defaults to 'AAPL' if none is provided.
+        """
         ticker = request.query_params.get('ticker', 'AAPL')
         MACD = request.query_params.get('MACD', 'false') == 'true'
         RSI = request.query_params.get('RSI', 'false') == 'true'
@@ -68,8 +80,12 @@ class MiscInvestViewSet(viewsets.ViewSet):
             return Response({'error': 'Could not generate predictions'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(res, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['get']) # retrieves hot stocks from rapid api endpoint
+    @action(detail=False, methods=['get'])
     def hot_stocks(self, request):
+        """
+        Retrieves a list of 'Day Gainers' (hot stocks) from a RapidAPI endpoint,
+        optionally filtered by the user's budget if a finance profile exists.
+        """
         key = os.environ.get('RAPIDAPI_KEY')
         if not key:
             return Response({'error': 'No RapidAPI key found'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -80,8 +96,12 @@ class MiscInvestViewSet(viewsets.ViewSet):
         hot = get_hot_stocks(key, budget)
         return Response(hot, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['get']) # retrieves market new
+    @action(detail=False, methods=['get'])
     def news(self, request):
+        """
+        Retrieves general news articles from NewsAPI about a given query,
+        defaulting to 'stock market'. Paginates results by 'page'.
+        """
         query = request.query_params.get('query', 'stock market')
         page = request.query_params.get('page', 1)
         try:
@@ -94,8 +114,12 @@ class MiscInvestViewSet(viewsets.ViewSet):
         articles = get_news_articles(key, query, page)
         return Response(articles, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['get']) # retrieves market new for certain stocks
+    @action(detail=False, methods=['get'])
     def stock_news(self, request):
+        """
+        Retrieves news articles for a given keyword (e.g., a particular stock symbol).
+        Defaults to 'stocks' if none is provided. Paginates results by 'page'.
+        """
         key = os.environ.get('NEWS_API_KEY')
         if not key:
             return Response({'error': 'No NEWS_API_KEY found'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

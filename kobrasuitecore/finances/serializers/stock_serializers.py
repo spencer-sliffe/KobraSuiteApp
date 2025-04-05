@@ -1,26 +1,29 @@
 # """
 # ------------------Prologue--------------------
 # File Name: stock_serializer.py
-# Path: kobrasuitecore\finances\serializers\banking_serializers.py
+# Path: kobrasuitecore\finances\serializers\stock_serializer.py
 #
 # Description:
-# Converts Django models into JSON for sendable format
+# Converts Django models into JSON for a sendable format.
 #
 # Input:
 # Django models
 #
 # Output:
-# JSON representation of Django Models
+# JSON representations of Django models
 #
-# Collaborators: SPENCER SLIFFE,Charlie Gillund
+# Collaborators: SPENCER SLIFFE, Charlie Gillund
 # ---------------------------------------------
 # """
+
 from rest_framework import serializers
 from finances.models import StockPortfolio, PortfolioStock, WatchlistStock
 
-# Serializer for the Portfolio stock
+
 class PortfolioStockSerializer(serializers.ModelSerializer):
-#defines the structure for the serializer
+    """
+    Serializer for PortfolioStock model.
+    """
     class Meta:
         model = PortfolioStock
         fields = [
@@ -32,10 +35,14 @@ class PortfolioStockSerializer(serializers.ModelSerializer):
             'updated_at'
         ]
 
-#declares the serializer for the Portfolio of Stokc
+
 class StockPortfolioSerializer(serializers.ModelSerializer):
+    """
+    Serializer for StockPortfolio model, including read-only
+    PortfolioStock data.
+    """
     stocks = PortfolioStockSerializer(many=True, read_only=True)
-# defines the structure for the serializer
+
     class Meta:
         model = StockPortfolio
         fields = [
@@ -46,8 +53,11 @@ class StockPortfolioSerializer(serializers.ModelSerializer):
             'stocks'
         ]
 
-# Defines the Watchlist Serialzier and its structure
+
 class WatchlistStockSerializer(serializers.ModelSerializer):
+    """
+    Serializer for WatchlistStock model.
+    """
     class Meta:
         model = WatchlistStock
         fields = [
