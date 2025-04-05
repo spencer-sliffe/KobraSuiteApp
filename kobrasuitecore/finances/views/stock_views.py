@@ -4,16 +4,16 @@ File Name: stock_views.py
 Path: kobrasuitecore/finances/views/stock_views.py
 
 Description:
-Implements endpoints for managing stock portfolios: adding/removing tickers, fetching
-positions, and performing portfolio-level analytics. Relies on utility and service layers
-to handle data integrity and external lookups.
+Implements endpoints for managing stock portfolios: adding or removing tickers,
+fetching positions, and performing portfolio-level analytics. Relies on utility
+and service layers to handle data integrity and external lookups.
 
 Input:
 User-provided portfolio identifiers, ticker symbols, share counts, and optional dates.
 
 Output:
-Structured JSON containing updated portfolio data, success/error messages, or portfolio
-analysis results.
+Structured JSON containing updated portfolio data, success/error messages,
+or portfolio analysis results.
 
 Collaborators: SPENCER SLIFFE
 ---------------------------------------------
@@ -43,6 +43,12 @@ from finances.utils.stock_utils import check_stock_validity
 
 
 class StockPortfolioViewSet(viewsets.ModelViewSet):
+    """
+    Provides CRUD for StockPortfolio objects, nested under FinanceProfile.
+    Can retrieve, create (or auto-create) a portfolio, add or remove stocks,
+    and perform analysis.
+    """
+    http_method_names = ['get', 'post', 'delete', 'patch']
     queryset = StockPortfolio.objects.all()
     serializer_class = StockPortfolioSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
@@ -56,9 +62,6 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
         profile_pk = self.kwargs.get('profile_pk')
         finance_profile_pk = self.kwargs.get('finance_profile_pk')
 
-        # 'profile' is the ForeignKey on StockPortfolio referencing FinanceProfile
-        # 'FinanceProfile.profile' references UserProfile
-        # 'UserProfile.user' references the User
         return self.queryset.filter(
             profile_id=finance_profile_pk,             # Match FinanceProfile ID
             profile__profile_id=profile_pk,            # Match UserProfile ID
@@ -96,7 +99,7 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def add_stock(self, request, pk=None, user_pk=None, profile_pk=None, finance_profile_pk=None):
         """
-        Adds a stock to the specified portfolio.
+        Adds a given ticker to the specified portfolio.
         """
         finance_profile = get_object_or_404(
             FinanceProfile,
@@ -135,7 +138,7 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
     )
     def remove_stock(self, request, ticker=None, pk=None, user_pk=None, profile_pk=None, finance_profile_pk=None):
         """
-        Removes the given ticker from the specified portfolio.
+        Removes a specified ticker from the portfolio.
         """
         finance_profile = get_object_or_404(
             FinanceProfile,
@@ -154,7 +157,8 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'])
     def analysis(self, request, pk=None, user_pk=None, profile_pk=None, finance_profile_pk=None):
         """
-        Performs a portfolio analysis (like weighting, value, etc.) for the specified portfolio.
+        Performs a portfolio analysis for the specified portfolio
+        (e.g., weighting, total value).
         """
         finance_profile = get_object_or_404(
             FinanceProfile,
@@ -168,9 +172,7 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
                 {'error': 'No stocks in this portfolio.'},
                 status=status.HTTP_404_NOT_FOUND
             )
-        structure = {}
-        for s in stocks_data:
-            structure[s['ticker']] = s['number_of_shares']
+        structure = {s['ticker']: s['number_of_shares'] for s in stocks_data}
         result = portfolio_analysis(structure)
         if not result:
             return Response(
@@ -182,9 +184,8 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
 
 class PortfolioStockViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    Read-only view for PortfolioStock objects.
-    Typically, you'd nest this under a specific StockPortfolio in the router
-    if you want to browse or retrieve individual stock entries.
+    Read-only view for PortfolioStock objects. Typically nested
+    under a specific StockPortfolio in the router.
     """
     queryset = PortfolioStock.objects.all()
     serializer_class = PortfolioStockSerializer
@@ -193,7 +194,8 @@ class PortfolioStockViewSet(viewsets.ReadOnlyModelViewSet):
 
 class WatchlistStockViewSet(viewsets.ModelViewSet):
     """
-    CRUD for WatchlistStock objects, also typically nested under a specific StockPortfolio.
+    CRUD for WatchlistStock objects. Typically nested under a
+    specific StockPortfolio in the router.
     """
     queryset = WatchlistStock.objects.all()
     serializer_class = WatchlistStockSerializer
@@ -201,9 +203,8 @@ class WatchlistStockViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """
-        /users/<user_pk>/profile/<profile_pk>/finance_profile/<finance_profile_pk>/
-            stock_portfolio/<stock_portfolio_pk>/watchlist_stocks/
-        Filter by the relevant 'stock_portfolio_pk'.
+        Filters watchlist stocks by the associated stock_portfolio_pk
+        from the nested route.
         """
         stock_portfolio_pk = self.kwargs.get('stock_portfolio_pk')
         return self.queryset.filter(portfolio__pk=stock_portfolio_pk)
