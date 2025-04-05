@@ -129,7 +129,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   Widget _buildTabContent(String tab, Module module) {
     if (module == Module.School) {
-      if (tab == 'University') return const SchoolUniversityTab(userId: 0);
+      if (tab == 'University') return const SchoolUniversityTab();
       if (tab == 'Courses') return const SchoolCoursesTab();
       return Container();
     } else if (module == Module.Work) {

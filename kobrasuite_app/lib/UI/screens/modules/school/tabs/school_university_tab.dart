@@ -19,8 +19,7 @@ Color hexToColor(String hex) {
 }
 
 class SchoolUniversityTab extends StatefulWidget {
-  final int userId;
-  const SchoolUniversityTab({Key? key, required this.userId}) : super(key: key);
+  const SchoolUniversityTab({Key? key}) : super(key: key);
 
   @override
   State<SchoolUniversityTab> createState() => _SchoolUniversityTabState();
@@ -61,6 +60,12 @@ class _SchoolUniversityTabState extends State<SchoolUniversityTab> {
 
   void _onSearchChanged(String query) {
     _debounceTimer?.cancel();
+    if (query.trim().length < 3) {
+      // Optionally clear search results or do nothing:
+      Provider.of<UniversityProvider>(context, listen: false).searchUniversities('');
+      setState(() {});
+      return;
+    }
     _debounceTimer = Timer(const Duration(milliseconds: 400), () {
       _searchOperation?.cancel();
       Provider.of<UniversityProvider>(context, listen: false).searchUniversities(query);

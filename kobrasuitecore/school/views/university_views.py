@@ -1,4 +1,3 @@
-# school/views/university_views.py
 import logging
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -18,6 +17,11 @@ logger = logging.getLogger(__name__)
 
 
 class UniversityViewSet(viewsets.ModelViewSet):
+    """
+    Provides create/read/update/delete (CRUD) for University objects.
+    If nested under user/school, you could optionally filter by
+    user_pk / school_profile_pk in get_queryset(). By default, it retrieves all.
+    """
     queryset = University.objects.all()
     serializer_class = UniversitySerializer
     permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
@@ -28,12 +32,19 @@ class UniversityViewSet(viewsets.ModelViewSet):
     ordering = ['name']
 
     def perform_create(self, serializer):
+        """
+        Logs a message whenever a University is created.
+        """
         university = serializer.save()
         logger.info(f"University created: {university.name} by {self.request.user.username}")
 
     @action(detail=False, methods=['get'], url_path='search', name='search_university')
-    def search_university(self, request, user_pk=None, school_profile_pk=None):
+    def search_university(self, request, user_pk=None, profile_pk=None, school_profile_pk=None):
+        """
+        Searches universities by name/country using the external Hipolabs API,
+        returns a list of known or potential matches.
+        """
         query = request.query_params.get('query', '')
-        country = request.query_params.get('country', None)
+        country = request.query_params.get('country')
         data, code = search_universities(query, country)
         return Response(data, status=code)
