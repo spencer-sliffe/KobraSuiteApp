@@ -12,10 +12,12 @@ class BankingService {
   // Bank Accounts
   Future<List<BankAccount>> getBankAccounts({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
   }) async {
     final url =
-        '/api/users/$userPk/finance_profile/$financeProfilePk/bank_accounts/';
+        '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+        '$financeProfilePk/bank_accounts/';
     final response = await _dio.get(url);
     if (response.statusCode == 200) {
       final map = response.data as Map<String, dynamic>;
@@ -27,6 +29,7 @@ class BankingService {
 
   Future<bool> createBankAccount({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
     required String accountName,
     required String accountNumber,
@@ -35,7 +38,8 @@ class BankingService {
     String currency = 'USD',
   }) async {
     final url =
-        '/api/users/$userPk/finance_profile/$financeProfilePk/bank_accounts/';
+        '/api/users/$userPk/profile/$userProfilePk/'
+        'finance_profile/$financeProfilePk/bank_accounts/';
     final body = {
       'account_name': accountName,
       'account_number': accountNumber,
@@ -49,11 +53,13 @@ class BankingService {
 
   Future<bool> deleteBankAccount({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
     required int bankAccountId,
   }) async {
     final url =
-        '/api/users/$userPk/finance_profile/$financeProfilePk/bank_accounts/$bankAccountId/';
+        '/api/users/$userPk/profile/$userProfilePk/'
+        'finance_profile/$financeProfilePk/bank_accounts/$bankAccountId/';
     final response = await _dio.delete(url);
     return response.statusCode == 204 || response.statusCode == 200;
   }
@@ -75,6 +81,7 @@ class BankingService {
 
   Future<bool> createBudget({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
     required String name,
     required double totalAmount,
@@ -82,7 +89,8 @@ class BankingService {
     required String endDate,
     bool isActive = true,
   }) async {
-    final url = '/api/users/$userPk/finance_profile/$financeProfilePk/budgets/';
+    final url = '/api/users/$userPk/profile/$userProfilePk'
+        '/finance_profile/$financeProfilePk/budgets/';
     final body = {
       'name': name,
       'total_amount': totalAmount,
@@ -96,11 +104,13 @@ class BankingService {
 
   Future<bool> deleteBudget({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
     required int budgetId,
   }) async {
     final url =
-        '/api/users/$userPk/finance_profile/$financeProfilePk/budgets/$budgetId/';
+        '/api/users/$userPk/profile/$userProfilePk'
+        '/finance_profile/$financeProfilePk/budgets/$budgetId/';
     final response = await _dio.delete(url);
     return response.statusCode == 204 || response.statusCode == 200;
   }
@@ -108,10 +118,12 @@ class BankingService {
   // Budget Categories
   Future<List<BudgetCategory>> getBudgetCategories({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
   }) async {
     final url =
-        '/api/users/$userPk/finance_profile/$financeProfilePk/budget_categories/';
+        '/api/users/$userPk/profile/$userProfilePk/'
+        'finance_profile/$financeProfilePk/budget_categories/';
     final response = await _dio.get(url);
     if (response.statusCode == 200) {
       final map = response.data as Map<String, dynamic>;
@@ -123,6 +135,7 @@ class BankingService {
 
   Future<bool> createBudgetCategory({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
     required int budgetId,
     required String name,
@@ -130,7 +143,8 @@ class BankingService {
     required String categoryType,
   }) async {
     final url =
-        '/api/users/$userPk/finance_profile/$financeProfilePk/budget_categories/';
+        '/api/users/$userPk/profile/$userProfilePk/'
+        'finance_profile/$financeProfilePk/budget_categories/';
     final body = {
       'budget': budgetId,
       'name': name,
@@ -143,11 +157,13 @@ class BankingService {
 
   Future<bool> deleteBudgetCategory({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
     required int categoryId,
   }) async {
     final url =
-        '/api/users/$userPk/finance_profile/$financeProfilePk/budget_categories/$categoryId/';
+        '/api/users/$userPk/profile/$userProfilePk/'
+        'finance_profile/$financeProfilePk/budget_categories/$categoryId/';
     final response = await _dio.delete(url);
     return response.statusCode == 204 || response.statusCode == 200;
   }
@@ -155,10 +171,12 @@ class BankingService {
   // Transactions
   Future<List<Transaction>> getTransactions({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
   }) async {
     final url =
-        '/api/users/$userPk/finance_profile/$financeProfilePk/transactions/';
+        '/api/users/$userPk/profile/$userProfilePk/'
+        'finance_profile/$financeProfilePk/transactions/';
     final response = await _dio.get(url);
     if (response.statusCode == 200) {
       final map = response.data as Map<String, dynamic>;
@@ -170,6 +188,7 @@ class BankingService {
 
   Future<bool> createTransaction({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
     required String transactionType,
     required double amount,
@@ -179,7 +198,7 @@ class BankingService {
     String? dateIso,
   }) async {
     final url =
-        '/api/users/$userPk/finance_profile/$financeProfilePk/transactions/';
+        '/api/users/$userPk/profile/$userProfilePk/finance_profile/$financeProfilePk/transactions/';
     final body = {
       'transaction_type': transactionType,
       'amount': amount,
@@ -194,11 +213,13 @@ class BankingService {
 
   Future<bool> deleteTransaction({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
     required int transactionId,
   }) async {
     final url =
-        '/api/users/$userPk/finance_profile/$financeProfilePk/transactions/$transactionId/';
+        '/api/users/$userPk/profile/$userProfilePk/'
+        'finance_profile/$financeProfilePk/transactions/$transactionId/';
     final response = await _dio.delete(url);
     return response.statusCode == 204 || response.statusCode == 200;
   }

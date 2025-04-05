@@ -56,7 +56,7 @@ class BankAccount(models.Model):
     last_synced = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
-# Meta data needed for model
+    # Meta data needed for model
     class Meta:
         ordering = ['-created_at']
 

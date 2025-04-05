@@ -60,28 +60,28 @@ void main() async {
           },
         ),
         ChangeNotifierProxyProvider<AuthProvider, SchoolProfileProvider>(
-          create: (_) => SchoolProfileProvider(userPk: 0, schoolProfilePk: 0),
+          create: (_) => SchoolProfileProvider(userPk: 0, userProfilePk: 0, schoolProfilePk: 0),
           update: (_, auth, schoolProfile) {
             schoolProfile!.update(auth.userPk, auth.schoolProfilePk);
             return schoolProfile;
           },
         ),
         ChangeNotifierProxyProvider<AuthProvider, WorkProfileProvider>(
-          create: (_) => WorkProfileProvider(userPk: 0, workProfilePk: 0),
+          create: (_) => WorkProfileProvider(userPk: 0, userProfilePk: 0, workProfilePk: 0),
           update: (_, auth, workProfile) {
             workProfile!.update(auth.userPk, auth.workProfilePk);
             return workProfile;
           },
         ),
         ChangeNotifierProxyProvider<AuthProvider, FinanceProfileProvider>(
-          create: (_) => FinanceProfileProvider(userPk: 0, financeProfilePk: 0),
+          create: (_) => FinanceProfileProvider(userPk: 0, userProfilePk: 0, financeProfilePk: 0),
           update: (_, auth, financeProfile) {
             financeProfile!.update(auth.userPk, auth.financeProfilePk);
             return financeProfile;
           },
         ),
         ChangeNotifierProxyProvider<AuthProvider, HomeLifeProfileProvider>(
-          create: (_) => HomeLifeProfileProvider(userPk: 0, homeLifeProfilePk: 0),
+          create: (_) => HomeLifeProfileProvider(userPk: 0, userProfilePk: 0, homeLifeProfilePk: 0),
           update: (_, auth, homeLifeProfile) {
             homeLifeProfile!.update(auth.userPk, auth.homeLifeProfilePk);
             return homeLifeProfile;

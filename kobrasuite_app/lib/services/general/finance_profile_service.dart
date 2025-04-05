@@ -12,9 +12,10 @@ class FinanceProfileService {
   /// Retrieves the FinanceProfile for a specific user and financeProfile ID.
   Future<FinanceProfile?> getFinanceProfile({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
   }) async {
-    final uri = '/api/users/$userPk/finance_profile/$financeProfilePk/';
+    final uri = '/api/users/$userPk/profile/$userProfilePk/finance_profile/$financeProfilePk/';
     try {
       final response = await _dio.get(
         uri,
@@ -32,10 +33,11 @@ class FinanceProfileService {
   /// Updates the FinanceProfile for a specific user and financeProfile ID.
   Future<FinanceProfile?> updateFinanceProfile({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
     required Map<String, dynamic> updatedData,
   }) async {
-    final uri = '/api/users/$userPk/finance_profile/$financeProfilePk/';
+    final uri = '/api/users/$userPk/profile/$userProfilePk/finance_profile/$financeProfilePk/';
     try {
       final response = await _dio.put(
         uri,

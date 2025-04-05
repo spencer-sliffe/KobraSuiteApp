@@ -8,10 +8,12 @@ class StockPortfolioService {
 
   Future<StockPortfolio?> fetchStockPortfolio({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
     required int stockPortfolioPk,
   }) async {
-    final uri = '/api/users/$userPk/finance_profile/$financeProfilePk/stock_portfolio/$stockPortfolioPk/';
+    final uri = '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+        '$financeProfilePk/stock_portfolio/$stockPortfolioPk/';
     try {
       final response = await _dio.get(uri);
       if (response.statusCode == 200) {
@@ -25,9 +27,11 @@ class StockPortfolioService {
 
   Future<bool> createStockPortfolioIfNone({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
   }) async {
-    final uri = '/api/users/$userPk/finance_profile/$financeProfilePk/stock_portfolio/';
+    final uri = '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+        '$financeProfilePk/stock_portfolio/';
     try {
       final response = await _dio.post(uri);
       return response.statusCode == 200 || response.statusCode == 201;

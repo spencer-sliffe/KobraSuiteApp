@@ -12,9 +12,10 @@ class WorkProfileService {
   /// Retrieves the WorkProfile for a specific user and WorkProfile ID.
   Future<WorkProfile?> getWorkProfile({
     required int userPk,
+    required int userProfilePk,
     required int workProfilePk,
   }) async {
-    final uri = '/api/users/$userPk/work_profile/$workProfilePk/';
+    final uri = '/api/users/$userPk/profile/$userProfilePk/work_profile/$workProfilePk/';
     try {
       final response = await _dio.get(
         uri,
@@ -31,10 +32,11 @@ class WorkProfileService {
 
   Future<WorkProfile?> updateWorkProfile({
     required int userPk,
+    required int userProfilePk,
     required int workProfilePk,
     required Map<String, dynamic> updatedData,
   }) async {
-    final uri = '/api/users/$userPk/work_profile/$workProfilePk/';
+    final uri = '/api/users/$userPk/profile/$userProfilePk/work_profile/$workProfilePk/';
     try {
       final response = await _dio.put(
         uri,

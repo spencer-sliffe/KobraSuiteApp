@@ -10,10 +10,12 @@ class StockService {
 
   Future<StockPortfolio?> getStockPortfolio({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
     required int stockPortfolioPk,
   }) async {
-    final path = '/api/users/$userPk/finance_profile/$financeProfilePk/stock_portfolio/$stockPortfolioPk/';
+    final path = '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+        '$financeProfilePk/stock_portfolio/$stockPortfolioPk/';
     try {
       final response = await _dio.get(path);
       if (response.statusCode == 200) {
@@ -25,10 +27,12 @@ class StockService {
 
   Future<List<PortfolioStock>> getPortfolioStocks({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
     required int stockPortfolioPk,
   }) async {
-    final path = '/api/users/$userPk/finance_profile/$financeProfilePk/stock_portfolio/$stockPortfolioPk/stocks/';
+    final path = '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+        '$financeProfilePk/stock_portfolio/$stockPortfolioPk/stocks/';
     try {
       final response = await _dio.get(path);
       if (response.statusCode == 200) {
@@ -41,13 +45,15 @@ class StockService {
 
   Future<bool> addStock({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
     required int stockPortfolioPk,
     required String ticker,
     required double numShares,
     String? purchaseDateIso,
   }) async {
-    final path = '/api/users/$userPk/finance_profile/$financeProfilePk/stock_portfolio/$stockPortfolioPk/add_stock/';
+    final path = '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+        '$financeProfilePk/stock_portfolio/$stockPortfolioPk/add_stock/';
     final body = {
       'ticker': ticker,
       'num_shares': numShares,
@@ -64,11 +70,13 @@ class StockService {
 
   Future<bool> removeStock({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
     required int stockPortfolioPk,
     required String ticker,
   }) async {
-    final path = '/api/users/$userPk/finance_profile/$financeProfilePk/stock_portfolio/$stockPortfolioPk/remove_stock/$ticker';
+    final path = '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+        '$financeProfilePk/stock_portfolio/$stockPortfolioPk/remove_stock/$ticker';
     try {
       final response = await _dio.delete(path);
       return response.statusCode == 200;
@@ -78,11 +86,13 @@ class StockService {
 
   Future<bool> removeWatchlistStock({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
     required int stockPortfolioPk,
     required int watchlistStockId,
   }) async {
-    final path = '/api/users/$userPk/finance_profile/$financeProfilePk/stock_portfolio/$stockPortfolioPk/watchlist_stocks/$watchlistStockId';
+    final path = '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+        '$financeProfilePk/stock_portfolio/$stockPortfolioPk/watchlist_stocks/$watchlistStockId';
     try {
       final response = await _dio.delete(path);
       return response.statusCode == 200;
@@ -92,10 +102,12 @@ class StockService {
 
   Future<Map<String, dynamic>?> getPortfolioAnalysis({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
     required int stockPortfolioPk,
   }) async {
-    final path = '/api/users/$userPk/finance_profile/$financeProfilePk/stock_portfolio/$stockPortfolioPk/analysis/';
+    final path = '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+        '$financeProfilePk/stock_portfolio/$stockPortfolioPk/analysis/';
     try {
       final response = await _dio.get(path);
       if (response.statusCode == 200) {
@@ -107,10 +119,12 @@ class StockService {
 
   Future<List<WatchlistStock>> getWatchlistStocks({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
     required int stockPortfolioPk,
   }) async {
-    final path = '/api/users/$userPk/finance_profile/$financeProfilePk/stock_portfolio/$stockPortfolioPk/watchlist_stocks/';
+    final path = '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+        '$financeProfilePk/stock_portfolio/$stockPortfolioPk/watchlist_stocks/';
     try {
       final response = await _dio.get(path);
       if (response.statusCode == 200) {
@@ -123,11 +137,13 @@ class StockService {
 
   Future<bool> addWatchlistStock({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
     required int stockPortfolioPk,
     required String ticker,
   }) async {
-    final path = '/api/users/$userPk/finance_profile/$financeProfilePk/stock_portfolio/$stockPortfolioPk/watchlist_stocks/';
+    final path = '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+        '$financeProfilePk/stock_portfolio/$stockPortfolioPk/watchlist_stocks/';
     try {
       final response = await _dio.post(path, data: {'ticker': ticker});
       return response.statusCode == 201 || response.statusCode == 200;

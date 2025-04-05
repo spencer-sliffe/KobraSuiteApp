@@ -15,6 +15,7 @@ class UniversityService {
   /// Searches for universities based on [name] and [country].
   Future<List<University>> searchUniversities({
     required int userPk,
+    required int userProfilePk,
     required int schoolProfilePk,
     String? name,
     String? country,
@@ -22,7 +23,8 @@ class UniversityService {
     final queryParameters = <String, String>{};
     if (name != null && name.isNotEmpty) queryParameters['query'] = name;
     if (country != null && country.isNotEmpty) queryParameters['country'] = country;
-    final uri = '/api/users/$userPk/school_profile/$schoolProfilePk/universities/search/';
+    final uri = '/api/users/$userPk/profile/$userProfilePk/school_profile/'
+        '$schoolProfilePk/universities/search/';
     try {
       final response = await _dio.get(
         uri,
@@ -43,11 +45,13 @@ class UniversityService {
   /// Sets the user's university.
   Future<University> setUserUniversity({
     required int userPk,
+    required int userProfilePk,
     required int schoolProfilePk,
     required University university,
   }) async {
     final uri =
-        '/api/users/$userPk/school_profile/$schoolProfilePk/set_university/';
+        '/api/users/$userPk/profile/$userProfilePk/school_profile/'
+        '$schoolProfilePk/set_university/';
     final body = {
       'name': university.name,
       'country': university.country,
@@ -73,11 +77,13 @@ class UniversityService {
   /// Removes the user's university.
   Future<bool> removeUserUniversity({
     required int userPk,
+    required int userProfilePk,
     required int schoolProfilePk,
     required int universityPk,
   }) async {
     final uri =
-        '/api/users/$userPk/school_profile/$schoolProfilePk/universities/$universityPk/remove_university/';
+        '/api/users/$userPk/profile/$userProfilePk/school_profile/$schoolProfilePk/'
+        'universities/$universityPk/remove_university/';
     try {
       final response = await _dio.post(
         uri,
@@ -92,11 +98,13 @@ class UniversityService {
   /// Retrieves all courses for a specific university.
   Future<List<Course>> getAllUniversityCourses({
     required int userPk,
+    required int userProfilePk,
     required int schoolProfilePk,
     required int universityPk,
   }) async {
     final uri =
-        '/api/users/$userPk/school_profile/$schoolProfilePk/universities/$universityPk/courses/search/';
+        '/api/users/$userPk/profile/$userProfilePk/school_profile/$schoolProfilePk/'
+        'universities/$universityPk/courses/search/';
     try {
       final response = await _dio.get(
         uri,
