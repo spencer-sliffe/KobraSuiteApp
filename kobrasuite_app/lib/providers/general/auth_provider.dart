@@ -14,10 +14,10 @@ class AuthProvider extends ChangeNotifier {
   int? _financeProfilePk;
   int? _homeLifeProfilePk;
 
-
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
   bool get isLoggedIn => _authService.accessToken != null;
+
   int get userPk => _userPk ?? 0;
   int get schoolProfilePk => _schoolProfilePk ?? 0;
   int get userProfilePk => _userProfilePk ?? 0;
@@ -42,29 +42,37 @@ class AuthProvider extends ChangeNotifier {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
+
     final result = await _authService.whoami();
     _isLoading = false;
+
     if (result['success'] == true) {
-      final userData = result['user'];
-      _userPk = userData['id'];
-      _schoolProfilePk = userData['school_profile'] != null
-          ? (userData['school_profile']['id'] ?? 0)
-          : 0;
-      _userProfilePk = userData['profile'] != null
-          ? (userData['profile']['id'] ?? 0)
-          : 0;
-      _workProfilePk = userData['work_profile'] != null
-          ? (userData['work_profile']['id'] ?? 0)
-          : 0;
-      _financeProfilePk = userData['finance_profile'] != null
-          ? (userData['finance_profile']['id'] ?? 0)
-          : 0;
-      _homeLifeProfilePk = userData['homelife_profile'] != null
-          ? (userData['homelife_profile']['id'] ?? 0)
-          : 0;
+      final userData = result['user'] as Map<String, dynamic>?;
+
+      if (userData != null) {
+        _userPk = userData['id'] as int?;
+        final profileObj = userData['profile'] as Map<String, dynamic>?;
+
+        if (profileObj != null) {
+          _userProfilePk = profileObj['id'] as int? ?? 0;
+
+          final schoolProfileObj = profileObj['school_profile'] as Map<String, dynamic>?;
+          _schoolProfilePk = schoolProfileObj != null ? (schoolProfileObj['id'] ?? 0) : 0;
+
+          final workProfileObj = profileObj['work_profile'] as Map<String, dynamic>?;
+          _workProfilePk = workProfileObj != null ? (workProfileObj['id'] ?? 0) : 0;
+
+          final financeProfileObj = profileObj['finance_profile'] as Map<String, dynamic>?;
+          _financeProfilePk = financeProfileObj != null ? (financeProfileObj['id'] ?? 0) : 0;
+
+          final homeLifeProfileObj = profileObj['homelife_profile'] as Map<String, dynamic>?;
+          _homeLifeProfilePk = homeLifeProfileObj != null ? (homeLifeProfileObj['id'] ?? 0) : 0;
+        }
+      }
     } else {
       _errorMessage = result['errors']?.toString() ?? 'Failed to confirm login.';
     }
+
     notifyListeners();
   }
 
@@ -77,26 +85,32 @@ class AuthProvider extends ChangeNotifier {
     _errorMessage = '';
     _isLoading = true;
     notifyListeners();
+
     try {
       final result = await _authService.login(username: username, password: password);
       if (result['success'] == true) {
-        final userData = result['user'];
-        _userPk = userData['id'];
-        _schoolProfilePk = userData['school_profile'] != null
-            ? userData['school_profile']['id']
-            : 0;
-        _userProfilePk = userData['profile'] != null
-            ? userData['profile']['id']
-            : 0;
-        _workProfilePk = userData['work_profile'] != null
-            ? userData['work_profile']['id']
-            : 0;
-        _financeProfilePk = userData['finance_profile'] != null
-            ? userData['finance_profile']['id']
-            : 0;
-        _homeLifeProfilePk = userData['homelife_profile'] != null
-            ? userData['homelife_profile']['id']
-            : 0;
+        final userData = result['user'] as Map<String, dynamic>?;
+
+        if (userData != null) {
+          _userPk = userData['id'] as int?;
+          final profileObj = userData['profile'] as Map<String, dynamic>?;
+
+          if (profileObj != null) {
+            _userProfilePk = profileObj['id'] as int? ?? 0;
+
+            final schoolProfileObj = profileObj['school_profile'] as Map<String, dynamic>?;
+            _schoolProfilePk = schoolProfileObj != null ? (schoolProfileObj['id'] ?? 0) : 0;
+
+            final workProfileObj = profileObj['work_profile'] as Map<String, dynamic>?;
+            _workProfilePk = workProfileObj != null ? (workProfileObj['id'] ?? 0) : 0;
+
+            final financeProfileObj = profileObj['finance_profile'] as Map<String, dynamic>?;
+            _financeProfilePk = financeProfileObj != null ? (financeProfileObj['id'] ?? 0) : 0;
+
+            final homeLifeProfileObj = profileObj['homelife_profile'] as Map<String, dynamic>?;
+            _homeLifeProfilePk = homeLifeProfileObj != null ? (homeLifeProfileObj['id'] ?? 0) : 0;
+          }
+        }
         _isLoading = false;
         notifyListeners();
         return true;
@@ -106,6 +120,7 @@ class AuthProvider extends ChangeNotifier {
     } catch (e) {
       _errorMessage = 'An error occurred: $e';
     }
+
     _isLoading = false;
     notifyListeners();
     return false;
@@ -120,6 +135,7 @@ class AuthProvider extends ChangeNotifier {
     _errorMessage = '';
     _isLoading = true;
     notifyListeners();
+
     try {
       final result = await _authService.register(
         username: username,
@@ -129,23 +145,28 @@ class AuthProvider extends ChangeNotifier {
         confirmPassword: confirmPassword,
       );
       if (result['success'] == true) {
-        final userData = result['user'];
-        _userPk = userData['id'];
-        _schoolProfilePk = userData['school_profile'] != null
-            ? userData['school_profile']['id']
-            : 0;
-        _userProfilePk = userData['profile'] != null
-            ? userData['profile']['id']
-            : 0;
-        _workProfilePk = userData['work_profile'] != null
-            ? userData['work_profile']['id']
-            : 0;
-        _financeProfilePk = userData['finance_profile'] != null
-            ? userData['finance_profile']['id']
-            : 0;
-        _homeLifeProfilePk = userData['homelife_profile'] != null
-            ? userData['homelife_profile']['id']
-            : 0;
+        final userData = result['user'] as Map<String, dynamic>?;
+
+        if (userData != null) {
+          _userPk = userData['id'] as int?;
+          final profileObj = userData['profile'] as Map<String, dynamic>?;
+
+          if (profileObj != null) {
+            _userProfilePk = profileObj['id'] as int? ?? 0;
+
+            final schoolProfileObj = profileObj['school_profile'] as Map<String, dynamic>?;
+            _schoolProfilePk = schoolProfileObj != null ? (schoolProfileObj['id'] ?? 0) : 0;
+
+            final workProfileObj = profileObj['work_profile'] as Map<String, dynamic>?;
+            _workProfilePk = workProfileObj != null ? (workProfileObj['id'] ?? 0) : 0;
+
+            final financeProfileObj = profileObj['finance_profile'] as Map<String, dynamic>?;
+            _financeProfilePk = financeProfileObj != null ? (financeProfileObj['id'] ?? 0) : 0;
+
+            final homeLifeProfileObj = profileObj['homelife_profile'] as Map<String, dynamic>?;
+            _homeLifeProfilePk = homeLifeProfileObj != null ? (homeLifeProfileObj['id'] ?? 0) : 0;
+          }
+        }
         _isLoading = false;
         notifyListeners();
         return true;
@@ -155,6 +176,7 @@ class AuthProvider extends ChangeNotifier {
     } catch (e) {
       _errorMessage = 'An unexpected error occurred: $e';
     }
+
     _isLoading = false;
     notifyListeners();
     return false;
@@ -169,6 +191,7 @@ class AuthProvider extends ChangeNotifier {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
+
     try {
       final result = await _authService.logout();
       if (result['success'] == true) {
@@ -187,6 +210,7 @@ class AuthProvider extends ChangeNotifier {
     } catch (e) {
       _errorMessage = 'An error occurred during logout: $e';
     }
+
     _isLoading = false;
     notifyListeners();
     return false;
@@ -201,8 +225,10 @@ class AuthProvider extends ChangeNotifier {
     _errorMessage = '';
     _isLoading = true;
     notifyListeners();
+
     final result = await _authService.requestPasswordReset(email);
     _isLoading = false;
+
     if (result['success'] == true) {
       notifyListeners();
       return true;
@@ -222,8 +248,10 @@ class AuthProvider extends ChangeNotifier {
     _errorMessage = '';
     _isLoading = true;
     notifyListeners();
+
     final result = await _authService.confirmPasswordReset(uid, token, newPassword);
     _isLoading = false;
+
     if (result['success'] == true) {
       notifyListeners();
       return true;

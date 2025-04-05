@@ -17,7 +17,6 @@ Structured and validated JSON representations of university information.
 Collaborators: SPENCER SLIFFE
 ---------------------------------------------
 """
-# school/serializers/university_serializers.py
 from rest_framework import serializers
 from ..models import University
 
