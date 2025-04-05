@@ -6,6 +6,7 @@ import '../../../models/finance/budget.dart';
 class BudgetProvider extends ChangeNotifier {
   final BankingService _service;
   int _userPk;
+  int _userProfilePk;
   int _financeProfilePk;
 
   bool _isLoading = false;
@@ -14,8 +15,10 @@ class BudgetProvider extends ChangeNotifier {
 
   BudgetProvider({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
   })  : _userPk = userPk,
+        _userProfilePk = userProfilePk,
         _financeProfilePk = financeProfilePk,
         _service = serviceLocator<BankingService>();
 
@@ -24,13 +27,16 @@ class BudgetProvider extends ChangeNotifier {
   List<Budget> get budgets => _budgets;
 
   int get userPk => _userPk;
+  int get userProfilePk => _userProfilePk;
   int get financeProfilePk => _financeProfilePk;
 
   void update({
     required int newUserPk,
+    required int newUserProfilePk,
     required int newFinanceProfilePk,
   }) {
     _userPk = newUserPk;
+    _userProfilePk = newUserProfilePk;
     _financeProfilePk = newFinanceProfilePk;
     notifyListeners();
   }
@@ -42,6 +48,7 @@ class BudgetProvider extends ChangeNotifier {
     try {
       final list = await _service.getBudgets(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         financeProfilePk: _financeProfilePk,
       );
       _budgets = list;
@@ -65,6 +72,7 @@ class BudgetProvider extends ChangeNotifier {
     try {
       final success = await _service.createBudget(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         financeProfilePk: _financeProfilePk,
         name: name,
         totalAmount: totalAmount,
@@ -92,6 +100,7 @@ class BudgetProvider extends ChangeNotifier {
     try {
       final success = await _service.deleteBudget(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         financeProfilePk: _financeProfilePk,
         budgetId: budgetId,
       );

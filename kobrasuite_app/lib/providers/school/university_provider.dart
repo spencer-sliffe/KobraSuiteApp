@@ -31,6 +31,7 @@ class UniversityProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   int get userPk => _schoolProfileProvider.userPk;
+  int get userProfilePk => _schoolProfileProvider.userProfilePk;
   int get schoolProfilePk => _schoolProfileProvider.schoolProfilePk;
   List<UniversityNews> get trendingNews => _trendingNews;
 
@@ -47,9 +48,9 @@ class UniversityProvider with ChangeNotifier {
     try {
       final loaded = await _schoolProfileProvider.loadSchoolProfile();
       if (loaded) {
-        final profile = _schoolProfileProvider.profile;
-        if (profile != null && profile.universityDetail != null) {
-          _currentUniversity = profile.universityDetail;
+        final schoolProfile = _schoolProfileProvider.schoolProfile;
+        if (schoolProfile != null && schoolProfile.universityDetail != null) {
+          _currentUniversity = schoolProfile.universityDetail;
         } else {
           _currentUniversity = null;
         }
@@ -73,6 +74,7 @@ class UniversityProvider with ChangeNotifier {
     try {
       final results = await _universityService.searchUniversities(
         userPk: userPk,
+        userProfilePk: userProfilePk,
         schoolProfilePk: schoolProfilePk,
         name: query,
         country: country,
@@ -93,6 +95,7 @@ class UniversityProvider with ChangeNotifier {
     try {
       final updatedUniversity = await _universityService.setUserUniversity(
         userPk: userPk,
+        userProfilePk: userProfilePk,
         schoolProfilePk: schoolProfilePk,
         university: uni,
       );
@@ -116,6 +119,7 @@ class UniversityProvider with ChangeNotifier {
     try {
       final success = await _universityService.removeUserUniversity(
         userPk: userPk,
+        userProfilePk: userProfilePk,
         schoolProfilePk: schoolProfilePk,
         universityPk: universityId,
       );
@@ -144,6 +148,7 @@ class UniversityProvider with ChangeNotifier {
     try {
       final courses = await _universityService.getAllUniversityCourses(
         userPk: userPk,
+        userProfilePk: userProfilePk,
         schoolProfilePk: schoolProfilePk,
         universityPk: universityId,
       );

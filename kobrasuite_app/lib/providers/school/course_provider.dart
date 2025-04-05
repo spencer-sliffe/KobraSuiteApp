@@ -26,6 +26,7 @@ class CourseProvider with ChangeNotifier {
   String? get errorMessage => _errorMessage;
   Course? get currentCourse => _currentCourse;
   int get userPk => _schoolProfileProvider.userPk;
+  int get userProfilePk => _schoolProfileProvider.userProfilePk;
   int get schoolProfilePk => _schoolProfileProvider.schoolProfilePk;
 
   void update(SchoolProfileProvider s, UniversityProvider u) {
@@ -53,6 +54,7 @@ class CourseProvider with ChangeNotifier {
       final universityPk = _universityProvider.currentUniversity!.id;
       final results = await _courseService.searchCoursesInUniversity(
           userPk: userPk,
+          userProfilePk: userProfilePk,
           schoolProfilePk: schoolProfilePk,
           universityPk: universityPk,
           query: '',
@@ -81,6 +83,7 @@ class CourseProvider with ChangeNotifier {
       final universityPk = _universityProvider.currentUniversity!.id;
       await _courseService.addCourseToSchoolProfile(
         userPk: userPk,
+        userProfilePk: userProfilePk,
         schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         courseId: courseId,
@@ -108,10 +111,12 @@ class CourseProvider with ChangeNotifier {
     notifyListeners();
     try {
       final userPk = _schoolProfileProvider.userPk;
+      final userProfilePk = _schoolProfileProvider.userProfilePk;
       final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
       final universityPk = _universityProvider.currentUniversity!.id;
       await _courseService.removeCourseFromSchoolProfile(
         userPk: userPk,
+        userProfilePk: userProfilePk,
         schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         courseId: courseId,
@@ -146,11 +151,13 @@ class CourseProvider with ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     final userPk = _schoolProfileProvider.userPk;
+    final userProfilePk = _schoolProfileProvider.userProfilePk;
     final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
     final universityPk = _universityProvider.currentUniversity!.id;
     try {
       final result = await _courseService.verifyCourse(
         userPk: userPk,
+        userProfilePk:userProfilePk,
         schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         courseData: {
@@ -192,6 +199,7 @@ class CourseProvider with ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     final userPk = _schoolProfileProvider.userPk;
+    final userProfilePk = _schoolProfileProvider.userProfilePk;
     final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
     final universityPk = _universityProvider.currentUniversity!.id;
     final payload = {
@@ -205,6 +213,7 @@ class CourseProvider with ChangeNotifier {
     try {
       await _courseService.createCourseInUniversity(
         userPk: userPk,
+        userProfilePk: userProfilePk,
         schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         courseData: payload,

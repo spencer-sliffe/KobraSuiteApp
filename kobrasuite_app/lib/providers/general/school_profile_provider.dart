@@ -6,26 +6,31 @@ import '../../services/service_locator.dart';
 class SchoolProfileProvider extends ChangeNotifier {
   final SchoolProfileService _schoolProfileService;
   int _userPk;
+  int _userProfilePk;
   int _schoolProfilePk;
   bool _isLoading = false;
   String _errorMessage = '';
-  SchoolProfile? _profile;
+  SchoolProfile? _schoolProfile;
 
   SchoolProfileProvider({
     required int userPk,
+    required int userProfilePk,
     required int schoolProfilePk,
   })  : _userPk = userPk,
+        _userProfilePk = userProfilePk,
         _schoolProfilePk = schoolProfilePk,
         _schoolProfileService = serviceLocator<SchoolProfileService>();
 
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
-  SchoolProfile? get profile => _profile;
+  SchoolProfile? get schoolProfile => _schoolProfile;
   int get userPk => _userPk;
+  int get userProfilePk => _userProfilePk;
   int get schoolProfilePk => _schoolProfilePk;
 
-  void update(int newUserPk, int newSchoolProfilePk) {
+  void update(int newUserPk, int newUserProfilePk, int newSchoolProfilePk) {
     _userPk = newUserPk;
+    _userProfilePk = newUserProfilePk;
     _schoolProfilePk = newSchoolProfilePk;
     notifyListeners();
   }
@@ -35,12 +40,13 @@ class SchoolProfileProvider extends ChangeNotifier {
     _errorMessage = '';
     notifyListeners();
     try {
-      final fetchedProfile = await _schoolProfileService.getSchoolProfile(
+      final fetchedSchoolProfile = await _schoolProfileService.getSchoolProfile(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         schoolProfilePk: _schoolProfilePk,
       );
-      if (fetchedProfile != null) {
-        _profile = fetchedProfile;
+      if (fetchedSchoolProfile != null) {
+        _schoolProfile = fetchedSchoolProfile;
         _isLoading = false;
         notifyListeners();
         return true;
@@ -64,11 +70,12 @@ class SchoolProfileProvider extends ChangeNotifier {
     try {
       final updatedProfile = await _schoolProfileService.updateSchoolProfile(
         userPk: _userPk,
+        userProfilePk: _userProfilePk,
         schoolProfilePk: _schoolProfilePk,
         updatedData: updatedData,
       );
       if (updatedProfile != null) {
-        _profile = updatedProfile;
+        _schoolProfile = updatedProfile;
         _isLoading = false;
         notifyListeners();
         return true;
@@ -86,7 +93,7 @@ class SchoolProfileProvider extends ChangeNotifier {
   }
 
   void clear() {
-    _profile = null;
+    _schoolProfile = null;
     _errorMessage = '';
     notifyListeners();
   }

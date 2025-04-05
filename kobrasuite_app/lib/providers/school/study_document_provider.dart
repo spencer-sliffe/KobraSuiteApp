@@ -64,11 +64,15 @@ class StudyDocumentProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final userPk = _schoolProfileProvider.userPk;
+      final userProfilePk = _schoolProfileProvider.userProfilePk;
+      final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
       final universityPk = _universityProvider.currentUniversity!.id;
       final coursePk = _courseProvider.currentCourse!.id;
       final topicPk = _topicProvider.currentTopic!.id;
       final docs = await _studyDocumentService.getStudyDocumentsByTopic(
         userPk: userPk,
+        schoolProfilePk: schoolProfilePk,
+        userProfilePk: userProfilePk,
         universityPk: universityPk,
         coursePk: coursePk,
         topicPk: topicPk,
@@ -93,11 +97,15 @@ class StudyDocumentProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final userPk = _schoolProfileProvider.userPk;
+      final userProfilePk = _schoolProfileProvider.userProfilePk;
+      final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
       final universityPk = _universityProvider.currentUniversity!.id;
       final coursePk = _courseProvider.currentCourse!.id;
       final topicPk = _topicProvider.currentTopic!.id;
       final newDoc = await _studyDocumentService.uploadStudyDocument(
         userPk: userPk,
+        userProfilePk: userProfilePk,
+        schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         coursePk: coursePk,
         topicPk: topicPk,
@@ -131,11 +139,15 @@ class StudyDocumentProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final userPk = _schoolProfileProvider.userPk;
+      final userProfilePk = _schoolProfileProvider.userProfilePk;
+      final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
       final universityPk = _universityProvider.currentUniversity!.id;
       final coursePk = _courseProvider.currentCourse!.id;
       final topicPk = _topicProvider.currentTopic!.id;
       final updatedDoc = await _studyDocumentService.updateStudyDocument(
         userPk: userPk,
+        userProfilePk: userProfilePk,
+        schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         coursePk: coursePk,
         topicPk: topicPk,
@@ -172,11 +184,15 @@ class StudyDocumentProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final userPk = _schoolProfileProvider.userPk;
+      final userProfilePk = _schoolProfileProvider.userProfilePk;
+      final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
       final universityPk = _universityProvider.currentUniversity!.id;
       final coursePk = _courseProvider.currentCourse!.id;
       final topicPk = _topicProvider.currentTopic!.id;
       final success = await _studyDocumentService.deleteStudyDocument(
         userPk: userPk,
+        userProfilePk: universityPk,
+        schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         coursePk: coursePk,
         topicPk: topicPk,

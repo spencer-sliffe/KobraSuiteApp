@@ -67,9 +67,11 @@ class BankingService {
   // Budgets
   Future<List<Budget>> getBudgets({
     required int userPk,
+    required int userProfilePk,
     required int financeProfilePk,
   }) async {
-    final url = '/api/users/$userPk/finance_profile/$financeProfilePk/budgets/';
+    final url = '/api/users/$userPk/profile/$userProfilePk/'
+        'finance_profile/$financeProfilePk/budgets/';
     final response = await _dio.get(url);
     if (response.statusCode == 200) {
       final map = response.data as Map<String, dynamic>;

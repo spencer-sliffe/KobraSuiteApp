@@ -53,11 +53,13 @@ class AssignmentProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final userPk = _schoolProfileProvider.userPk;
+      final userProfilePk= _schoolProfileProvider.userProfilePk;
       final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
       final universityPk = _universityProvider.currentUniversity!.id;
       final coursePk = _courseProvider.currentCourse!.id;
       final fetchedAssignments = await _assignmentService.getAssignmentsByCourse(
         userPk: userPk,
+        userProfilePk: userProfilePk,
         schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         coursePk: coursePk,
@@ -82,11 +84,13 @@ class AssignmentProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final userPk = _schoolProfileProvider.userPk;
+      final userProfilePk = _schoolProfileProvider.userProfilePk;
       final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
       final universityPk = _universityProvider.currentUniversity!.id;
       final coursePk = _courseProvider.currentCourse!.id;
       final success = await _assignmentService.addAssignment(
         userPk: userPk,
+        userProfilePk: userProfilePk,
         schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         coursePk: coursePk,
@@ -119,11 +123,13 @@ class AssignmentProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final userPk = _schoolProfileProvider.userPk;
+      final userProfilePk = _schoolProfileProvider.userProfilePk;
       final schoolProfilePk = _schoolProfileProvider.schoolProfilePk;
       final universityPk = _universityProvider.currentUniversity!.id;
       final coursePk = _courseProvider.currentCourse!.id;
       final success = await _assignmentService.deleteAssignment(
         userPk: userPk,
+        userProfilePk: userProfilePk,
         schoolProfilePk: schoolProfilePk,
         universityPk: universityPk,
         coursePk: coursePk,

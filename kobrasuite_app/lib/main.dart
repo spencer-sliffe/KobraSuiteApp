@@ -62,28 +62,28 @@ void main() async {
         ChangeNotifierProxyProvider<AuthProvider, SchoolProfileProvider>(
           create: (_) => SchoolProfileProvider(userPk: 0, userProfilePk: 0, schoolProfilePk: 0),
           update: (_, auth, schoolProfile) {
-            schoolProfile!.update(auth.userPk, auth.schoolProfilePk);
+            schoolProfile!.update(auth.userPk, auth.userProfilePk, auth.schoolProfilePk);
             return schoolProfile;
           },
         ),
         ChangeNotifierProxyProvider<AuthProvider, WorkProfileProvider>(
           create: (_) => WorkProfileProvider(userPk: 0, userProfilePk: 0, workProfilePk: 0),
           update: (_, auth, workProfile) {
-            workProfile!.update(auth.userPk, auth.workProfilePk);
+            workProfile!.update(auth.userPk, auth.userProfilePk, auth.workProfilePk);
             return workProfile;
           },
         ),
         ChangeNotifierProxyProvider<AuthProvider, FinanceProfileProvider>(
           create: (_) => FinanceProfileProvider(userPk: 0, userProfilePk: 0, financeProfilePk: 0),
           update: (_, auth, financeProfile) {
-            financeProfile!.update(auth.userPk, auth.financeProfilePk);
+            financeProfile!.update(auth.userPk, auth.userProfilePk, auth.financeProfilePk);
             return financeProfile;
           },
         ),
         ChangeNotifierProxyProvider<AuthProvider, HomeLifeProfileProvider>(
           create: (_) => HomeLifeProfileProvider(userPk: 0, userProfilePk: 0, homeLifeProfilePk: 0),
           update: (_, auth, homeLifeProfile) {
-            homeLifeProfile!.update(auth.userPk, auth.homeLifeProfilePk);
+            homeLifeProfile!.update(auth.userPk, auth.userProfilePk, auth.homeLifeProfilePk);
             return homeLifeProfile;
           },
         ),
@@ -153,41 +153,45 @@ void main() async {
           },
         ),
         ChangeNotifierProxyProvider2<AuthProvider, FinanceProfileProvider, BankAccountProvider>(
-          create: (_) => BankAccountProvider(userPk: 0, financeProfilePk: 0),
+          create: (_) => BankAccountProvider(userPk: 0, userProfilePk: 0, financeProfilePk: 0),
           update: (_, auth, financeProfile, bankProvider) {
             bankProvider!.update(
               newUserPk: auth.userPk,
-              newFinanceProfilePk: financeProfile.profile?.id ?? 0,
+              newUserProfilePk: auth.userProfilePk,
+              newFinanceProfilePk: financeProfile.financeProfile?.id ?? 0,
             );
             return bankProvider;
           },
         ),
         ChangeNotifierProxyProvider2<AuthProvider, FinanceProfileProvider, BudgetProvider>(
-          create: (_) => BudgetProvider(userPk: 0, financeProfilePk: 0),
+          create: (_) => BudgetProvider(userPk: 0, userProfilePk: 0, financeProfilePk: 0),
           update: (_, auth, financeProfile, budgetProvider) {
             budgetProvider!.update(
               newUserPk: auth.userPk,
-              newFinanceProfilePk: financeProfile.profile?.id ?? 0,
+              newUserProfilePk: auth.userProfilePk,
+              newFinanceProfilePk: financeProfile.financeProfile?.id ?? 0,
             );
             return budgetProvider;
           },
         ),
         ChangeNotifierProxyProvider2<AuthProvider, FinanceProfileProvider, BudgetCategoryProvider>(
-          create: (_) => BudgetCategoryProvider(userPk: 0, financeProfilePk: 0),
+          create: (_) => BudgetCategoryProvider(userPk: 0, userProfilePk: 0, financeProfilePk: 0),
           update: (_, auth, financeProfile, categoryProvider) {
             categoryProvider!.update(
               newUserPk: auth.userPk,
-              newFinanceProfilePk: financeProfile.profile?.id ?? 0,
+              newUserProfilePk: auth.userProfilePk,
+              newFinanceProfilePk: financeProfile.financeProfile?.id ?? 0,
             );
             return categoryProvider;
           },
         ),
         ChangeNotifierProxyProvider2<AuthProvider, FinanceProfileProvider, TransactionProvider>(
-          create: (_) => TransactionProvider(userPk: 0, financeProfilePk: 0),
+          create: (_) => TransactionProvider(userPk: 0, userProfilePk: 0, financeProfilePk: 0),
           update: (_, auth, financeProfile, transactionProvider) {
             transactionProvider!.update(
               newUserPk: auth.userPk,
-              newFinanceProfilePk: financeProfile.profile?.id ?? 0,
+              newUserProfilePk: auth.userProfilePk,
+              newFinanceProfilePk: financeProfile.financeProfile?.id ?? 0,
             );
             return transactionProvider;
           },
@@ -196,22 +200,24 @@ void main() async {
         ChangeNotifierProvider<ThemeNotifier>(create: (_) => ThemeNotifier()),
         ChangeNotifierProvider<RealtimeService>(create: (_) => serviceLocator<RealtimeService>()),
         ChangeNotifierProxyProvider2<AuthProvider, FinanceProfileProvider, StockPortfolioProvider>(
-          create: (_) => StockPortfolioProvider(userPk: 0, financeProfilePk: 0, stockPortfolioPk: 0),
+          create: (_) => StockPortfolioProvider(userPk: 0, userProfilePk:0, financeProfilePk: 0, stockPortfolioPk: 0),
           update: (_, auth, finance, sp) {
             sp!.update(
               newUserPk: auth.userPk,
-              newFinanceProfilePk: finance.profile?.id ?? 0,
+              newUserProfilePk: auth.userProfilePk,
+              newFinanceProfilePk: finance.financeProfile?.id ?? 0,
               newStockPortfolioPk: sp.stockPortfolioPk,
             );
             return sp;
           },
         ),
         ChangeNotifierProxyProvider3<AuthProvider, FinanceProfileProvider, StockPortfolioProvider, StockProvider>(
-          create: (_) => StockProvider(userPk: 0, financeProfilePk: 0, stockPortfolioPk: 0),
+          create: (_) => StockProvider(userPk: 0, userProfilePk: 0, financeProfilePk: 0, stockPortfolioPk: 0),
           update: (_, auth, finance, spPortfolio, s) {
             s!.update(
               newUserPk: auth.userPk,
-              newFinanceProfilePk: finance.profile?.id ?? 0,
+              newUserProfilePk: auth.userProfilePk,
+              newFinanceProfilePk: finance.financeProfile?.id ?? 0,
               newStockPortfolioPk: spPortfolio.stockPortfolioPk,
             );
             return s;
