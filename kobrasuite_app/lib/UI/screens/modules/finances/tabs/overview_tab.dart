@@ -29,12 +29,6 @@ class OverviewTab extends StatelessWidget {
             subtitle: const Text('Placeholder chart or numeric summary.'),
           ),
         ),
-        const SizedBox(height: 16),
-        ElevatedButton.icon(
-          onPressed: () {},
-          icon: const Icon(Icons.sync),
-          label: const Text('Sync Accounts'),
-        ),
       ],
     );
   }

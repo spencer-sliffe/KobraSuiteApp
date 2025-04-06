@@ -152,6 +152,7 @@ SWAGGER_SETTINGS = {
 }
 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+NEWS_API_KEY = os.getenv('NEWS_API_KEY')
 
 DJANGO_ALLOW_ASYNC_UNSAFE = True
 TESTING = os.getenv('TESTING') == 'True' or 'pytest' in os.getenv('PYTEST_CURRENT_TEST', '')

@@ -30,14 +30,6 @@ class StocksTab extends StatelessWidget {
             subtitle: const Text('Overview of stocks you are monitoring.'),
           ),
         ),
-        const SizedBox(height: 16),
-        ElevatedButton.icon(
-          onPressed: () {
-            // Implement sync or add stock action
-          },
-          icon: const Icon(Icons.sync),
-          label: const Text('Sync Stocks'),
-        ),
       ],
     );
   }

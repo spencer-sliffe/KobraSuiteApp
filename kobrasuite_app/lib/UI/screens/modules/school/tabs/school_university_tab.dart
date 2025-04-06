@@ -35,17 +35,22 @@ class _SchoolUniversityTabState extends State<SchoolUniversityTab> {
   @override
   void initState() {
     super.initState();
-    // Load university data and then banner colors.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final uniProvider = Provider.of<UniversityProvider>(context, listen: false);
       uniProvider.loadUserUniversity().then((_) {
-        if (uniProvider.currentUniversity != null) {
-          final bannerPrompt =
-              "Modern university campus, ${uniProvider.currentUniversity!.name} banner";
-          setState(() {
-            _bannerColorsFuture = BannerImageService().getBannerColors(bannerPrompt);
-          });
-        }
+        // If the user has a set university, fetch news for it;
+        // otherwise fetch default "United States Universities" news.
+        final uniName = uniProvider.currentUniversity?.name ?? "United States Universities";
+        uniProvider.fetchTrendingNews(uniName).then((_) {
+          if (uniProvider.currentUniversity != null) {
+            // If we have a real university name, fetch banner colors for that specific name
+            final bannerPrompt =
+                "Modern university campus, ${uniProvider.currentUniversity!.name} banner";
+            setState(() {
+              _bannerColorsFuture = BannerImageService().getBannerColors(bannerPrompt);
+            });
+          }
+        });
       });
     });
   }
@@ -172,15 +177,6 @@ class _SchoolUniversityTabState extends State<SchoolUniversityTab> {
                         ),
                       ],
                     ),
-                    if (currentUni.stateProvince != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Text(
-                          "State: ${currentUni.stateProvince}",
-                          style: const TextStyle(color: Colors.white70, fontSize: 12),
-                        ),
-                      ),
-                    const SizedBox(height: 8),
                     Row(
                       children: [
                         if (currentUni.studentCount != null)
@@ -340,10 +336,10 @@ class _SchoolUniversityTabState extends State<SchoolUniversityTab> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               sliver: SliverGrid(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  childAspectRatio: 1,
+                  crossAxisCount: 4,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  childAspectRatio: 0.6,
                 ),
                 delegate: SliverChildBuilderDelegate(
                       (context, index) {
@@ -359,7 +355,7 @@ class _SchoolUniversityTabState extends State<SchoolUniversityTab> {
                 ),
               ),
             )),
-          const SliverToBoxAdapter(child: SizedBox(height: 80)),
+          const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
     );

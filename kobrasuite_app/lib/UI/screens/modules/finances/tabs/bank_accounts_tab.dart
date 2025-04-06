@@ -30,14 +30,6 @@ class BankAccountsTab extends StatelessWidget {
             subtitle: const Text('Overview of your linked bank accounts.'),
           ),
         ),
-        const SizedBox(height: 16),
-        ElevatedButton.icon(
-          onPressed: () {
-
-          },
-          icon: const Icon(Icons.sync),
-          label: const Text('Sync Accounts'),
-        ),
       ],
     );
   }

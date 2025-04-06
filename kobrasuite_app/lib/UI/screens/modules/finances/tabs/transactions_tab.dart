@@ -30,14 +30,6 @@ class TransactionsTab extends StatelessWidget {
             subtitle: const Text('Placeholder for expense summary chart.'),
           ),
         ),
-        const SizedBox(height: 16),
-        ElevatedButton.icon(
-          onPressed: () {
-            // Implement sync or add transaction action
-          },
-          icon: const Icon(Icons.sync),
-          label: const Text('Sync Transactions'),
-        ),
       ],
     );
   }

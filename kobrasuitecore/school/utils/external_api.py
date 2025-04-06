@@ -35,3 +35,28 @@ def fetch_universities_from_hipolabs(
     except requests.RequestException as e:
         logger.error(f"[EXTERNAL_API] RequestException: {e}")
         return {"detail": str(e)}, status.HTTP_503_SERVICE_UNAVAILABLE
+
+
+def get_news_articles(api_key, query="American Universities", page=1):
+    """
+    Retrieves news articles from the NewsAPI about the given query
+    keyword. Defaults to 'United States Universities' if no query is provided.
+    We want to pass in the Users University to get the news articles specific to
+    their University.
+    """
+    try:
+        url = 'https://newsapi.org/v2/everything'
+        params = {
+            'apiKey': api_key,
+            'q': query,
+            'language': 'en',
+            'sortBy': 'relevancy',
+            'pageSize': 20,
+            'page': page
+        }
+        r = requests.get(url, params=params)
+        if r.status_code == 200:
+            return r.json()  # Contains { 'articles': [...], ... }
+        return {}
+    except:
+        return {}
