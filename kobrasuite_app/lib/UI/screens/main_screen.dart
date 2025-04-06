@@ -1,5 +1,3 @@
-// lib/UI/screens/main_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:kobrasuite_app/UI/screens/modules/homelife/tabs/homelife_groceries_tab.dart';
 import 'package:kobrasuite_app/UI/screens/modules/homelife/tabs/homelife_meals_tab.dart';
@@ -12,10 +10,8 @@ import 'package:kobrasuite_app/UI/nav/widgets/hq_navigation_overlay.dart';
 import 'package:kobrasuite_app/UI/nav/providers/global_gesture_detector.dart';
 import 'package:kobrasuite_app/UI/nav/widgets/kobra_drawer.dart';
 import 'package:kobrasuite_app/UI/nav/control_bar/page_control_bar.dart';
-
 import 'package:kobrasuite_app/UI/screens/modules/school/tabs/school_university_tab.dart';
 import 'package:kobrasuite_app/UI/screens/modules/school/tabs/school_courses_tab.dart';
-
 import 'package:kobrasuite_app/UI/screens/modules/finances/tabs/bank_accounts_tab.dart';
 import 'package:kobrasuite_app/UI/screens/modules/finances/tabs/budgets_tab.dart';
 import 'package:kobrasuite_app/UI/screens/modules/finances/tabs/transactions_tab.dart';
@@ -25,7 +21,6 @@ import 'package:kobrasuite_app/UI/screens/modules/finances/tabs/budget_categorie
 import 'package:kobrasuite_app/UI/screens/modules/finances/tabs/analysis_tab.dart';
 import 'package:kobrasuite_app/UI/screens/modules/finances/tabs/news_tab.dart';
 import 'package:kobrasuite_app/UI/screens/modules/finances/tabs/watchlist_tab.dart';
-
 import '../nav/providers/control_bar_registrar.dart';
 import 'modules/homelife/tabs/homelife_calendar_tab.dart';
 import 'modules/homelife/tabs/homelife_chores_tab.dart';
@@ -46,11 +41,11 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Add some persistent control bar buttons
       final provider = context.read<ControlBarProvider>();
       provider.clearPersistentButtons();
       provider.addPersistentButton(
         ControlBarButtonModel(
+          id: 'refresh',
           icon: Icons.refresh,
           label: 'Refresh',
           onPressed: () {},
@@ -58,6 +53,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       );
       provider.addPersistentButton(
         ControlBarButtonModel(
+          id: 'chat',
           icon: Icons.chat,
           label: 'Toggle AI Chat',
           onPressed: () {},
@@ -65,6 +61,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       );
       provider.addPersistentButton(
         ControlBarButtonModel(
+          id: 'hq',
           icon: Icons.hd,
           label: 'HQ',
           onPressed: () {
@@ -94,10 +91,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     final store = context.watch<NavigationStore>();
     final module = store.activeModule;
     _tabs = _tabsForModule(module);
-
     _tabController?.dispose();
     _tabController = TabController(length: _tabs.length, vsync: this);
-
     switch (module) {
       case Module.Finances:
         _setupTabController(
@@ -153,6 +148,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     return TabBar(
       controller: _tabController,
       isScrollable: true,
+      tabAlignment: TabAlignment.start,
       labelColor: theme.colorScheme.secondary,
       unselectedLabelColor: theme.appBarTheme.foregroundColor ?? Colors.white70,
       tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
@@ -165,20 +161,22 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         case 'University':
           return ControlBarRegistrar(
             schoolTabIndex: 0,
-              buttons: [
-                ControlBarButtonModel(
-                  icon: Icons.search,
-                  label: 'Universities',
-                  onPressed: () {},
-                ),
-              ],
+            buttons: [
+              ControlBarButtonModel(
+                id: 'school_university_search',
+                icon: Icons.search,
+                label: 'Universities',
+                onPressed: () {},
+              ),
+            ],
             child: const SchoolUniversityTab(),
-            );
+          );
         case 'Courses':
           return ControlBarRegistrar(
             schoolTabIndex: 1,
             buttons: [
               ControlBarButtonModel(
+                id: 'school_course_add',
                 icon: Icons.add,
                 label: 'Course',
                 onPressed: () {},
@@ -196,6 +194,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             workTabIndex: 0,
             buttons: [
               ControlBarButtonModel(
+                id: 'work_project_add',
                 icon: Icons.add,
                 label: 'Project',
                 onPressed: () {},
@@ -203,23 +202,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             ],
             child: const WorkProjectsTab(),
           );
-        case 'Tasks':
+        case 'Teams':
           return ControlBarRegistrar(
             workTabIndex: 1,
             buttons: [
               ControlBarButtonModel(
-                icon: Icons.add,
-                label: 'Task',
-                onPressed: () {},
-              ),
-            ],
-            child: const WorkTasksTab(),
-          );
-        case 'Teams':
-          return ControlBarRegistrar(
-            workTabIndex: 2,
-            buttons: [
-              ControlBarButtonModel(
+                id: 'work_team_add',
                 icon: Icons.add,
                 label: 'Team',
                 onPressed: () {},
@@ -227,16 +215,43 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             ],
             child: const WorkTeamsTab(),
           );
+        case 'Tasks':
+          return ControlBarRegistrar(
+            workTabIndex: 2,
+            buttons: [
+              ControlBarButtonModel(
+                id: 'work_task_add',
+                icon: Icons.add,
+                label: 'Task',
+                onPressed: () {},
+              ),
+            ],
+            child: const WorkTasksTab(),
+          );
         default:
           return Container();
       }
     } else if (module == Module.HomeLife) {
       switch (tab) {
-        case 'Calendar':
+        case 'Chores':
           return ControlBarRegistrar(
             homelifeTabIndex: 0,
             buttons: [
               ControlBarButtonModel(
+                id: 'homelife_chores_add',
+                icon: Icons.add,
+                label: 'Chore',
+                onPressed: () {},
+              ),
+            ],
+            child: const HomelifeChoresTab(),
+          );
+        case 'Calendar':
+          return ControlBarRegistrar(
+            homelifeTabIndex: 1,
+            buttons: [
+              ControlBarButtonModel(
+                id: 'homelife_calendar_add',
                 icon: Icons.add,
                 label: 'Calendar Event',
                 onPressed: () {},
@@ -244,41 +259,31 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             ],
             child: const HomelifeCalendarTab(),
           );
-      case 'Chores':
-        return ControlBarRegistrar(
-          homelifeTabIndex: 1,
-          buttons: [
-            ControlBarButtonModel(
-              icon: Icons.add,
-              label: 'Chore',
-              onPressed: () {},
-            ),
-          ],
-          child: const HomelifeChoresTab(),
-        );
-        case 'Groceries':
+        case 'Meals':
           return ControlBarRegistrar(
             homelifeTabIndex: 2,
             buttons: [
               ControlBarButtonModel(
-                icon: Icons.add,
-                label: 'Grocery',
-                onPressed: () {},
-              ),
-            ],
-            child: const HomelifeGroceriesTab(),
-          );
-        case 'Meals':
-          return ControlBarRegistrar(
-            homelifeTabIndex: 3,
-            buttons: [
-              ControlBarButtonModel(
+                id: 'homelife_meals_add',
                 icon: Icons.add,
                 label: 'Meal',
                 onPressed: () {},
               ),
             ],
             child: const HomelifeMealsTab(),
+          );
+        case 'Groceries':
+          return ControlBarRegistrar(
+            homelifeTabIndex: 3,
+            buttons: [
+              ControlBarButtonModel(
+                id: 'homelife_groceries_add',
+                icon: Icons.add,
+                label: 'Grocery',
+                onPressed: () {},
+              ),
+            ],
+            child: const HomelifeGroceriesTab(),
           );
         default:
           return Container();
@@ -290,6 +295,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             financeTabIndex: 0,
             buttons: [
               ControlBarButtonModel(
+                id: 'finances_overview_sync',
                 icon: Icons.sync,
                 label: 'Accounts',
                 onPressed: () {},
@@ -302,11 +308,13 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             financeTabIndex: 1,
             buttons: [
               ControlBarButtonModel(
+                id: 'finances_account_add',
                 icon: Icons.add,
                 label: 'Account',
                 onPressed: () {},
               ),
               ControlBarButtonModel(
+                id: 'finances_accounts_sync',
                 icon: Icons.sync,
                 label: 'Accounts',
                 onPressed: () {},
@@ -314,12 +322,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             ],
             child: const BankAccountsTab(),
           );
-
         case 'Budgets':
           return ControlBarRegistrar(
             financeTabIndex: 2,
             buttons: [
               ControlBarButtonModel(
+                id: 'finances_budget_add',
                 icon: Icons.add,
                 label: 'Budget',
                 onPressed: () {},
@@ -327,12 +335,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             ],
             child: const BudgetsTab(),
           );
-
         case 'Categories':
           return ControlBarRegistrar(
             financeTabIndex: 3,
             buttons: [
               ControlBarButtonModel(
+                id: 'finances_category_add',
                 icon: Icons.add,
                 label: 'Category',
                 onPressed: () {},
@@ -340,17 +348,18 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             ],
             child: const BudgetCategoriesTab(),
           );
-
         case 'Transactions':
           return ControlBarRegistrar(
             financeTabIndex: 4,
             buttons: [
               ControlBarButtonModel(
+                id: 'finances_transaction_add',
                 icon: Icons.add,
                 label: 'Transaction',
                 onPressed: () {},
               ),
               ControlBarButtonModel(
+                id: 'finances_transactions_sync',
                 icon: Icons.sync,
                 label: 'Transactions',
                 onPressed: () {},
@@ -358,17 +367,18 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             ],
             child: const TransactionsTab(),
           );
-
         case 'Stocks':
           return ControlBarRegistrar(
             financeTabIndex: 5,
             buttons: [
               ControlBarButtonModel(
+                id: 'finances_stock_add',
                 icon: Icons.add,
                 label: 'Stock',
                 onPressed: () {},
               ),
               ControlBarButtonModel(
+                id: 'finances_stocks_sync',
                 icon: Icons.sync,
                 label: 'Stocks',
                 onPressed: () {},
@@ -376,12 +386,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             ],
             child: const StocksTab(),
           );
-
         case 'Watchlist':
           return ControlBarRegistrar(
             financeTabIndex: 6,
             buttons: [
               ControlBarButtonModel(
+                id: 'finances_watchlist_add',
                 icon: Icons.add_alert,
                 label: 'Add to Watchlist',
                 onPressed: () {},
@@ -389,12 +399,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             ],
             child: const WatchlistTab(),
           );
-
         case 'Analysis':
           return ControlBarRegistrar(
             financeTabIndex: 7,
             buttons: [
               ControlBarButtonModel(
+                id: 'finances_analysis_run',
                 icon: Icons.analytics,
                 label: 'Run Analysis',
                 onPressed: () {},
@@ -402,12 +412,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             ],
             child: const AnalysisTab(),
           );
-
         case 'News':
           return ControlBarRegistrar(
             financeTabIndex: 8,
             buttons: [
               ControlBarButtonModel(
+                id: 'finances_news_refresh',
                 icon: Icons.newspaper,
                 label: 'Refresh News',
                 onPressed: () {},
@@ -415,7 +425,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             ],
             child: const NewsTab(),
           );
-
         default:
           return Container();
       }
@@ -443,7 +452,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     final activeModule = store.activeModule;
     final modules = store.moduleOrder;
     final theme = Theme.of(context);
-
     return GlobalGestureDetector(
       child: Scaffold(
         appBar: AppBar(
@@ -481,9 +489,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                   NavigationRail(
                     selectedIndex: modules.indexOf(activeModule),
                     onDestinationSelected: (index) {
-                      // Clear ephemeral from old module
                       context.read<ControlBarProvider>().clearEphemeralButtons();
-                      // Switch modules
                       store.setActiveModule(modules[index]);
                     },
                     labelType: NavigationRailLabelType.all,
@@ -495,7 +501,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                     }).toList(),
                   ),
                 Expanded(
-                  child: (_tabController != null)
+                  child: _tabController != null
                       ? TabBarView(
                     controller: _tabController,
                     children: _tabs.map((t) => _buildTabContent(t, activeModule)).toList(),

@@ -58,89 +58,63 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
     super.dispose();
   }
 
+  Widget _buildOverlay() {
+    return AnimatedBuilder(
+      animation: fadeController,
+      builder: (context, child) {
+        final opacity = (pinchProgress.clamp(0.0, 1.0)) * fadeController.value;
+        return Positioned.fill(
+          child: IgnorePointer(
+            ignoring: opacity < 0.01,
+            child: Opacity(
+              opacity: opacity * 0.85,
+              child: Container(color: Colors.black),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return usingPanZoom
-        ? Listener(
-      onPointerSignal: onPointerSignal,
-      onPointerPanZoomStart: onPanZoomStart,
-      onPointerPanZoomUpdate: onPanZoomUpdate,
-      onPointerPanZoomEnd: onPanZoomEnd,
-      child: Stack(
-        children: [
-          widget.child,
-          AnimatedBuilder(
-            animation: fadeController,
-            builder: (context, child) {
-              final opacity = pinchProgress.clamp(0.0, 1.0) * fadeController.value;
-              return Positioned.fill(
-                child: IgnorePointer(
-                  ignoring: opacity < 0.01,
-                  child: Opacity(
-                    opacity: opacity * 0.85,
-                    child: Container(color: Colors.black),
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    )
-        : Listener(
-      onPointerSignal: onPointerSignal,
+    final overlay = _buildOverlay();
+    if (usingPanZoom) {
+      return Listener(
+        onPointerSignal: _handlePointerSignal,
+        onPointerPanZoomStart: _onPanZoomStart,
+        onPointerPanZoomUpdate: _onPanZoomUpdate,
+        onPointerPanZoomEnd: _onPanZoomEnd,
+        child: Stack(children: [widget.child, overlay]),
+      );
+    }
+    return Listener(
+      onPointerSignal: _handlePointerSignal,
       child: RawGestureDetector(
         gestures: {
-          ScaleGestureRecognizer:
-          GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
-                () => ScaleGestureRecognizer(
-              supportedDevices: {PointerDeviceKind.touch, PointerDeviceKind.trackpad},
-            ),
+          ScaleGestureRecognizer: GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
+                () => ScaleGestureRecognizer(supportedDevices: {PointerDeviceKind.touch, PointerDeviceKind.trackpad}),
                 (instance) {
               instance
-                ..onStart = onScaleStart
-                ..onUpdate = onScaleUpdate
-                ..onEnd = onScaleEnd;
+                ..onStart = _onScaleStart
+                ..onUpdate = _onScaleUpdate
+                ..onEnd = _onScaleEnd;
             },
           ),
         },
-        child: Stack(
-          children: [
-            widget.child,
-            AnimatedBuilder(
-              animation: fadeController,
-              builder: (context, child) {
-                final opacity = pinchProgress.clamp(0.0, 1.0) * fadeController.value;
-                return Positioned.fill(
-                  child: IgnorePointer(
-                    ignoring: opacity < 0.01,
-                    child: Opacity(
-                      opacity: opacity * 0.85,
-                      child: Container(color: Colors.black),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
+        child: Stack(children: [widget.child, overlay]),
       ),
     );
   }
 
-  void onPointerSignal(PointerSignalEvent event) {
+  void _handlePointerSignal(PointerSignalEvent event) {
     if (!supportsTrackpad) return;
+    final store = context.read<NavigationStore>();
     if (event is PointerScrollEvent) {
-      final store = context.read<NavigationStore>();
       if (store.hqActive) {
         accumulatedHQScrollDelta += event.scrollDelta.dy;
-        if (!hqSubviewSwitchTriggered &&
-            accumulatedHQScrollDelta.abs() > hqSubviewScrollThreshold) {
-          if (store.hqView == HQView.Dashboard) {
-            store.switchHQView(HQView.ModuleManager);
-          } else {
-            store.switchHQView(HQView.Dashboard);
-          }
+        if (!hqSubviewSwitchTriggered && accumulatedHQScrollDelta.abs() > hqSubviewScrollThreshold) {
+          store.switchHQView(store.hqView == HQView.Dashboard ? HQView.ModuleManager : HQView.Dashboard);
           HapticFeedback.mediumImpact();
           hqSubviewSwitchTriggered = true;
           subviewResetTimer?.cancel();
@@ -151,8 +125,7 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
         }
       } else {
         accumulatedScrollDelta += event.scrollDelta.dy;
-        if (!moduleSwitchTriggered &&
-            accumulatedScrollDelta.abs() > desktopScrollThreshold) {
+        if (!moduleSwitchTriggered && accumulatedScrollDelta.abs() > desktopScrollThreshold) {
           final modules = context.read<NavigationStore>().moduleOrder;
           final idx = modules.indexOf(store.activeModule);
           final forward = accumulatedScrollDelta > 0;
@@ -170,7 +143,7 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
     }
   }
 
-  void onPanZoomStart(PointerPanZoomStartEvent event) {
+  void _onPanZoomStart(PointerPanZoomStartEvent event) {
     isPinching = true;
     initialScale = 1.0;
     currentScale = 1.0;
@@ -178,7 +151,7 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
     fadeController.value = 1.0;
   }
 
-  void onPanZoomUpdate(PointerPanZoomUpdateEvent event) {
+  void _onPanZoomUpdate(PointerPanZoomUpdateEvent event) {
     if (isPinching) {
       currentScale *= event.scale;
       pinchProgress = currentScale < 1.0 ? (1.0 - currentScale) : (currentScale - 1.0);
@@ -186,23 +159,16 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
     }
   }
 
-  void onPanZoomEnd(PointerPanZoomEndEvent event) {
+  void _onPanZoomEnd(PointerPanZoomEndEvent event) {
     if (isPinching) {
-      final store = context.read<NavigationStore>();
-      if (currentScale < pinchInThreshold) {
-        store.setHQActive(true);
-        HapticFeedback.mediumImpact();
-      } else if (currentScale > pinchOutThreshold) {
-        store.setHQActive(false);
-        HapticFeedback.mediumImpact();
-      }
+      _handlePinchCompletion(currentScale);
       fadeController.reverse(from: 1.0);
       isPinching = false;
       pinchProgress = 0.0;
     }
   }
 
-  void onScaleStart(ScaleStartDetails details) {
+  void _onScaleStart(ScaleStartDetails details) {
     isPinching = true;
     initialScale = 1.0;
     currentScale = 1.0;
@@ -212,47 +178,51 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
     fadeController.value = 1.0;
   }
 
-  void onScaleUpdate(ScaleUpdateDetails details) {
+  void _onScaleUpdate(ScaleUpdateDetails details) {
     currentScale = details.scale;
     currentFocalPoint = details.focalPoint;
     pinchProgress = currentScale < 1.0 ? (1.0 - currentScale) : (currentScale - 1.0);
     setState(() {});
   }
 
-  void onScaleEnd(ScaleEndDetails details) {
-    final store = context.read<NavigationStore>();
-    final ratio = currentScale;
-    if (ratio < pinchInThreshold) {
-      store.setHQActive(true);
-      HapticFeedback.mediumImpact();
-    } else if (ratio > pinchOutThreshold) {
-      store.setHQActive(false);
-      HapticFeedback.mediumImpact();
-    } else if (ratio >= 0.95 && ratio <= 1.05) {
-      final dx = currentFocalPoint.dx - initialFocalPoint.dx;
-      final dy = currentFocalPoint.dy - initialFocalPoint.dy;
-      if (store.hqActive) {
-        if (dy.abs() > mobileSwipeThreshold) {
-          if (dy < 0) {
-            store.switchHQView(HQView.ModuleManager);
-          } else {
-            store.switchHQView(HQView.Dashboard);
+  void _onScaleEnd(ScaleEndDetails details) {
+    if (isPinching) {
+      if (currentScale >= 0.95 && currentScale <= 1.05) {
+        final dx = currentFocalPoint.dx - initialFocalPoint.dx;
+        final dy = currentFocalPoint.dy - initialFocalPoint.dy;
+        final store = context.read<NavigationStore>();
+        if (store.hqActive) {
+          if (dy.abs() > mobileSwipeThreshold) {
+            store.switchHQView(dy < 0 ? HQView.ModuleManager : HQView.Dashboard);
+            HapticFeedback.mediumImpact();
           }
-          HapticFeedback.mediumImpact();
+        } else {
+          if (dx.abs() > mobileSwipeThreshold) {
+            final modules = context.read<NavigationStore>().moduleOrder;
+            final idx = modules.indexOf(store.activeModule);
+            final forward = dx < 0;
+            final nextIdx = forward ? (idx + 1) % modules.length : (idx - 1 + modules.length) % modules.length;
+            store.setActiveModule(modules[nextIdx]);
+            HapticFeedback.mediumImpact();
+          }
         }
       } else {
-        if (dx.abs() > mobileSwipeThreshold) {
-          final modules = context.read<NavigationStore>().moduleOrder;
-          final idx = modules.indexOf(store.activeModule);
-          final forward = dx < 0;
-          final nextIdx = forward ? (idx + 1) % modules.length : (idx - 1 + modules.length) % modules.length;
-          store.setActiveModule(modules[nextIdx]);
-          HapticFeedback.mediumImpact();
-        }
+        _handlePinchCompletion(currentScale);
       }
+      fadeController.reverse(from: 1.0);
+      isPinching = false;
+      pinchProgress = 0.0;
     }
-    fadeController.reverse(from: 1.0);
-    isPinching = false;
-    pinchProgress = 0.0;
+  }
+
+  void _handlePinchCompletion(double scale) {
+    final store = context.read<NavigationStore>();
+    if (scale < pinchInThreshold) {
+      store.setHQActive(true);
+      HapticFeedback.mediumImpact();
+    } else if (scale > pinchOutThreshold) {
+      store.setHQActive(false);
+      HapticFeedback.mediumImpact();
+    }
   }
 }

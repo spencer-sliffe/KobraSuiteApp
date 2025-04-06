@@ -1,9 +1,7 @@
-// lib/UI/nav/providers/control_bar_registrar.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:kobrasuite_app/UI/nav/providers/control_bar_provider.dart';
-import 'package:kobrasuite_app/UI/nav/providers/navigation_store.dart';
+import 'control_bar_provider.dart';
+import 'navigation_store.dart';
 
 class ControlBarRegistrar extends StatefulWidget {
   final List<ControlBarButtonModel> buttons;
@@ -28,7 +26,7 @@ class ControlBarRegistrar extends StatefulWidget {
 }
 
 class _ControlBarRegistrarState extends State<ControlBarRegistrar> {
-  bool _buttonsAdded = false;
+  final Set<String> _registeredButtonIds = {};
   late NavigationStore _navStore;
   late ControlBarProvider _controlBarProvider;
   late VoidCallback _listener;
@@ -39,19 +37,20 @@ class _ControlBarRegistrarState extends State<ControlBarRegistrar> {
     _navStore = context.read<NavigationStore>();
     _controlBarProvider = context.read<ControlBarProvider>();
     _listener = _updateButtons;
-
-    // Listen for changes in NavigationStore so we know if the user
-    // switched modules/tabs
     _navStore.addListener(_listener);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateButtons());
+  }
 
-    // Run once after build
+  @override
+  void didUpdateWidget(covariant ControlBarRegistrar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Trigger an update when the widget is updated so that tab 0 buttons are added
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateButtons());
   }
 
   void _updateButtons() {
     final module = _navStore.activeModule;
     bool shouldShow = false;
-
     if (widget.financeTabIndex != null && module == Module.Finances) {
       shouldShow = (_navStore.activeFinancesTabIndex == widget.financeTabIndex);
     }
@@ -64,28 +63,28 @@ class _ControlBarRegistrarState extends State<ControlBarRegistrar> {
     if (widget.homelifeTabIndex != null && module == Module.HomeLife) {
       shouldShow = (_navStore.activeHomeLifeTabIndex == widget.homelifeTabIndex);
     }
-
-    if (shouldShow && !_buttonsAdded) {
-      // We want these ephemeral buttons, but haven't added them yet
+    if (shouldShow) {
       for (final button in widget.buttons) {
-        _controlBarProvider.addEphemeralButton(button);
+        if (!_registeredButtonIds.contains(button.id)) {
+          _controlBarProvider.addEphemeralButton(button);
+          _registeredButtonIds.add(button.id);
+        }
       }
-      _buttonsAdded = true;
-    } else if (!shouldShow && _buttonsAdded) {
-      // We previously added ephemeral, but we no longer need them
+    } else {
       for (final button in widget.buttons) {
-        _controlBarProvider.removeEphemeralButton(button);
+        if (_registeredButtonIds.contains(button.id)) {
+          _controlBarProvider.removeEphemeralButton(button);
+          _registeredButtonIds.remove(button.id);
+        }
       }
-      _buttonsAdded = false;
     }
   }
 
   @override
   void dispose() {
     _navStore.removeListener(_listener);
-    // If we had ephemeral buttons added, remove them on dispose
-    if (_buttonsAdded) {
-      for (final button in widget.buttons) {
+    for (final button in widget.buttons) {
+      if (_registeredButtonIds.contains(button.id)) {
         _controlBarProvider.removeEphemeralButton(button);
       }
     }
@@ -93,7 +92,5 @@ class _ControlBarRegistrarState extends State<ControlBarRegistrar> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return widget.child;
-  }
+  Widget build(BuildContext context) => widget.child;
 }
