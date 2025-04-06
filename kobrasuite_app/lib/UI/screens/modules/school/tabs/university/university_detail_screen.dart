@@ -87,20 +87,7 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final trendingNews = Provider.of<UniversityProvider>(context).trendingNews;
-    return ControlBarRegistrar(
-      buttons: [
-        ControlBarButtonModel(
-          icon: Icons.check_circle_outline,
-          label: 'Set University',
-          onPressed: _setUniversity,
-        ),
-        ControlBarButtonModel(
-          icon: Icons.refresh,
-          label: 'Refresh',
-          onPressed: _refreshNews,
-        ),
-      ],
-      child: Scaffold(
+    return  Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -276,7 +263,7 @@ class _UniversityDetailScreenState extends State<UniversityDetailScreen> {
           ],
         ),
         bottomNavigationBar: const PageControlBar(),
-      ),
-    );
+      );
+
   }
 }
