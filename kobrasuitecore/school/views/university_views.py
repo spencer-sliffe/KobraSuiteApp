@@ -1,5 +1,5 @@
 import logging
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -7,6 +7,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 
+from finances.utils.stock_utils import get_news_articles
+from kobrasuitecore import settings
 from ..filters import UniversityFilter
 from ..models import University
 from ..serializers.university_serializers import UniversitySerializer
@@ -48,3 +50,29 @@ class UniversityViewSet(viewsets.ModelViewSet):
         country = request.query_params.get('country')
         data, code = search_universities(query, country)
         return Response(data, status=code)
+
+    @action(detail=True, methods=['get'], url_path='news', name='university_news')
+    def university_news(self, request, user_pk=None, profile_pk=None, school_profile_pk=None, pk=None):
+        """
+        GET /api/users/<user_pk>/profile/<profile_pk>/school_profile/<school_profile_pk>/universities/<pk>/news
+        Example: ?universityName=Stanford%20University
+        """
+        university = self.get_object()
+        page = request.query_params.get('page', 1)
+        # Pull 'universityName' if it exists, else fall back to our DB's .name
+        query = request.query_params.get('universityName') or university.name
+
+        api_key = getattr(settings, 'NEWS_API_KEY', None)
+        if not api_key:
+            return Response({"detail": "NEWS_API_KEY not configured."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # We'll do "Stanford University" as the final query
+        # (some people like to add "University" if it's missing, but it's optional)
+        if not query.lower().endswith("university"):
+            query += " University"
+
+        news_data = get_news_articles(api_key, query=query, page=page)
+        if not news_data:
+            return Response({"detail": "No news found."}, status=status.HTTP_200_OK)
+
+        return Response(news_data, status=status.HTTP_200_OK)

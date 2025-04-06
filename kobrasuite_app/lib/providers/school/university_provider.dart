@@ -162,16 +162,27 @@ class UniversityProvider with ChangeNotifier {
   }
 
   Future<void> fetchTrendingNews(String universityName) async {
+    if (_currentUniversity == null) {
+      return;
+    }
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
+
     try {
-      final news = await _universityNewsService.fetchTrendingNews(universityName);
+      final news = await _universityNewsService.fetchTrendingNews(
+        userPk: userPk,
+        userProfilePk: userProfilePk,
+        schoolProfilePk: schoolProfilePk,
+        universityPk: _currentUniversity!.id ?? 0,
+        universityName: universityName,
+      );
       _trendingNews = news;
     } catch (e) {
       _errorMessage = 'Failed to fetch trending news: $e';
       _trendingNews = [];
     }
+
     _isLoading = false;
     notifyListeners();
   }
