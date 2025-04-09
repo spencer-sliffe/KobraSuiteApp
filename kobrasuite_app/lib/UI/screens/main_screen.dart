@@ -37,6 +37,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   TabController? _tabController;
   List<String> _tabs = [];
+  Module? _currentModule; // Keep track of the current module for smoother transitions
 
   @override
   void initState() {
@@ -80,7 +81,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     required int activeIndex,
     required void Function(int) updateStoreIndex,
   }) {
+    // Set and animate the tab controller’s index.
     _tabController!.index = activeIndex;
+    _tabController!.animateTo(activeIndex, duration: const Duration(milliseconds: 200), curve: Curves.easeInOut);
     _tabController!.addListener(() {
       if (!_tabController!.indexIsChanging) {
         context.read<ControlBarProvider>().clearEphemeralButtons();
@@ -93,35 +96,59 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final store = context.watch<NavigationStore>();
-    final module = store.activeModule;
-    _tabs = _tabsForModule(module);
-    _tabController?.dispose();
-    _tabController = TabController(length: _tabs.length, vsync: this);
-    switch (module) {
-      case Module.Finances:
-        _setupTabController(
-          activeIndex: store.activeFinancesTabIndex,
-          updateStoreIndex: (newIndex) => store.setActiveFinancesTabIndex(newIndex),
-        );
-        break;
-      case Module.School:
-        _setupTabController(
-          activeIndex: store.activeSchoolTabIndex,
-          updateStoreIndex: (newIndex) => store.setActiveSchoolTabIndex(newIndex),
-        );
-        break;
-      case Module.HomeLife:
-        _setupTabController(
-          activeIndex: store.activeHomeLifeTabIndex,
-          updateStoreIndex: (newIndex) => store.setActiveHomeLifeTabIndex(newIndex),
-        );
-        break;
-      case Module.Work:
-        _setupTabController(
-          activeIndex: store.activeWorkTabIndex,
-          updateStoreIndex: (newIndex) => store.setActiveWorkTabIndex(newIndex),
-        );
-        break;
+    final Module newModule = store.activeModule;
+    if (_currentModule != newModule) {
+      // Module has changed. Recreate the TabController and update the tab list.
+      _currentModule = newModule;
+      _tabs = _tabsForModule(newModule);
+      _tabController?.dispose();
+      _tabController = TabController(length: _tabs.length, vsync: this);
+      switch (newModule) {
+        case Module.Finances:
+          _setupTabController(
+            activeIndex: store.activeFinancesTabIndex,
+            updateStoreIndex: (newIndex) => store.setActiveFinancesTabIndex(newIndex),
+          );
+          break;
+        case Module.School:
+          _setupTabController(
+            activeIndex: store.activeSchoolTabIndex,
+            updateStoreIndex: (newIndex) => store.setActiveSchoolTabIndex(newIndex),
+          );
+          break;
+        case Module.HomeLife:
+          _setupTabController(
+            activeIndex: store.activeHomeLifeTabIndex,
+            updateStoreIndex: (newIndex) => store.setActiveHomeLifeTabIndex(newIndex),
+          );
+          break;
+        case Module.Work:
+          _setupTabController(
+            activeIndex: store.activeWorkTabIndex,
+            updateStoreIndex: (newIndex) => store.setActiveWorkTabIndex(newIndex),
+          );
+          break;
+      }
+    } else {
+      // Module has not changed. Animate tab index transitions if needed.
+      int newIndex = 0;
+      switch (newModule) {
+        case Module.Finances:
+          newIndex = store.activeFinancesTabIndex;
+          break;
+        case Module.School:
+          newIndex = store.activeSchoolTabIndex;
+          break;
+        case Module.HomeLife:
+          newIndex = store.activeHomeLifeTabIndex;
+          break;
+        case Module.Work:
+          newIndex = store.activeWorkTabIndex;
+          break;
+      }
+      if (_tabController != null && _tabController!.index != newIndex) {
+        _tabController!.animateTo(newIndex, duration: const Duration(milliseconds: 200), curve: Curves.easeInOut);
+      }
     }
   }
 
@@ -160,6 +187,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildTabContent(String tab, Module module) {
+    // (Content construction remains largely unchanged.)
     if (module == Module.School) {
       switch (tab) {
         case 'University':
@@ -398,7 +426,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 label: 'Transactions',
                 onPressed: () {
                   context.read<NavigationStore>().setSyncFinanceTransactionsActive();
-
                 },
               ),
             ],
@@ -558,15 +585,21 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                   ),
                 Expanded(
                   child: _tabController != null
-                      ? TabBarView(
-                    controller: _tabController,
-                    children: _tabs.map((t) => _buildTabContent(t, activeModule)).toList(),
+                      ? AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 200),
+                    switchInCurve: Curves.easeInOut,
+                    switchOutCurve: Curves.easeInOut,
+                    child: TabBarView(
+                      key: ValueKey(_currentModule),
+                      controller: _tabController,
+                      children: _tabs.map((t) => _buildTabContent(t, activeModule)).toList(),
+                    ),
                   )
                       : Container(),
                 ),
               ],
             ),
-            // Insert the GlobalModalsLauncher here.
+            // Global modals launcher and overlays.
             const UniversalOverlay(),
             if (store.hqActive) const HQNavigationOverlay(),
           ],
