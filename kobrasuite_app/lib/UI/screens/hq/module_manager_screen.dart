@@ -31,7 +31,7 @@ class ModuleManagerScreenState extends State<ModuleManagerScreen> {
     return InkWell(
       onTap: () {
         context.read<NavigationStore>().setActiveModule(module);
-        context.read<NavigationStore>().setHQActive(false);
+        context.read<NavigationStore>().toggleHQ();
       },
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 6),

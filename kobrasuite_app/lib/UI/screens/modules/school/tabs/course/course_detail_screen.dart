@@ -8,8 +8,6 @@ import 'package:kobrasuite_app/services/image/banner_image_service.dart';
 import 'package:kobrasuite_app/UI/widgets/animation/abstract_banner_animation.dart';
 import 'package:kobrasuite_app/UI/widgets/cards/school/assignment_card.dart';
 import 'package:kobrasuite_app/UI/widgets/cards/school/topic_card.dart';
-import 'package:kobrasuite_app/UI/widgets/school/assignment_detail_popup.dart';
-import 'package:kobrasuite_app/UI/widgets/school/topic_detail_popup.dart';
 
 // Import the bottom sheet:
 import 'package:kobrasuite_app/UI/widgets/school/add_course_bottom_sheet.dart';
@@ -224,12 +222,6 @@ class AssignmentTab extends StatelessWidget {
           final assignment = assignments[index];
           return GestureDetector(
             onTap: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (_) => AssignmentDetailPopup(assignment: assignment),
-              );
             },
             child: Padding(
               padding: const EdgeInsets.only(bottom: 16.0),
@@ -272,12 +264,6 @@ class TopicTab extends StatelessWidget {
           final topic = topics[index];
           return GestureDetector(
             onTap: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (_) => TopicDetailPopup(topic: topic),
-              );
             },
             child: Padding(
               padding: const EdgeInsets.only(bottom: 16.0),

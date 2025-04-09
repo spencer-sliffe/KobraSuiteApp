@@ -84,7 +84,7 @@ class CourseViewSet(viewsets.ModelViewSet):
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['get'], url_path='search', name='search_course')
-    def search_courses(self, request, university_pk=None, user_pk=None, school_profile_pk=None):
+    def search_courses(self, request, university_pk=None, user_pk=None, profile_pk=None, school_profile_pk=None):
         university = get_object_or_404(University, pk=university_pk)
         query = request.query_params.get('query', '')
         data, code = search_course_in_university(university, query)

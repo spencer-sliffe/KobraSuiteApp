@@ -21,6 +21,7 @@ import 'package:kobrasuite_app/UI/screens/modules/finances/tabs/budget_categorie
 import 'package:kobrasuite_app/UI/screens/modules/finances/tabs/analysis_tab.dart';
 import 'package:kobrasuite_app/UI/screens/modules/finances/tabs/news_tab.dart';
 import 'package:kobrasuite_app/UI/screens/modules/finances/tabs/watchlist_tab.dart';
+import '../nav/overlays/universal_overlay.dart';
 import '../nav/providers/control_bar_registrar.dart';
 import 'modules/homelife/tabs/homelife_calendar_tab.dart';
 import 'modules/homelife/tabs/homelife_chores_tab.dart';
@@ -48,7 +49,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           id: 'refresh',
           icon: Icons.refresh,
           label: 'Refresh',
-          onPressed: () {},
+          onPressed: () {
+          },
         ),
       );
       provider.addPersistentButton(
@@ -56,7 +58,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           id: 'chat',
           icon: Icons.chat,
           label: 'Toggle AI Chat',
-          onPressed: () {},
+          onPressed: () {
+            context.read<NavigationStore>().setAIChatActive();
+          },
         ),
       );
       provider.addPersistentButton(
@@ -65,7 +69,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           icon: Icons.hd,
           label: 'HQ',
           onPressed: () {
-            context.read<NavigationStore>().setHQActive(true);
+            context.read<NavigationStore>().toggleHQ();
           },
         ),
       );
@@ -166,7 +170,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 id: 'school_university_search',
                 icon: Icons.search,
                 label: 'Universities',
-                onPressed: () {},
+                onPressed: () {
+                  context.read<NavigationStore>().setSearchUniversityActive();
+                },
               ),
             ],
             child: const SchoolUniversityTab(),
@@ -179,7 +185,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 id: 'school_course_add',
                 icon: Icons.add,
                 label: 'Course',
-                onPressed: () {},
+                onPressed: () {
+                  context.read<NavigationStore>().setAddCourseActive();
+                },
               ),
             ],
             child: const SchoolCoursesTab(),
@@ -197,7 +205,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 id: 'work_project_add',
                 icon: Icons.add,
                 label: 'Project',
-                onPressed: () {},
+                onPressed: () {
+                  context.read<NavigationStore>().setAddProjectActive();
+                },
               ),
             ],
             child: const WorkProjectsTab(),
@@ -210,7 +220,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 id: 'work_team_add',
                 icon: Icons.add,
                 label: 'Team',
-                onPressed: () {},
+                onPressed: () {
+                  context.read<NavigationStore>().setAddTeamActive();
+                },
               ),
             ],
             child: const WorkTeamsTab(),
@@ -223,7 +235,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 id: 'work_task_add',
                 icon: Icons.add,
                 label: 'Task',
-                onPressed: () {},
+                onPressed: () {
+                  context.read<NavigationStore>().setAddTaskActive();
+                },
               ),
             ],
             child: const WorkTasksTab(),
@@ -241,7 +255,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 id: 'homelife_chores_add',
                 icon: Icons.add,
                 label: 'Chore',
-                onPressed: () {},
+                onPressed: () {
+                  context.read<NavigationStore>().setAddChoreActive();
+                },
               ),
             ],
             child: const HomelifeChoresTab(),
@@ -254,7 +270,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 id: 'homelife_calendar_add',
                 icon: Icons.add,
                 label: 'Calendar Event',
-                onPressed: () {},
+                onPressed: () {
+                  context.read<NavigationStore>().setAddCalendarEventActive();
+                },
               ),
             ],
             child: const HomelifeCalendarTab(),
@@ -267,7 +285,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 id: 'homelife_meals_add',
                 icon: Icons.add,
                 label: 'Meal',
-                onPressed: () {},
+                onPressed: () {
+                  context.read<NavigationStore>().setAddMealActive();
+                },
               ),
             ],
             child: const HomelifeMealsTab(),
@@ -280,7 +300,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 id: 'homelife_groceries_add',
                 icon: Icons.add,
                 label: 'Grocery',
-                onPressed: () {},
+                onPressed: () {
+                  context.read<NavigationStore>().setAddGroceryItemActive();
+                },
               ),
             ],
             child: const HomelifeGroceriesTab(),
@@ -297,8 +319,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               ControlBarButtonModel(
                 id: 'finances_overview_sync',
                 icon: Icons.sync,
-                label: 'Accounts',
-                onPressed: () {},
+                label: 'Overview',
+                onPressed: () {
+                  context.read<NavigationStore>().setSyncFinanceOverviewActive();
+                },
               ),
             ],
             child: const OverviewTab(),
@@ -311,13 +335,17 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 id: 'finances_account_add',
                 icon: Icons.add,
                 label: 'Account',
-                onPressed: () {},
+                onPressed: () {
+                  context.read<NavigationStore>().setAddBankAccountActive();
+                },
               ),
               ControlBarButtonModel(
                 id: 'finances_accounts_sync',
                 icon: Icons.sync,
                 label: 'Accounts',
-                onPressed: () {},
+                onPressed: () {
+                  context.read<NavigationStore>().setSyncFinanceAccountsActive();
+                },
               ),
             ],
             child: const BankAccountsTab(),
@@ -330,7 +358,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 id: 'finances_budget_add',
                 icon: Icons.add,
                 label: 'Budget',
-                onPressed: () {},
+                onPressed: () {
+                  context.read<NavigationStore>().setAddBudgetActive();
+                },
               ),
             ],
             child: const BudgetsTab(),
@@ -343,7 +373,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 id: 'finances_category_add',
                 icon: Icons.add,
                 label: 'Category',
-                onPressed: () {},
+                onPressed: () {
+                  context.read<NavigationStore>().setAddCategoryActive();
+                },
               ),
             ],
             child: const BudgetCategoriesTab(),
@@ -356,13 +388,18 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 id: 'finances_transaction_add',
                 icon: Icons.add,
                 label: 'Transaction',
-                onPressed: () {},
+                onPressed: () {
+                  context.read<NavigationStore>().setAddTransactionActive();
+                },
               ),
               ControlBarButtonModel(
                 id: 'finances_transactions_sync',
                 icon: Icons.sync,
                 label: 'Transactions',
-                onPressed: () {},
+                onPressed: () {
+                  context.read<NavigationStore>().setSyncFinanceTransactionsActive();
+
+                },
               ),
             ],
             child: const TransactionsTab(),
@@ -375,13 +412,25 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 id: 'finances_stock_add',
                 icon: Icons.add,
                 label: 'Stock',
-                onPressed: () {},
+                onPressed: () {
+                  context.read<NavigationStore>().setAddStockActive();
+                },
               ),
               ControlBarButtonModel(
                 id: 'finances_stocks_sync',
                 icon: Icons.sync,
                 label: 'Stocks',
-                onPressed: () {},
+                onPressed: () {
+                  context.read<NavigationStore>().setSyncStocksActive();
+                },
+              ),
+              ControlBarButtonModel(
+                id: 'finances_stock_portfolio_add',
+                icon: Icons.add,
+                label: 'Portfolio',
+                onPressed: () {
+                  context.read<NavigationStore>().setAddStockPortfolioActive();
+                },
               ),
             ],
             child: const StocksTab(),
@@ -394,7 +443,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 id: 'finances_watchlist_add',
                 icon: Icons.add_alert,
                 label: 'Add to Watchlist',
-                onPressed: () {},
+                onPressed: () {
+                  context.read<NavigationStore>().setAddWatchlistStockActive();
+                },
               ),
             ],
             child: const WatchlistTab(),
@@ -407,7 +458,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 id: 'finances_analysis_run',
                 icon: Icons.analytics,
                 label: 'Run Analysis',
-                onPressed: () {},
+                onPressed: () {
+                  context.read<NavigationStore>().setRunFinanceAnalysisActive();
+                },
               ),
             ],
             child: const AnalysisTab(),
@@ -420,7 +473,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 id: 'finances_news_refresh',
                 icon: Icons.newspaper,
                 label: 'Refresh News',
-                onPressed: () {},
+                onPressed: () {
+                  context.read<NavigationStore>().setRefreshFinanceNewsActive();
+                },
               ),
             ],
             child: const NewsTab(),
@@ -452,6 +507,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     final activeModule = store.activeModule;
     final modules = store.moduleOrder;
     final theme = Theme.of(context);
+
     return GlobalGestureDetector(
       child: Scaffold(
         appBar: AppBar(
@@ -510,6 +566,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 ),
               ],
             ),
+            // Insert the GlobalModalsLauncher here.
+            const UniversalOverlay(),
             if (store.hqActive) const HQNavigationOverlay(),
           ],
         ),
