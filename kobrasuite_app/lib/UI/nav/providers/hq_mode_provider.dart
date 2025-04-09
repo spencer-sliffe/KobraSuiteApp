@@ -23,9 +23,9 @@ class HQModeProvider extends ChangeNotifier {
 
   void updateHQStatus(double scale) {
     if (scale < pinchInThreshold && !HQActive) {
-      navigationStore.setHQActive(true);
+      navigationStore.toggleHQ();
     } else if (scale > pinchOutThreshold && HQActive) {
-      navigationStore.setHQActive(false);
+      navigationStore.toggleHQ();
     }
   }
 }

@@ -218,10 +218,10 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
   void _handlePinchCompletion(double scale) {
     final store = context.read<NavigationStore>();
     if (scale < pinchInThreshold) {
-      store.setHQActive(true);
+      store.toggleHQ();
       HapticFeedback.mediumImpact();
     } else if (scale > pinchOutThreshold) {
-      store.setHQActive(false);
+      store.toggleHQ();
       HapticFeedback.mediumImpact();
     }
   }

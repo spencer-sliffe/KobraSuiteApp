@@ -47,9 +47,11 @@ class UniversityViewSet(viewsets.ModelViewSet):
         returns a list of known or potential matches.
         """
         query = request.query_params.get('query', '')
-        country = request.query_params.get('country')
-        data, code = search_universities(query, country)
-        return Response(data, status=code)
+        if query not in ['U', 'u', 'Un', 'un', 'Uni', 'uni', 'Univ', 'univ','Unive', 'unive', 'Univers', 'univers' 
+                    'Universi', 'universi' 'Universit','universit', 'University', 'university']:
+            country = request.query_params.get('country')
+            data, code = search_universities(query, country)
+            return Response(data, status=code)
 
     @action(detail=True, methods=['get'], url_path='news', name='university_news')
     def university_news(self, request, user_pk=None, profile_pk=None, school_profile_pk=None, pk=None):
