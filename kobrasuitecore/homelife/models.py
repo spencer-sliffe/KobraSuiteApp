@@ -74,13 +74,13 @@ class Chore(models.Model): # creates chore model
 
 class ChoreCompletion(models.Model): # model for completed chores
     chore = models.ForeignKey(Chore, on_delete=models.CASCADE, related_name='completions')
-    profile = models.ForeignKey('hq.HomeLifeProfile', on_delete=models.CASCADE, related_name='chore_completions')
+    homelife_profile = models.ForeignKey('hq.HomeLifeProfile', on_delete=models.CASCADE, related_name='chore_completions')
     completed_at = models.DateTimeField(default=timezone.now)
     is_on_time = models.BooleanField(default=True)
     points = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.profile.user.username} completed {self.chore.title}" # string representation of completed chores 
+        return f"{self.homelife_profile.profile.user.username} completed {self.chore.title}" # string representation of completed chores
 # stores meta data
     class Meta:
         ordering = ['-completed_at']

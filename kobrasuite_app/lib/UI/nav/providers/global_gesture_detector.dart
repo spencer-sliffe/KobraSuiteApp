@@ -26,8 +26,9 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
   bool hqSubviewSwitchTriggered = false;
   Timer? scrollResetTimer;
   Timer? subviewResetTimer;
-  final double desktopScrollThreshold = 680.0;
-  final double hqSubviewScrollThreshold = 680.0;
+  // Increased thresholds to 800.0 for less sensitive swiping.
+  final double desktopScrollThreshold = 800.0;
+  final double hqSubviewScrollThreshold = 800.0;
   final double pinchInThreshold = 0.85;
   final double pinchOutThreshold = 1.15;
   final double mobileSwipeThreshold = 120.0;
@@ -47,7 +48,8 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
   @override
   void initState() {
     super.initState();
-    fadeController = AnimationController(vsync: this, duration: const Duration(milliseconds: 200));
+    // Increase fade duration for a smoother fade in/out.
+    fadeController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
   }
 
   @override
@@ -153,7 +155,8 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
 
   void _onPanZoomUpdate(PointerPanZoomUpdateEvent event) {
     if (isPinching) {
-      currentScale *= event.scale;
+      // Use the instantaneous scale provided by the event instead of multiplying.
+      currentScale = event.scale;
       pinchProgress = currentScale < 1.0 ? (1.0 - currentScale) : (currentScale - 1.0);
       setState(() {});
     }
