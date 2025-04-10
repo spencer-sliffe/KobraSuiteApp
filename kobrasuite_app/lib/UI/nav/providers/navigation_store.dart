@@ -25,7 +25,6 @@ class NavigationStore extends ChangeNotifier {
   bool _addChoreActive = false;
   bool _addCalendarEventActive = false;
   bool _addMealActive = false;
-  bool _addGroceryItemActive = false;
   bool _addBankAccountActive = false;
   bool _addBudgetActive = false;
   bool _addCategoryActive = false;
@@ -43,6 +42,14 @@ class NavigationStore extends ChangeNotifier {
   bool _addTopicStudyDocumentActive = false;
   bool _addCourseTopicActive = false;
   bool _addAssignmentSubmissionActive = false;
+  bool _addPetActive = false;
+  bool _addMedicationActive = false;
+  bool _addMedicalAppointmentActive = false;
+  bool _sendHouseholdInviteActive = false;
+  bool _addWorkoutRoutineActive = false;
+  bool _addChildProfileActive = false;
+  bool _addGroceryListActive = false;
+  bool _addGroceryItemActive = false;
 
 
   List<Module> get moduleOrder => _moduleOrder;
@@ -61,7 +68,6 @@ class NavigationStore extends ChangeNotifier {
   bool get addChoreActive => _addChoreActive;
   bool get addCalendarEventActive => _addCalendarEventActive;
   bool get addMealActive => _addMealActive;
-  bool get addGroceryItemActive => _addGroceryItemActive;
   bool get addBankAccountActive => _addBankAccountActive;
   bool get addBudgetActive => _addBudgetActive;
   bool get addCategoryActive => _addCategoryActive;
@@ -79,6 +85,14 @@ class NavigationStore extends ChangeNotifier {
   bool get addTopicStudyDocumentActive => _addTopicStudyDocumentActive;
   bool get addCourseTopicActive => _addCourseTopicActive;
   bool get addAssignmentSubmissionActive => _addAssignmentSubmissionActive;
+  bool get addPetActive => _addPetActive;
+  bool get addMedicationActive => _addMedicationActive;
+  bool get addMedicalAppointmentActive => _addMedicalAppointmentActive;
+  bool get sendHouseholdInviteActive => _sendHouseholdInviteActive;
+  bool get addWorkoutRoutineActive => _addWorkoutRoutineActive;
+  bool get addChildProfileActive => _addChildProfileActive;
+  bool get addGroceryListActive => _addGroceryListActive;
+  bool get addGroceryItemActive => _addGroceryItemActive;
 
   void setModuleOrder(List<Module> newOrder) {
     _moduleOrder = newOrder;
@@ -250,6 +264,41 @@ class NavigationStore extends ChangeNotifier {
 
   void setAddCourseTopicActive() {
     _addCourseTopicActive = !_addCourseTopicActive;
+    notifyListeners();
+  }
+
+  void setAddPetActive() {
+    _addPetActive = !_addPetActive;
+    notifyListeners();
+  }
+
+  void setAddWorkoutRoutineActive() {
+    _addWorkoutRoutineActive = !_addWorkoutRoutineActive;
+    notifyListeners();
+  }
+
+  void setAddMedicationActive() {
+    _addMedicationActive = !_addMedicationActive;
+    notifyListeners();
+  }
+
+  void setAddMedicalAppointmentActive() {
+    _addMedicalAppointmentActive = !_addMedicalAppointmentActive;
+    notifyListeners();
+  }
+
+  void setSendHouseholdInviteActive() {
+    _sendHouseholdInviteActive = !_sendHouseholdInviteActive;
+    notifyListeners();
+  }
+
+  void setAddChildProfileActive() {
+    _addChildProfileActive = !_addChildProfileActive;
+    notifyListeners();
+  }
+
+  void setAddGroceryListActive() {
+    _addGroceryListActive = !_addGroceryListActive;
     notifyListeners();
   }
 

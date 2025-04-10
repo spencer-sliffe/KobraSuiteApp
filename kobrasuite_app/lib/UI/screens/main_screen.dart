@@ -25,6 +25,8 @@ import '../nav/overlays/universal_overlay.dart';
 import '../nav/providers/control_bar_registrar.dart';
 import 'modules/homelife/tabs/homelife_calendar_tab.dart';
 import 'modules/homelife/tabs/homelife_chores_tab.dart';
+import 'modules/homelife/tabs/homelife_household_tab.dart';
+import 'modules/homelife/tabs/homelife_medical_tab.dart';
 import 'modules/work/tabs/work_teams_tabs.dart';
 
 class MainScreen extends StatefulWidget {
@@ -128,9 +130,16 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   List<String> _tabsForModule(Module module) {
     switch (module) {
       case Module.School:
-        return ['University', 'Courses'];
+        return [
+          'University',
+          'Courses'
+        ];
       case Module.Work:
-        return ['Projects', 'Teams', 'Tasks'];
+        return [
+          'Projects',
+          'Teams',
+          'Tasks'
+        ];
       case Module.Finances:
         return [
           'Overview',
@@ -144,7 +153,13 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           'News',
         ];
       case Module.HomeLife:
-        return ['Chores', 'Calendar', 'Meals', 'Groceries'];
+        return [
+          'Personal',
+          'Chores',
+          'Meals',
+          'Household',
+          'Medical'
+        ];
     }
   }
 
@@ -247,9 +262,32 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       }
     } else if (module == Module.HomeLife) {
       switch (tab) {
-        case 'Chores':
+        case 'Personal':
           return ControlBarRegistrar(
             homelifeTabIndex: 0,
+            buttons: [
+              ControlBarButtonModel(
+                id: 'homelife_calendar_add',
+                icon: Icons.add,
+                label: 'Calendar Event',
+                onPressed: () {
+                  context.read<NavigationStore>().setAddCalendarEventActive();
+                },
+              ),
+              ControlBarButtonModel(
+                id: 'homelife_workout_routine_add',
+                icon: Icons.add,
+                label: 'Workout Routine',
+                onPressed: () {
+                  context.read<NavigationStore>().setAddWorkoutRoutineActive();
+                },
+              ),
+            ],
+            child: const HomelifeCalendarTab(),
+          );
+        case 'Chores':
+          return ControlBarRegistrar(
+            homelifeTabIndex: 1,
             buttons: [
               ControlBarButtonModel(
                 id: 'homelife_chores_add',
@@ -261,21 +299,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               ),
             ],
             child: const HomelifeChoresTab(),
-          );
-        case 'Calendar':
-          return ControlBarRegistrar(
-            homelifeTabIndex: 1,
-            buttons: [
-              ControlBarButtonModel(
-                id: 'homelife_calendar_add',
-                icon: Icons.add,
-                label: 'Calendar Event',
-                onPressed: () {
-                  context.read<NavigationStore>().setAddCalendarEventActive();
-                },
-              ),
-            ],
-            child: const HomelifeCalendarTab(),
           );
         case 'Meals':
           return ControlBarRegistrar(
@@ -289,23 +312,71 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                   context.read<NavigationStore>().setAddMealActive();
                 },
               ),
-            ],
-            child: const HomelifeMealsTab(),
-          );
-        case 'Groceries':
-          return ControlBarRegistrar(
-            homelifeTabIndex: 3,
-            buttons: [
               ControlBarButtonModel(
-                id: 'homelife_groceries_add',
+                id: 'homelife_grocery_item_add',
                 icon: Icons.add,
-                label: 'Grocery',
+                label: 'Grocery Item',
                 onPressed: () {
                   context.read<NavigationStore>().setAddGroceryItemActive();
                 },
               ),
+              ControlBarButtonModel(
+                id: 'homelife_grocery_list_add',
+                icon: Icons.add,
+                label: 'Grocery List',
+                onPressed: () {
+                  context.read<NavigationStore>().setAddGroceryListActive();
+                },
+              ),
             ],
-            child: const HomelifeGroceriesTab(),
+            child: const HomelifeMealsTab(),
+          );
+        case 'Household':
+          return ControlBarRegistrar(
+            homelifeTabIndex: 3,
+            buttons: [
+              ControlBarButtonModel(
+                id: 'homelife_pet_add',
+                icon: Icons.add,
+                label: 'Pet',
+                onPressed: () {
+                  context.read<NavigationStore>().setAddPetActive();
+                },
+              ),
+              ControlBarButtonModel(
+                id: 'homelife_child_account_add',
+                icon: Icons.add,
+                label: 'Child Profile',
+                onPressed: () {
+                  context.read<NavigationStore>().setAddChildProfileActive();
+                },
+              ),
+            ],
+            child: const HomelifeHouseholdTab(),
+          );
+        case 'Medical':
+          return ControlBarRegistrar(
+            homelifeTabIndex: 4,
+            buttons: [
+              ControlBarButtonModel(
+                id: 'homelife_medication_add',
+                icon: Icons.add,
+                label: 'Medication',
+                onPressed: () {
+                  context.read<NavigationStore>().setAddMedicationActive();
+                },
+              ),
+              ControlBarButtonModel(
+                id: 'homelife_medical_appointment_add',
+                icon: Icons.add,
+                label: 'Medical Appointment',
+                onPressed: () {
+                  context.read<NavigationStore>().setAddMedicalAppointmentActive();
+                },
+              ),
+
+            ],
+            child: const HomelifeMedicalTab(),
           );
         default:
           return Container();
