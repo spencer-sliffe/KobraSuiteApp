@@ -25,6 +25,8 @@ import '../nav/overlays/universal_overlay.dart';
 import '../nav/providers/control_bar_registrar.dart';
 import 'modules/homelife/tabs/homelife_calendar_tab.dart';
 import 'modules/homelife/tabs/homelife_chores_tab.dart';
+import 'modules/homelife/tabs/homelife_household_tab.dart';
+import 'modules/homelife/tabs/homelife_medical_tab.dart';
 import 'modules/work/tabs/work_teams_tabs.dart';
 
 class MainScreen extends StatefulWidget {
@@ -37,7 +39,6 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   TabController? _tabController;
   List<String> _tabs = [];
-  Module? _currentModule; // Keep track of the current module for smoother transitions
 
   @override
   void initState() {
@@ -81,9 +82,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     required int activeIndex,
     required void Function(int) updateStoreIndex,
   }) {
-    // Set and animate the tab controller’s index.
     _tabController!.index = activeIndex;
-    _tabController!.animateTo(activeIndex, duration: const Duration(milliseconds: 200), curve: Curves.easeInOut);
     _tabController!.addListener(() {
       if (!_tabController!.indexIsChanging) {
         context.read<ControlBarProvider>().clearEphemeralButtons();
@@ -96,68 +95,51 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final store = context.watch<NavigationStore>();
-    final Module newModule = store.activeModule;
-    if (_currentModule != newModule) {
-      // Module has changed. Recreate the TabController and update the tab list.
-      _currentModule = newModule;
-      _tabs = _tabsForModule(newModule);
-      _tabController?.dispose();
-      _tabController = TabController(length: _tabs.length, vsync: this);
-      switch (newModule) {
-        case Module.Finances:
-          _setupTabController(
-            activeIndex: store.activeFinancesTabIndex,
-            updateStoreIndex: (newIndex) => store.setActiveFinancesTabIndex(newIndex),
-          );
-          break;
-        case Module.School:
-          _setupTabController(
-            activeIndex: store.activeSchoolTabIndex,
-            updateStoreIndex: (newIndex) => store.setActiveSchoolTabIndex(newIndex),
-          );
-          break;
-        case Module.HomeLife:
-          _setupTabController(
-            activeIndex: store.activeHomeLifeTabIndex,
-            updateStoreIndex: (newIndex) => store.setActiveHomeLifeTabIndex(newIndex),
-          );
-          break;
-        case Module.Work:
-          _setupTabController(
-            activeIndex: store.activeWorkTabIndex,
-            updateStoreIndex: (newIndex) => store.setActiveWorkTabIndex(newIndex),
-          );
-          break;
-      }
-    } else {
-      // Module has not changed. Animate tab index transitions if needed.
-      int newIndex = 0;
-      switch (newModule) {
-        case Module.Finances:
-          newIndex = store.activeFinancesTabIndex;
-          break;
-        case Module.School:
-          newIndex = store.activeSchoolTabIndex;
-          break;
-        case Module.HomeLife:
-          newIndex = store.activeHomeLifeTabIndex;
-          break;
-        case Module.Work:
-          newIndex = store.activeWorkTabIndex;
-          break;
-      }
-      if (_tabController != null && _tabController!.index != newIndex) {
-        _tabController!.animateTo(newIndex, duration: const Duration(milliseconds: 200), curve: Curves.easeInOut);
-      }
+    final module = store.activeModule;
+    _tabs = _tabsForModule(module);
+    _tabController?.dispose();
+    _tabController = TabController(length: _tabs.length, vsync: this);
+    switch (module) {
+      case Module.Finances:
+        _setupTabController(
+          activeIndex: store.activeFinancesTabIndex,
+          updateStoreIndex: (newIndex) => store.setActiveFinancesTabIndex(newIndex),
+        );
+        break;
+      case Module.School:
+        _setupTabController(
+          activeIndex: store.activeSchoolTabIndex,
+          updateStoreIndex: (newIndex) => store.setActiveSchoolTabIndex(newIndex),
+        );
+        break;
+      case Module.HomeLife:
+        _setupTabController(
+          activeIndex: store.activeHomeLifeTabIndex,
+          updateStoreIndex: (newIndex) => store.setActiveHomeLifeTabIndex(newIndex),
+        );
+        break;
+      case Module.Work:
+        _setupTabController(
+          activeIndex: store.activeWorkTabIndex,
+          updateStoreIndex: (newIndex) => store.setActiveWorkTabIndex(newIndex),
+        );
+        break;
     }
   }
 
   List<String> _tabsForModule(Module module) {
     switch (module) {
       case Module.School:
-        return ['University', 'Courses'];
+        return [
+          'University',
+          'Courses'
+        ];
       case Module.Work:
-        return ['Projects', 'Teams', 'Tasks'];
+        return [
+          'Projects',
+          'Teams',
+          'Tasks'
+        ];
       case Module.Finances:
         return [
           'Overview',
@@ -171,7 +153,13 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           'News',
         ];
       case Module.HomeLife:
-        return ['Chores', 'Calendar', 'Meals', 'Groceries'];
+        return [
+          'Personal',
+          'Chores',
+          'Meals',
+          'Household',
+          'Medical'
+        ];
     }
   }
 
@@ -187,7 +175,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildTabContent(String tab, Module module) {
-    // (Content construction remains largely unchanged.)
     if (module == Module.School) {
       switch (tab) {
         case 'University':
@@ -275,9 +262,32 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       }
     } else if (module == Module.HomeLife) {
       switch (tab) {
-        case 'Chores':
+        case 'Personal':
           return ControlBarRegistrar(
             homelifeTabIndex: 0,
+            buttons: [
+              ControlBarButtonModel(
+                id: 'homelife_calendar_add',
+                icon: Icons.add,
+                label: 'Calendar Event',
+                onPressed: () {
+                  context.read<NavigationStore>().setAddCalendarEventActive();
+                },
+              ),
+              ControlBarButtonModel(
+                id: 'homelife_workout_routine_add',
+                icon: Icons.add,
+                label: 'Workout Routine',
+                onPressed: () {
+                  context.read<NavigationStore>().setAddWorkoutRoutineActive();
+                },
+              ),
+            ],
+            child: const HomelifeCalendarTab(),
+          );
+        case 'Chores':
+          return ControlBarRegistrar(
+            homelifeTabIndex: 1,
             buttons: [
               ControlBarButtonModel(
                 id: 'homelife_chores_add',
@@ -289,21 +299,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               ),
             ],
             child: const HomelifeChoresTab(),
-          );
-        case 'Calendar':
-          return ControlBarRegistrar(
-            homelifeTabIndex: 1,
-            buttons: [
-              ControlBarButtonModel(
-                id: 'homelife_calendar_add',
-                icon: Icons.add,
-                label: 'Calendar Event',
-                onPressed: () {
-                  context.read<NavigationStore>().setAddCalendarEventActive();
-                },
-              ),
-            ],
-            child: const HomelifeCalendarTab(),
           );
         case 'Meals':
           return ControlBarRegistrar(
@@ -317,23 +312,71 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                   context.read<NavigationStore>().setAddMealActive();
                 },
               ),
-            ],
-            child: const HomelifeMealsTab(),
-          );
-        case 'Groceries':
-          return ControlBarRegistrar(
-            homelifeTabIndex: 3,
-            buttons: [
               ControlBarButtonModel(
-                id: 'homelife_groceries_add',
+                id: 'homelife_grocery_item_add',
                 icon: Icons.add,
-                label: 'Grocery',
+                label: 'Grocery Item',
                 onPressed: () {
                   context.read<NavigationStore>().setAddGroceryItemActive();
                 },
               ),
+              ControlBarButtonModel(
+                id: 'homelife_grocery_list_add',
+                icon: Icons.add,
+                label: 'Grocery List',
+                onPressed: () {
+                  context.read<NavigationStore>().setAddGroceryListActive();
+                },
+              ),
             ],
-            child: const HomelifeGroceriesTab(),
+            child: const HomelifeMealsTab(),
+          );
+        case 'Household':
+          return ControlBarRegistrar(
+            homelifeTabIndex: 3,
+            buttons: [
+              ControlBarButtonModel(
+                id: 'homelife_pet_add',
+                icon: Icons.add,
+                label: 'Pet',
+                onPressed: () {
+                  context.read<NavigationStore>().setAddPetActive();
+                },
+              ),
+              ControlBarButtonModel(
+                id: 'homelife_child_account_add',
+                icon: Icons.add,
+                label: 'Child Profile',
+                onPressed: () {
+                  context.read<NavigationStore>().setAddChildProfileActive();
+                },
+              ),
+            ],
+            child: const HomelifeHouseholdTab(),
+          );
+        case 'Medical':
+          return ControlBarRegistrar(
+            homelifeTabIndex: 4,
+            buttons: [
+              ControlBarButtonModel(
+                id: 'homelife_medication_add',
+                icon: Icons.add,
+                label: 'Medication',
+                onPressed: () {
+                  context.read<NavigationStore>().setAddMedicationActive();
+                },
+              ),
+              ControlBarButtonModel(
+                id: 'homelife_medical_appointment_add',
+                icon: Icons.add,
+                label: 'Medical Appointment',
+                onPressed: () {
+                  context.read<NavigationStore>().setAddMedicalAppointmentActive();
+                },
+              ),
+
+            ],
+            child: const HomelifeMedicalTab(),
           );
         default:
           return Container();
@@ -426,6 +469,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 label: 'Transactions',
                 onPressed: () {
                   context.read<NavigationStore>().setSyncFinanceTransactionsActive();
+
                 },
               ),
             ],
@@ -585,21 +629,15 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                   ),
                 Expanded(
                   child: _tabController != null
-                      ? AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 200),
-                    switchInCurve: Curves.easeInOut,
-                    switchOutCurve: Curves.easeInOut,
-                    child: TabBarView(
-                      key: ValueKey(_currentModule),
-                      controller: _tabController,
-                      children: _tabs.map((t) => _buildTabContent(t, activeModule)).toList(),
-                    ),
+                      ? TabBarView(
+                    controller: _tabController,
+                    children: _tabs.map((t) => _buildTabContent(t, activeModule)).toList(),
                   )
                       : Container(),
                 ),
               ],
             ),
-            // Global modals launcher and overlays.
+            // Insert the GlobalModalsLauncher here.
             const UniversalOverlay(),
             if (store.hqActive) const HQNavigationOverlay(),
           ],

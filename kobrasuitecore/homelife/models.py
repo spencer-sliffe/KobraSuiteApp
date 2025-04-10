@@ -203,7 +203,7 @@ class HouseholdInvite(models.Model): # model for Invitation
     redeemed_by = models.ForeignKey('hq.HomeLifeProfile', null=True, blank=True, on_delete=models.SET_NULL, related_name='received_invites')
 
     def __str__(self):
-        return f"Invite {self.code} by {self.inviter.user.username}" # string representation of invite
+        return f"Invite {self.code} by {self.inviter.profile.user.username}" # string representation of invite
 # stores creation date
     class Meta:
         ordering = ['-created_at']

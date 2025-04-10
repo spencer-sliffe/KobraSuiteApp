@@ -9,6 +9,9 @@ import 'finance/add_budget_overlay.dart';
 import 'finance/add_portfolio_stock_overlay.dart';
 import 'finance/add_stock_portfolio_overlay.dart';
 import 'finance/add_transaction_overlay.dart';
+import 'homelife/add_calendar_event_overlay.dart';
+import 'homelife/add_chore_overlay.dart';
+import 'homelife/add_grocery_item_overlay.dart';
 import 'school/add_course_overlay.dart';
 import 'finance/add_watchlist_stock_overlay.dart';
 
@@ -27,14 +30,14 @@ class UniversalOverlay extends StatelessWidget {
     //   return const AddTeamOverlay();
     // } else if (navStore.addTaskActive) {
     //   return const AddTaskOverlay();
-    // } else if (navStore.addChoreActive) {
-    //   return const AddChoreOverlay();
-    // } else if (navStore.addCalendarEventActive) {
-    //   return const AddCalendarEventOverlay();
+    } else if (navStore.addChoreActive) {
+      return const AddChoreOverlay();
+    } else if (navStore.addCalendarEventActive) {
+      return const AddCalendarEventOverlay();
     // } else if (navStore.addMealActive) {
     //   return const AddMealOverlay();
-    // } else if (navStore.addGroceryItemActive) {
-    //   return const AddGroceryItemOverlay();
+    } else if (navStore.addGroceryItemActive) {
+      return const AddGroceryItemOverlay();
     } else if (navStore.addBankAccountActive) {
       return const AddBankAccountOverlay();
     } else if (navStore.addBudgetActive) {
