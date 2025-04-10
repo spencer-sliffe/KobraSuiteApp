@@ -26,8 +26,7 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
   bool hqSubviewSwitchTriggered = false;
   Timer? scrollResetTimer;
   Timer? subviewResetTimer;
-  // Increased thresholds to 800.0 for less sensitive swiping.
-  final double desktopScrollThreshold = 800.0;
+  final double desktopScrollThreshold = 900.0;
   final double hqSubviewScrollThreshold = 800.0;
   final double pinchInThreshold = 0.85;
   final double pinchOutThreshold = 1.15;
@@ -155,7 +154,6 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> with Sing
 
   void _onPanZoomUpdate(PointerPanZoomUpdateEvent event) {
     if (isPinching) {
-      // Use the instantaneous scale provided by the event instead of multiplying.
       currentScale = event.scale;
       pinchProgress = currentScale < 1.0 ? (1.0 - currentScale) : (currentScale - 1.0);
       setState(() {});

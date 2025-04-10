@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:kobrasuite_app/UI/screens/modules/homelife/tabs/homelife_groceries_tab.dart';
 import 'package:kobrasuite_app/UI/screens/modules/homelife/tabs/homelife_meals_tab.dart';
 import 'package:kobrasuite_app/UI/screens/modules/work/tabs/work_projects_tabs.dart';
 import 'package:kobrasuite_app/UI/screens/modules/work/tabs/work_tasks_tab.dart';
@@ -39,6 +38,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   TabController? _tabController;
   List<String> _tabs = [];
+  Module? _currentModule;
 
   @override
   void initState() {
@@ -51,8 +51,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           id: 'refresh',
           icon: Icons.refresh,
           label: 'Refresh',
-          onPressed: () {
-          },
+          onPressed: () {},
         ),
       );
       provider.addPersistentButton(
@@ -83,6 +82,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     required void Function(int) updateStoreIndex,
   }) {
     _tabController!.index = activeIndex;
+    _tabController!.animateTo(activeIndex,
+        duration: const Duration(milliseconds: 200), curve: Curves.easeInOut);
     _tabController!.addListener(() {
       if (!_tabController!.indexIsChanging) {
         context.read<ControlBarProvider>().clearEphemeralButtons();
@@ -95,51 +96,74 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final store = context.watch<NavigationStore>();
-    final module = store.activeModule;
-    _tabs = _tabsForModule(module);
-    _tabController?.dispose();
-    _tabController = TabController(length: _tabs.length, vsync: this);
-    switch (module) {
-      case Module.Finances:
-        _setupTabController(
-          activeIndex: store.activeFinancesTabIndex,
-          updateStoreIndex: (newIndex) => store.setActiveFinancesTabIndex(newIndex),
-        );
-        break;
-      case Module.School:
-        _setupTabController(
-          activeIndex: store.activeSchoolTabIndex,
-          updateStoreIndex: (newIndex) => store.setActiveSchoolTabIndex(newIndex),
-        );
-        break;
-      case Module.HomeLife:
-        _setupTabController(
-          activeIndex: store.activeHomeLifeTabIndex,
-          updateStoreIndex: (newIndex) => store.setActiveHomeLifeTabIndex(newIndex),
-        );
-        break;
-      case Module.Work:
-        _setupTabController(
-          activeIndex: store.activeWorkTabIndex,
-          updateStoreIndex: (newIndex) => store.setActiveWorkTabIndex(newIndex),
-        );
-        break;
+    final Module newModule = store.activeModule;
+    if (_currentModule != newModule) {
+      // Module has changed. Recreate the TabController and update the tab list.
+      _currentModule = newModule;
+      _tabs = _tabsForModule(newModule);
+      _tabController?.dispose();
+      _tabController = TabController(length: _tabs.length, vsync: this);
+      switch (newModule) {
+        case Module.Finances:
+          _setupTabController(
+            activeIndex: store.activeFinancesTabIndex,
+            updateStoreIndex: (newIndex) =>
+                store.setActiveFinancesTabIndex(newIndex),
+          );
+          break;
+        case Module.School:
+          _setupTabController(
+            activeIndex: store.activeSchoolTabIndex,
+            updateStoreIndex: (newIndex) =>
+                store.setActiveSchoolTabIndex(newIndex),
+          );
+          break;
+        case Module.HomeLife:
+          _setupTabController(
+            activeIndex: store.activeHomeLifeTabIndex,
+            updateStoreIndex: (newIndex) =>
+                store.setActiveHomeLifeTabIndex(newIndex),
+          );
+          break;
+        case Module.Work:
+          _setupTabController(
+            activeIndex: store.activeWorkTabIndex,
+            updateStoreIndex: (newIndex) =>
+                store.setActiveWorkTabIndex(newIndex),
+          );
+          break;
+      }
+    } else {
+      // Module has not changed. Animate tab index transitions if needed.
+      int newIndex = 0;
+      switch (newModule) {
+        case Module.Finances:
+          newIndex = store.activeFinancesTabIndex;
+          break;
+        case Module.School:
+          newIndex = store.activeSchoolTabIndex;
+          break;
+        case Module.HomeLife:
+          newIndex = store.activeHomeLifeTabIndex;
+          break;
+        case Module.Work:
+          newIndex = store.activeWorkTabIndex;
+          break;
+      }
+      if (_tabController != null && _tabController!.index != newIndex) {
+        _tabController!.animateTo(newIndex,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut);
+      }
     }
   }
 
   List<String> _tabsForModule(Module module) {
     switch (module) {
       case Module.School:
-        return [
-          'University',
-          'Courses'
-        ];
+        return ['University', 'Courses'];
       case Module.Work:
-        return [
-          'Projects',
-          'Teams',
-          'Tasks'
-        ];
+        return ['Projects', 'Teams', 'Tasks'];
       case Module.Finances:
         return [
           'Overview',
@@ -153,13 +177,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           'News',
         ];
       case Module.HomeLife:
-        return [
-          'Personal',
-          'Chores',
-          'Meals',
-          'Household',
-          'Medical'
-        ];
+        return ['Personal', 'Chores', 'Meals', 'Household', 'Medical'];
     }
   }
 
@@ -371,10 +389,11 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 icon: Icons.add,
                 label: 'Medical Appointment',
                 onPressed: () {
-                  context.read<NavigationStore>().setAddMedicalAppointmentActive();
+                  context
+                      .read<NavigationStore>()
+                      .setAddMedicalAppointmentActive();
                 },
               ),
-
             ],
             child: const HomelifeMedicalTab(),
           );
@@ -392,7 +411,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 icon: Icons.sync,
                 label: 'Overview',
                 onPressed: () {
-                  context.read<NavigationStore>().setSyncFinanceOverviewActive();
+                  context
+                      .read<NavigationStore>()
+                      .setSyncFinanceOverviewActive();
                 },
               ),
             ],
@@ -415,7 +436,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 icon: Icons.sync,
                 label: 'Accounts',
                 onPressed: () {
-                  context.read<NavigationStore>().setSyncFinanceAccountsActive();
+                  context
+                      .read<NavigationStore>()
+                      .setSyncFinanceAccountsActive();
                 },
               ),
             ],
@@ -468,8 +491,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 icon: Icons.sync,
                 label: 'Transactions',
                 onPressed: () {
-                  context.read<NavigationStore>().setSyncFinanceTransactionsActive();
-
+                  context
+                      .read<NavigationStore>()
+                      .setSyncFinanceTransactionsActive();
                 },
               ),
             ],
@@ -616,7 +640,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                   NavigationRail(
                     selectedIndex: modules.indexOf(activeModule),
                     onDestinationSelected: (index) {
-                      context.read<ControlBarProvider>().clearEphemeralButtons();
+                      context
+                          .read<ControlBarProvider>()
+                          .clearEphemeralButtons();
                       store.setActiveModule(modules[index]);
                     },
                     labelType: NavigationRailLabelType.all,
@@ -629,10 +655,18 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                   ),
                 Expanded(
                   child: _tabController != null
-                      ? TabBarView(
-                    controller: _tabController,
-                    children: _tabs.map((t) => _buildTabContent(t, activeModule)).toList(),
-                  )
+                      ? AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          switchInCurve: Curves.easeInOut,
+                          switchOutCurve: Curves.easeInOut,
+                          child: TabBarView(
+                            key: ValueKey(_currentModule),
+                            controller: _tabController,
+                            children: _tabs
+                                .map((t) => _buildTabContent(t, activeModule))
+                                .toList(),
+                          ),
+                        )
                       : Container(),
                 ),
               ],
