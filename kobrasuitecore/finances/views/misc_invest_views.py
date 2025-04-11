@@ -4,7 +4,7 @@ File Name: misc_invest_views.py
 Path: kobrasuitecore/finances/views/misc_invest_views.py
 
 Description:
-Provides endpoints covering miscellaneous investment functionalities, such as retrieving
+Provides endpoints covering miscellaneous investment functionalities such as retrieving
 stock or crypto data, fetching market movers, generating predictions, and returning
 financial or news information.
 
@@ -106,7 +106,7 @@ class MiscInvestViewSet(viewsets.ViewSet):
         page = request.query_params.get('page', 1)
         try:
             page = int(page)
-        except:
+        except Exception:
             page = 1
         key = os.environ.get('NEWS_API_KEY')
         if not key:
@@ -127,7 +127,7 @@ class MiscInvestViewSet(viewsets.ViewSet):
         pg = request.query_params.get('page', 1)
         try:
             pg = int(pg)
-        except:
+        except Exception:
             pg = 1
         articles = get_news_articles(key, q, pg)
         return Response(articles, status=status.HTTP_200_OK)

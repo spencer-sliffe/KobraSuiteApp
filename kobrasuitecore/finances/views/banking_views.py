@@ -42,14 +42,14 @@ class BankAccountViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """
         Enforces nested lookup:
-        /users/<user_pk>/profile/<profile_pk>/finance_profile/<finance_profile_pk>/bank_accounts/
+        /users/<user_pk>/user_profile/<user_profile_pk>/finance_profile/<finance_profile_pk>/bank_accounts/
         """
         user_pk = self.kwargs.get('user_pk')
-        profile_pk = self.kwargs.get('profile_pk')
+        user_profile_pk = self.kwargs.get('user_profile_pk')
         finance_profile_pk = self.kwargs.get('finance_profile_pk')
         return self.queryset.filter(
             finance_profile_id=finance_profile_pk,
-            finance_profile__profile_id=profile_pk,
+            finance_profile__profile_id=user_profile_pk,
             finance_profile__profile__user_id=user_pk
         )
 
@@ -66,14 +66,14 @@ class BudgetViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """
         Enforces nested lookup:
-        /users/<user_pk>/profile/<profile_pk>/finance_profile/<finance_profile_pk>/budgets/
+        /users/<user_pk>/user_profile/<user_profile_pk>/finance_profile/<finance_profile_pk>/budgets/
         """
         user_pk = self.kwargs.get('user_pk')
-        profile_pk = self.kwargs.get('profile_pk')
+        user_profile_pk = self.kwargs.get('user_profile_pk')
         finance_profile_pk = self.kwargs.get('finance_profile_pk')
         return self.queryset.filter(
             finance_profile_id=finance_profile_pk,
-            finance_profile__profile_id=profile_pk,
+            finance_profile__profile_id=user_profile_pk,
             finance_profile__profile__user_id=user_pk
         )
 
@@ -90,15 +90,15 @@ class BudgetCategoryViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """
         Enforces nested lookup:
-        /users/<user_pk>/profile/<profile_pk>/finance_profile/<finance_profile_pk>/budgets/<budget_pk>/categories/
+        /users/<user_pk>/user_profile/<user_profile_pk>/finance_profile/<finance_profile_pk>/budgets/<budget_pk>/categories/
         Because a BudgetCategory references Budget, we match all the way back.
         """
         user_pk = self.kwargs.get('user_pk')
-        profile_pk = self.kwargs.get('profile_pk')
+        user_profile_pk = self.kwargs.get('user_profile_pk')
         finance_profile_pk = self.kwargs.get('finance_profile_pk')
         return self.queryset.filter(
             budget__finance_profile_id=finance_profile_pk,
-            budget__finance_profile__profile_id=profile_pk,
+            budget__finance_profile__profile_id=user_profile_pk,
             budget__finance_profile__profile__user_id=user_pk
         )
 
@@ -115,14 +115,14 @@ class TransactionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """
         Enforces nested lookup:
-        /users/<user_pk>/profile/<profile_pk>/finance_profile/<finance_profile_pk>/transactions/
+        /users/<user_pk>/user_profile/<user_profile_pk>/finance_profile/<finance_profile_pk>/transactions/
         """
         user_pk = self.kwargs.get('user_pk')
-        profile_pk = self.kwargs.get('profile_pk')
+        user_profile_pk = self.kwargs.get('user_profile_pk')
         finance_profile_pk = self.kwargs.get('finance_profile_pk')
         return self.queryset.filter(
             finance_profile_id=finance_profile_pk,
-            finance_profile__profile_id=profile_pk,
+            finance_profile__profile_id=user_profile_pk,
             finance_profile__profile__user_id=user_pk
         )
 

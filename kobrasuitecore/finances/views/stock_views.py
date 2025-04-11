@@ -56,26 +56,25 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """
         Enforces nested lookup:
-        /users/<user_pk>/profile/<profile_pk>/finance_profile/<finance_profile_pk>/stock_portfolio/
+        /users/<user_pk>/user_profile/<user_profile_pk>/finance_profile/<finance_profile_pk>/stock_portfolio/
         """
         user_pk = self.kwargs.get('user_pk')
-        profile_pk = self.kwargs.get('profile_pk')
+        user_profile_pk = self.kwargs.get('user_profile_pk')
         finance_profile_pk = self.kwargs.get('finance_profile_pk')
-
         return self.queryset.filter(
-            profile_id=finance_profile_pk,             # Match FinanceProfile ID
-            profile__profile_id=profile_pk,            # Match UserProfile ID
-            profile__profile__user__id=user_pk         # Match User ID
+            finance_profile_id=finance_profile_pk,
+            finance_profile__profile_id=user_profile_pk,
+            finance_profile__profile__user_id=user_pk
         )
 
-    def create(self, request, user_pk=None, profile_pk=None, finance_profile_pk=None):
+    def create(self, request, user_pk=None, user_profile_pk=None, finance_profile_pk=None):
         """
         Creates or retrieves a StockPortfolio for the given FinanceProfile.
         """
         finance_profile = get_object_or_404(
             FinanceProfile,
             pk=finance_profile_pk,
-            profile__id=profile_pk,
+            profile_id=user_profile_pk,
             profile__user__id=user_pk
         )
         portfolio = get_or_create_stock_portfolio(finance_profile)
@@ -83,28 +82,28 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['get'])
-    def stocks(self, request, pk=None, user_pk=None, profile_pk=None, finance_profile_pk=None):
+    def stocks(self, request, pk=None, user_pk=None, user_profile_pk=None, finance_profile_pk=None):
         """
         Retrieves all stocks within the specified portfolio.
         """
         finance_profile = get_object_or_404(
             FinanceProfile,
             pk=finance_profile_pk,
-            profile__id=profile_pk,
+            profile_id=user_profile_pk,
             profile__user__id=user_pk
         )
         data = get_portfolio_stocks(finance_profile, portfolio_id=pk)
         return Response(data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'])
-    def add_stock(self, request, pk=None, user_pk=None, profile_pk=None, finance_profile_pk=None):
+    def add_stock(self, request, pk=None, user_pk=None, user_profile_pk=None, finance_profile_pk=None):
         """
         Adds a given ticker to the specified portfolio.
         """
         finance_profile = get_object_or_404(
             FinanceProfile,
             pk=finance_profile_pk,
-            profile__id=profile_pk,
+            profile_id=user_profile_pk,
             profile__user__id=user_pk
         )
         ticker = request.data.get('ticker')
@@ -114,13 +113,11 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
                 {'error': 'ticker and num_shares are required'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
         if not check_stock_validity(ticker):
             return Response(
                 {'error': 'Invalid stock ticker'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
         date_str = request.data.get('purchase_date')
         dt = parse_datetime(date_str) if date_str else None
         success = add_stock_to_portfolio(finance_profile, pk, ticker, float(num_shares), dt)
@@ -136,14 +133,14 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
         methods=['delete'],
         url_path='remove_stock/(?P<ticker>[^/.]+)'
     )
-    def remove_stock(self, request, ticker=None, pk=None, user_pk=None, profile_pk=None, finance_profile_pk=None):
+    def remove_stock(self, request, ticker=None, pk=None, user_pk=None, user_profile_pk=None, finance_profile_pk=None):
         """
         Removes a specified ticker from the portfolio.
         """
         finance_profile = get_object_or_404(
             FinanceProfile,
             pk=finance_profile_pk,
-            profile__id=profile_pk,
+            profile_id=user_profile_pk,
             profile__user__id=user_pk
         )
         success = remove_stock_from_portfolio(finance_profile, pk, ticker)
@@ -155,7 +152,7 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
         )
 
     @action(detail=True, methods=['get'])
-    def analysis(self, request, pk=None, user_pk=None, profile_pk=None, finance_profile_pk=None):
+    def analysis(self, request, pk=None, user_pk=None, user_profile_pk=None, finance_profile_pk=None):
         """
         Performs a portfolio analysis for the specified portfolio
         (e.g., weighting, total value).
@@ -163,7 +160,7 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
         finance_profile = get_object_or_404(
             FinanceProfile,
             pk=finance_profile_pk,
-            profile__id=profile_pk,
+            profile_id=user_profile_pk,
             profile__user__id=user_pk
         )
         stocks_data = get_portfolio_stocks(finance_profile, pk)
