@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // <-- Needed for FilteringTextInputFormatter
 import 'package:provider/provider.dart';
 import '../../../providers/finance/bank_account_provider.dart';
+import '../../nav/providers/navigation_store.dart';
 
 enum AddBankAccountState { initial, adding, added }
 
@@ -14,12 +16,13 @@ class AddBankAccountBottomSheet extends StatefulWidget {
 
 class _AddBankAccountBottomSheetState extends State<AddBankAccountBottomSheet> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   final TextEditingController _accountNameController = TextEditingController();
   final TextEditingController _accountNumberController = TextEditingController();
   final TextEditingController _institutionNameController = TextEditingController();
   final TextEditingController _balanceController = TextEditingController();
-  String _currency = 'USD';
 
+  String _currency = 'USD';
   AddBankAccountState _state = AddBankAccountState.initial;
   String _errorFeedback = "";
 
@@ -38,23 +41,24 @@ class _AddBankAccountBottomSheetState extends State<AddBankAccountBottomSheet> {
       _state = AddBankAccountState.adding;
       _errorFeedback = "";
     });
-    // Access the BankAccountProvider from your widget tree.
+
     final bankProvider = context.read<BankAccountProvider>();
     final success = await bankProvider.createBankAccount(
       accountName: _accountNameController.text.trim(),
       accountNumber: _accountNumberController.text.trim(),
       institutionName: _institutionNameController.text.trim(),
-      balance: double.tryParse(_balanceController.text.trim()) ?? 0.0,
+      balance: double.tryParse(
+        _balanceController.text.replaceAll('\$', '').trim(),
+      ) ?? 0.0,
       currency: _currency,
     );
+
     if (success) {
-      setState(() {
-        _state = AddBankAccountState.added;
-      });
+      setState(() => _state = AddBankAccountState.added);
     } else {
       setState(() {
-        _errorFeedback = bankProvider.errorMessage.isNotEmpty
-            ? bankProvider.errorMessage
+        _errorFeedback = ((bankProvider.errorMessage ?? '').isNotEmpty)
+            ? bankProvider.errorMessage!
             : 'Failed to add bank account.';
         _state = AddBankAccountState.initial;
       });
@@ -88,7 +92,8 @@ class _AddBankAccountBottomSheetState extends State<AddBankAccountBottomSheet> {
         ),
       );
     }
-    // Build the form
+
+    // Normal form
     return Form(
       key: _formKey,
       child: SingleChildScrollView(
@@ -106,38 +111,70 @@ class _AddBankAccountBottomSheetState extends State<AddBankAccountBottomSheet> {
               controller: _accountNameController,
               decoration: const InputDecoration(labelText: 'Account Name'),
               validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Enter account name' : null,
-            ),
-            const SizedBox(height: 12),
-            // Account Number
-            TextFormField(
-              controller: _accountNumberController,
-              decoration: const InputDecoration(labelText: 'Account Number'),
-              validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Enter account number' : null,
-            ),
-            const SizedBox(height: 12),
-            // Institution Name
-            TextFormField(
-              controller: _institutionNameController,
-              decoration: const InputDecoration(labelText: 'Institution Name'),
-              validator: (value) => value == null || value.trim().isEmpty
-                  ? 'Enter institution name'
+              (value == null || value.trim().isEmpty)
+                  ? 'Enter account name'
                   : null,
             ),
             const SizedBox(height: 12),
-            // Balance: numeric field.
+
+            // Last 4 of Account Number
             TextFormField(
-              controller: _balanceController,
-              decoration: const InputDecoration(labelText: 'Balance'),
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              controller: _accountNumberController,
+              decoration: const InputDecoration(
+                labelText: 'Account Number (Last 4)',
+              ),
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(4),
+              ],
               validator: (value) {
-                if (value == null || value.trim().isEmpty) return 'Enter balance';
-                if (double.tryParse(value.trim()) == null) return 'Enter a valid number';
+                if (value == null || value.trim().isEmpty) {
+                  return 'Enter the last 4 digits';
+                }
+                if (value.trim().length < 4) {
+                  return 'Must be exactly 4 digits';
+                }
                 return null;
               },
             ),
             const SizedBox(height: 12),
+
+            // Institution Name
+            TextFormField(
+              controller: _institutionNameController,
+              decoration:
+              const InputDecoration(labelText: 'Institution Name'),
+              validator: (value) => (value == null || value.trim().isEmpty)
+                  ? 'Enter institution name'
+                  : null,
+            ),
+            const SizedBox(height: 12),
+
+            // Balance: numeric field with currency prefix & input formatter
+            TextFormField(
+              controller: _balanceController,
+              decoration: const InputDecoration(
+                labelText: 'Balance',
+                prefixText: '\$',
+              ),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+              ],
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Enter balance';
+                }
+                final rawNumber = value.replaceAll('\$', '').trim();
+                if (double.tryParse(rawNumber) == null) {
+                  return 'Enter a valid number';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 12),
+
             // Currency dropdown
             DropdownButtonFormField<String>(
               value: _currency,
@@ -145,13 +182,10 @@ class _AddBankAccountBottomSheetState extends State<AddBankAccountBottomSheet> {
                 DropdownMenuItem(value: 'USD', child: Text('USD')),
                 DropdownMenuItem(value: 'EUR', child: Text('EUR')),
                 DropdownMenuItem(value: 'GBP', child: Text('GBP')),
-                // Add more currencies as needed.
               ],
               onChanged: (value) {
                 if (value != null) {
-                  setState(() {
-                    _currency = value;
-                  });
+                  setState(() => _currency = value);
                 }
               },
               decoration: const InputDecoration(labelText: 'Currency'),
@@ -161,7 +195,10 @@ class _AddBankAccountBottomSheetState extends State<AddBankAccountBottomSheet> {
                 padding: const EdgeInsets.only(top: 16),
                 child: Text(
                   _errorFeedback,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.red),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: Colors.red),
                 ),
               ),
           ],
@@ -176,19 +213,20 @@ class _AddBankAccountBottomSheetState extends State<AddBankAccountBottomSheet> {
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('Close'),
-        )
+        ),
       ];
     }
     if (_state == AddBankAccountState.initial) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () =>
+              context.read<NavigationStore>().setAddBankAccountActive(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(
           onPressed: _addBankAccount,
           child: const Text('Add Account'),
-        )
+        ),
       ];
     }
     return [];
@@ -212,7 +250,7 @@ class _AddBankAccountBottomSheetState extends State<AddBankAccountBottomSheet> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: _buildActions(),
-            )
+            ),
           ],
         ),
       ),

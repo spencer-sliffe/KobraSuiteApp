@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // <-- Needed for FilteringTextInputFormatter
 import 'package:provider/provider.dart';
-// Import your BudgetProvider if available. For example:
-// import '../../../providers/finance/budget_provider.dart';
+import '../../../providers/finance/budget_provider.dart';
+import '../../nav/providers/navigation_store.dart'; // <-- Make sure this import is correct in your project.
 
 enum AddBudgetState { initial, adding, added }
 
@@ -18,7 +19,6 @@ class _AddBudgetBottomSheetState extends State<AddBudgetBottomSheet> {
   final TextEditingController _totalAmountController = TextEditingController();
   final TextEditingController _startDateController = TextEditingController();
   final TextEditingController _endDateController = TextEditingController();
-  final TextEditingController _categoriesController = TextEditingController();
 
   bool _isActive = true;
   AddBudgetState _state = AddBudgetState.initial;
@@ -30,7 +30,6 @@ class _AddBudgetBottomSheetState extends State<AddBudgetBottomSheet> {
     _totalAmountController.dispose();
     _startDateController.dispose();
     _endDateController.dispose();
-    _categoriesController.dispose();
     super.dispose();
   }
 
@@ -42,9 +41,22 @@ class _AddBudgetBottomSheetState extends State<AddBudgetBottomSheet> {
       _errorFeedback = "";
     });
 
-    // Simulate a service call. Replace the following with your actual provider call.
-    await Future.delayed(const Duration(seconds: 1));
-    final success = true; // Replace with actual service response.
+    final budgetProvider = context.read<BudgetProvider>();
+
+    final name = _budgetNameController.text.trim();
+    // Remove '$' before parsing
+    final rawAmount = _totalAmountController.text.replaceAll('\$', '').trim();
+    final totalAmount = double.tryParse(rawAmount) ?? 0.0;
+    final startDate = _startDateController.text.trim();
+    final endDate = _endDateController.text.trim();
+
+    final success = await budgetProvider.createBudget(
+      name: name,
+      totalAmount: totalAmount,
+      startDate: startDate,
+      endDate: endDate,
+      isActive: _isActive,
+    );
 
     if (success) {
       setState(() {
@@ -52,9 +64,33 @@ class _AddBudgetBottomSheetState extends State<AddBudgetBottomSheet> {
       });
     } else {
       setState(() {
-        _errorFeedback = 'Failed to add budget.';
+        // Safely check the nullable errorMessage
+        _errorFeedback = ((budgetProvider.errorMessage ?? '').isNotEmpty)
+            ? budgetProvider.errorMessage!
+            : 'Failed to add bank account.';
         _state = AddBudgetState.initial;
       });
+    }
+  }
+
+  /// You can show a calendar picker and fill the [controller] with YYYY-MM-DD
+  Future<void> _pickDate(TextEditingController controller) async {
+    final now = DateTime.now();
+    final firstDate = DateTime(now.year - 5); // 5 years in the past
+    final lastDate = DateTime(now.year + 5);  // 5 years in the future
+
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: now,
+      firstDate: firstDate,
+      lastDate: lastDate,
+    );
+    if (pickedDate != null) {
+      // Format as YYYY-MM-DD
+      final year = pickedDate.year.toString().padLeft(4, '0');
+      final month = pickedDate.month.toString().padLeft(2, '0');
+      final day = pickedDate.day.toString().padLeft(2, '0');
+      controller.text = '$year-$month-$day';
     }
   }
 
@@ -85,6 +121,8 @@ class _AddBudgetBottomSheetState extends State<AddBudgetBottomSheet> {
         ),
       );
     }
+
+    // Normal Form state
     return Form(
       key: _formKey,
       child: SingleChildScrollView(
@@ -106,39 +144,61 @@ class _AddBudgetBottomSheetState extends State<AddBudgetBottomSheet> {
                   : null,
             ),
             const SizedBox(height: 12),
-            // Total Amount
+
+            // Total Amount (formatted as currency, only 2 decimals)
             TextFormField(
               controller: _totalAmountController,
-              decoration: const InputDecoration(labelText: 'Total Amount'),
+              decoration: const InputDecoration(
+                labelText: 'Total Amount',
+                prefixText: '\$', // Show "$" in the UI
+              ),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              // Only allow digits + decimal up to 2 decimal places
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+              ],
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return 'Enter total amount';
                 }
-                if (double.tryParse(value.trim()) == null) {
+                final rawAmount = value.replaceAll('\$', '').trim();
+                if (double.tryParse(rawAmount) == null) {
                   return 'Enter a valid number';
                 }
                 return null;
               },
             ),
             const SizedBox(height: 12),
-            // Start Date
+
+            // Start Date (with date picker)
             TextFormField(
               controller: _startDateController,
-              decoration: const InputDecoration(labelText: 'Start Date (YYYY-MM-DD)'),
+              readOnly: true, // So users can’t manually edit if you prefer
+              onTap: () => _pickDate(_startDateController),
+              decoration: const InputDecoration(
+                labelText: 'Start Date (YYYY-MM-DD)',
+                suffixIcon: Icon(Icons.calendar_today),
+              ),
               validator: (value) =>
               value == null || value.trim().isEmpty ? 'Enter start date' : null,
             ),
             const SizedBox(height: 12),
-            // End Date
+
+            // End Date (with date picker)
             TextFormField(
               controller: _endDateController,
-              decoration: const InputDecoration(labelText: 'End Date (YYYY-MM-DD)'),
+              readOnly: true,
+              onTap: () => _pickDate(_endDateController),
+              decoration: const InputDecoration(
+                labelText: 'End Date (YYYY-MM-DD)',
+                suffixIcon: Icon(Icons.calendar_today),
+              ),
               validator: (value) =>
               value == null || value.trim().isEmpty ? 'Enter end date' : null,
             ),
             const SizedBox(height: 12),
-            // Active toggle: you can use a Switch form field or simple Checkbox.
+
+            // Active toggle
             Row(
               children: [
                 const Text('Active:'),
@@ -149,19 +209,17 @@ class _AddBudgetBottomSheetState extends State<AddBudgetBottomSheet> {
               ],
             ),
             const SizedBox(height: 12),
-            // Categories (optional)
-            TextFormField(
-              controller: _categoriesController,
-              decoration: const InputDecoration(
-                labelText: 'Categories (comma-separated)',
-              ),
-            ),
+
+            // Show error feedback, if any
             if (_errorFeedback.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 16),
                 child: Text(
                   _errorFeedback,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.red),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: Colors.red),
                 ),
               ),
           ],
@@ -182,7 +240,8 @@ class _AddBudgetBottomSheetState extends State<AddBudgetBottomSheet> {
     if (_state == AddBudgetState.initial) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () =>
+              context.read<NavigationStore>().setAddBudgetActive(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(
@@ -202,7 +261,10 @@ class _AddBudgetBottomSheetState extends State<AddBudgetBottomSheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Add New Budget', style: Theme.of(context).textTheme.headlineSmall),
+            Text(
+              'Add New Budget',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
             const SizedBox(height: 16),
             _buildContent(),
             const SizedBox(height: 24),

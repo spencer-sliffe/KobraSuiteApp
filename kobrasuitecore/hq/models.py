@@ -81,7 +81,7 @@ class FinanceProfile(models.Model):
     profile = models.OneToOneField(UserProfile, on_delete=models.CASCADE, related_name='finance_profile')
 
     def __str__(self):
-        return f"Finance Profile of {self.user.username}"
+        return f"Finance Profile of {self.profile.user.username}"
 
 
 class HomeLifeProfile(models.Model):

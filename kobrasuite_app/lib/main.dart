@@ -152,25 +152,19 @@ void main() async {
             return sdp;
           },
         ),
-        ChangeNotifierProxyProvider2<AuthProvider, FinanceProfileProvider, BankAccountProvider>(
-          create: (_) => BankAccountProvider(userPk: 0, userProfilePk: 0, financeProfilePk: 0),
-          update: (_, auth, financeProfile, bankProvider) {
-            bankProvider!.update(
-              newUserPk: auth.userPk,
-              newUserProfilePk: auth.userProfilePk,
-              newFinanceProfilePk: financeProfile.financeProfile?.id ?? 0,
-            );
-            return bankProvider;
+        ChangeNotifierProxyProvider<FinanceProfileProvider, BankAccountProvider>(
+          create: (context) => BankAccountProvider(
+              financeProfileProvider: context.read<FinanceProfileProvider>()),
+          update: (context, financeProfile, bankAccountProvider) {
+            bankAccountProvider!.update(financeProfile);
+            return bankAccountProvider;
           },
         ),
-        ChangeNotifierProxyProvider2<AuthProvider, FinanceProfileProvider, BudgetProvider>(
-          create: (_) => BudgetProvider(userPk: 0, userProfilePk: 0, financeProfilePk: 0),
-          update: (_, auth, financeProfile, budgetProvider) {
-            budgetProvider!.update(
-              newUserPk: auth.userPk,
-              newUserProfilePk: auth.userProfilePk,
-              newFinanceProfilePk: financeProfile.financeProfile?.id ?? 0,
-            );
+        ChangeNotifierProxyProvider<FinanceProfileProvider, BudgetProvider>(
+          create: (context) => BudgetProvider(
+              financeProfileProvider: context.read<FinanceProfileProvider>()),
+          update: (context, financeProfile, budgetProvider) {
+            budgetProvider!.update(financeProfile);
             return budgetProvider;
           },
         ),

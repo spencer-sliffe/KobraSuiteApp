@@ -56,3 +56,12 @@
 # class WatchlistStockAdmin(admin.ModelAdmin):
 #     list_display = ('portfolio', 'ticker', 'created_at')
 #     search_fields = ('ticker', 'portfolio__profile__user__username')
+from finances.models import BankAccount
+from django.contrib import admin
+
+
+@admin.register(BankAccount)
+class CourseAdmin(admin.ModelAdmin):
+    list_display = ('finance_profile', 'account_name', 'account_number')
+    search_fields = ('account_name',)
+    list_filter = ('finance_profile',)

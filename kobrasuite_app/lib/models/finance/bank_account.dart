@@ -1,6 +1,6 @@
 class BankAccount {
   final int id;
-  final int profile;
+  final int financeProfile;
   final String accountName;
   final String accountNumber;
   final String institutionName;
@@ -12,7 +12,7 @@ class BankAccount {
 
   BankAccount({
     required this.id,
-    required this.profile,
+    required this.financeProfile,
     required this.accountName,
     required this.accountNumber,
     required this.institutionName,
@@ -26,11 +26,14 @@ class BankAccount {
   factory BankAccount.fromJson(Map<String, dynamic> json) {
     return BankAccount(
       id: json['id'],
-      profile: json['profile'],
+      // The server returns "finance_profile", so parse that instead of "profile".
+      financeProfile: json['finance_profile'] ?? 0,
       accountName: json['account_name'] ?? '',
       accountNumber: json['account_number'] ?? '',
       institutionName: json['institution_name'] ?? '',
-      balance: (json['balance'] as num).toDouble(),
+      // If 'balance' is a string like "120.00", do double.parse(...).
+      // Otherwise, if it's a numeric type, cast to num -> double.
+      balance: double.parse(json['balance'].toString()),
       currency: json['currency'] ?? 'USD',
       lastSynced: json['last_synced'],
       createdAt: json['created_at'],
@@ -41,7 +44,8 @@ class BankAccount {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'profile': profile,
+      // Make sure you POST/PUT 'finance_profile' if the backend expects that:
+      'finance_profile': financeProfile,
       'account_name': accountName,
       'account_number': accountNumber,
       'institution_name': institutionName,

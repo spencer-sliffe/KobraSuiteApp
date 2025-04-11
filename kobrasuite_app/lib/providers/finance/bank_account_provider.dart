@@ -2,54 +2,43 @@ import 'package:flutter/foundation.dart';
 import '../../../services/finance/banking_service.dart';
 import '../../../services/service_locator.dart';
 import '../../../models/finance/bank_account.dart';
+import '../general/finance_profile_provider.dart'; // Adjust the path based on your project structure
 
 class BankAccountProvider extends ChangeNotifier {
-  final BankingService _service;
-  int _userPk;
-  int _userProfilePk;
-  int _financeProfilePk;
-
+  final BankingService _bankingService;
+  FinanceProfileProvider _financeProfileProvider;
   bool _isLoading = false;
-  String _errorMessage = '';
+  String? _errorMessage;
   List<BankAccount> _bankAccounts = [];
 
-  BankAccountProvider({
-    required int userPk,
-    required int userProfilePk,
-    required int financeProfilePk,
-  })  : _userPk = userPk,
-        _userProfilePk = userProfilePk,
-        _financeProfilePk = financeProfilePk,
-        _service = serviceLocator<BankingService>();
+  BankAccountProvider({required FinanceProfileProvider financeProfileProvider})
+      : _financeProfileProvider = financeProfileProvider,
+        _bankingService = serviceLocator<BankingService>();
 
   bool get isLoading => _isLoading;
-  String get errorMessage => _errorMessage;
+  String? get errorMessage => _errorMessage;
   List<BankAccount> get bankAccounts => _bankAccounts;
 
-  int get userPk => _userPk;
-  int get userProfilePk => _userProfilePk;
-  int get financeProfilePk => _financeProfilePk;
+  int get userPk => _financeProfileProvider.userPk;
+  int get userProfilePk => _financeProfileProvider.userProfilePk;
+  int get financeProfilePk => _financeProfileProvider.financeProfilePk;
 
-  void update({
-    required int newUserPk,
-    required int newUserProfilePk,
-    required int newFinanceProfilePk,
-  }) {
-    _userPk = newUserPk;
-    _userProfilePk = newUserProfilePk;
-    _financeProfilePk = newFinanceProfilePk;
+  /// Updates the provider with a new FinanceProfileProvider.
+  void update(FinanceProfileProvider newFinanceProfileProvider) {
+    _financeProfileProvider = newFinanceProfileProvider;
     notifyListeners();
   }
 
+  /// Loads bank accounts using the current profile IDs.
   Future<void> loadBankAccounts() async {
     _isLoading = true;
-    _errorMessage = '';
+    _errorMessage = null;
     notifyListeners();
     try {
-      final accounts = await _service.getBankAccounts(
-        userPk: _userPk,
-        userProfilePk: _userProfilePk,
-        financeProfilePk: _financeProfilePk,
+      final accounts = await _bankingService.getBankAccounts(
+        userPk: userPk,
+        userProfilePk: userProfilePk,
+        financeProfilePk: financeProfilePk,
       );
       _bankAccounts = accounts;
     } catch (e) {
@@ -59,6 +48,7 @@ class BankAccountProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Creates a new bank account and reloads the accounts list upon success.
   Future<bool> createBankAccount({
     required String accountName,
     required String accountNumber,
@@ -67,13 +57,13 @@ class BankAccountProvider extends ChangeNotifier {
     String currency = 'USD',
   }) async {
     _isLoading = true;
-    _errorMessage = '';
+    _errorMessage = null;
     notifyListeners();
     try {
-      final success = await _service.createBankAccount(
-        userPk: _userPk,
-        userProfilePk: _userProfilePk,
-        financeProfilePk: _financeProfilePk,
+      final success = await _bankingService.createBankAccount(
+        userPk: userPk,
+        userProfilePk: userProfilePk,
+        financeProfilePk: financeProfilePk,
         accountName: accountName,
         accountNumber: accountNumber,
         institutionName: institutionName,
@@ -93,15 +83,16 @@ class BankAccountProvider extends ChangeNotifier {
     }
   }
 
+  /// Deletes the bank account with the specified [bankAccountId] and updates the accounts list.
   Future<bool> deleteBankAccount(int bankAccountId) async {
     _isLoading = true;
-    _errorMessage = '';
+    _errorMessage = null;
     notifyListeners();
     try {
-      final success = await _service.deleteBankAccount(
-        userPk: _userPk,
-        userProfilePk: _userProfilePk,
-        financeProfilePk: _financeProfilePk,
+      final success = await _bankingService.deleteBankAccount(
+        userPk: userPk,
+        userProfilePk: userProfilePk,
+        financeProfilePk: financeProfilePk,
         bankAccountId: bankAccountId,
       );
       if (success) {

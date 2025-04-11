@@ -46,6 +46,7 @@ class BankingService {
           '/api/users/$userPk/profile/$userProfilePk/'
           'finance_profile/$financeProfilePk/bank_accounts/';
       final body = {
+        'finance_profile': financeProfilePk,
         'account_name': accountName,
         'account_number': accountNumber,
         'institution_name': institutionName,
@@ -111,6 +112,7 @@ class BankingService {
       final url = '/api/users/$userPk/profile/$userProfilePk'
           '/finance_profile/$financeProfilePk/budgets/';
       final body = {
+        'finance_profile': financeProfilePk,
         'name': name,
         'total_amount': totalAmount,
         'start_date': startDate,
