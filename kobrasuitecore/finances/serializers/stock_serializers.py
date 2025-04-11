@@ -47,7 +47,7 @@ class StockPortfolioSerializer(serializers.ModelSerializer):
         model = StockPortfolio
         fields = [
             'id',
-            'profile',
+            'finance_profile',
             'created_at',
             'updated_at',
             'stocks'

@@ -71,7 +71,7 @@ class VerifyCourseViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticatedAndActive]
 
     @action(detail=False, methods=['post'])
-    def verify_course(self, request, user_pk, school_profile_pk, university_pk):
+    def verify_course(self, request, user_pk, profile_pk, school_profile_pk, university_pk):
         serializer = CourseVerificationSerializer(data=request.data)
         if serializer.is_valid():
             university = University.objects.get(pk=university_pk)
