@@ -15,11 +15,8 @@ class BankAccountsTab extends StatefulWidget {
 }
 
 class _BankAccountsTabState extends State<BankAccountsTab> {
-  final TextEditingController _searchController = TextEditingController();
   final List<BankAccount> _filteredAccounts = [];
-  bool _isSearching = false;
   Timer? _debounce;
-  CancelableOperation<void>? _searchOperation;
 
   @override
   void initState() {
@@ -37,28 +34,8 @@ class _BankAccountsTabState extends State<BankAccountsTab> {
 
   @override
   void dispose() {
-    _searchController.dispose();
     _debounce?.cancel();
-    _searchOperation?.cancel();
     super.dispose();
-  }
-
-  /// Called whenever the text in the search field changes.
-  void _onSearchChanged(String query) {
-    _debounce?.cancel();
-    if (query.trim().isEmpty) {
-      final provider = Provider.of<BankAccountProvider>(context, listen: false);
-      _filteredAccounts
-        ..clear()
-        ..addAll(provider.bankAccounts);
-      setState(() {});
-      return;
-    }
-    // Debounce user input for smoother searching
-    _debounce = Timer(const Duration(milliseconds: 400), () {
-      _searchOperation?.cancel();
-      _searchOperation = CancelableOperation.fromFuture(_filterAccounts(query));
-    });
   }
 
   /// Filter the loaded accounts by the given query
@@ -87,15 +64,6 @@ class _BankAccountsTabState extends State<BankAccountsTab> {
   Future<void> _onRefresh() async {
     final provider = Provider.of<BankAccountProvider>(context, listen: false);
     await provider.loadBankAccounts();
-    // Re-apply filtering if the user typed something
-    final query = _searchController.text.trim();
-    if (query.isEmpty) {
-      _filteredAccounts
-        ..clear()
-        ..addAll(provider.bankAccounts);
-    } else {
-      await _filterAccounts(query);
-    }
   }
 
   @override
@@ -105,7 +73,6 @@ class _BankAccountsTabState extends State<BankAccountsTab> {
     final isLoading = bankProvider.isLoading;
     final errorMessage = bankProvider.errorMessage ?? '';
 
-    // Calculate total balance
     final totalBalance = accounts.fold<double>(
       0.0,
           (prev, account) => prev + (account.balance ?? 0.0),
@@ -114,57 +81,6 @@ class _BankAccountsTabState extends State<BankAccountsTab> {
     return Scaffold(
       body: Column(
         children: [
-          // Top row with search bar or icon
-          if (_isSearching)
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      onChanged: _onSearchChanged,
-                      decoration: const InputDecoration(
-                        hintText: 'Search accounts by name, institution, or last 4',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.search),
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      setState(() {
-                        _isSearching = false;
-                        _searchController.clear();
-                        _filteredAccounts
-                          ..clear()
-                          ..addAll(bankProvider.bankAccounts);
-                      });
-                    },
-                  ),
-                ],
-              ),
-            )
-          else
-          // If not searching, show a search button
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.search),
-                    onPressed: () {
-                      setState(() {
-                        _isSearching = true;
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
-
           // If loading, show a loading indicator
           if (isLoading) const LinearProgressIndicator(),
 

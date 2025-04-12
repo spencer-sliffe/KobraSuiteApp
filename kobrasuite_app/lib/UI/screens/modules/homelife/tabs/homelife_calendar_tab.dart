@@ -10,7 +10,6 @@ class HomelifeCalendarTab extends StatelessWidget {
       body: Column(
         children: [
           const SizedBox(height: 16),
-          const Divider(),
           Expanded(
             child: Center(
               child: Text('Shared Household Calendar'),

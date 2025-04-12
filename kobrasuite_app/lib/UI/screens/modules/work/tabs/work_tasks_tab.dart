@@ -10,7 +10,6 @@ class WorkTasksTab extends StatelessWidget {
       body: Column(
         children: [
           const SizedBox(height: 16),
-          const Divider(),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(16),

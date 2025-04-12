@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class HomelifeHouseholdTab extends StatelessWidget {
-  const HomelifeHouseholdTab({Key? key}) : super(key: key);
+class HomelifePersonalTab extends StatelessWidget {
+  const HomelifePersonalTab({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -10,7 +10,6 @@ class HomelifeChoresTab extends StatelessWidget {
       body: Column(
         children: [
           const SizedBox(height: 16),
-          const Divider(),
           Expanded(
             child: GridView.count(
               crossAxisCount: 2,
