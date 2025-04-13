@@ -432,10 +432,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         case 'Budgets':
           return ControlBarRegistrar(
             financeTabIndex: 2,
-            refreshCallback: () async {
-              final budgetProvider = Provider.of<BudgetProvider>(context, listen: false);
-              await budgetProvider.loadBudgets();
-            },
             buttons: [
               ControlBarButtonModel(
                 id: 'finances_budget_add',
