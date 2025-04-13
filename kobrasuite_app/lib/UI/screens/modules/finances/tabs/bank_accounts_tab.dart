@@ -1,9 +1,6 @@
 import 'dart:async';
-import 'package:async/async.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../../../../../models/finance/bank_account.dart';
 import '../../../../../providers/finance/bank_account_provider.dart';
 import '../../../../widgets/cards/finance/bank_account_card.dart';
 
@@ -15,21 +12,17 @@ class BankAccountsTab extends StatefulWidget {
 }
 
 class _BankAccountsTabState extends State<BankAccountsTab> {
-  final List<BankAccount> _filteredAccounts = [];
+  // Local list used for filtering.
+  final List _filteredAccounts = [];
   Timer? _debounce;
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
+    // Initialize local filtered list from the provider's existing data.
     final provider = Provider.of<BankAccountProvider>(context, listen: false);
-    // Load accounts on init
-    provider.loadBankAccounts().then((_) {
-      if (!mounted) return;
-      setState(() {
-        _filteredAccounts.clear();
-        _filteredAccounts.addAll(provider.bankAccounts);
-      });
-    });
+    _filteredAccounts.addAll(provider.bankAccounts);
   }
 
   @override
@@ -38,12 +31,12 @@ class _BankAccountsTabState extends State<BankAccountsTab> {
     super.dispose();
   }
 
-  /// Filter the loaded accounts by the given query
+  /// Filter accounts based on the given query.
   Future<void> _filterAccounts(String query) async {
     final provider = Provider.of<BankAccountProvider>(context, listen: false);
     final lowerQuery = query.toLowerCase();
 
-    final result = provider.bankAccounts.where((acct) {
+    final results = provider.bankAccounts.where((acct) {
       final name = acct.accountName.toLowerCase();
       final institution = acct.institutionName.toLowerCase();
       final last4 = acct.accountNumber.toLowerCase();
@@ -54,13 +47,14 @@ class _BankAccountsTabState extends State<BankAccountsTab> {
 
     if (!mounted) return;
     setState(() {
+      _searchQuery = query;
       _filteredAccounts
         ..clear()
-        ..addAll(result);
+        ..addAll(results);
     });
   }
 
-  /// Pull-to-refresh callback
+  /// Pull-to-refresh callback.
   Future<void> _onRefresh() async {
     final provider = Provider.of<BankAccountProvider>(context, listen: false);
     await provider.loadBankAccounts();
@@ -69,11 +63,13 @@ class _BankAccountsTabState extends State<BankAccountsTab> {
   @override
   Widget build(BuildContext context) {
     final bankProvider = context.watch<BankAccountProvider>();
-    final accounts = bankProvider.bankAccounts;
     final isLoading = bankProvider.isLoading;
     final errorMessage = bankProvider.errorMessage ?? '';
+    // Use either the filtered accounts or all accounts.
+    final accountsToDisplay =
+    _searchQuery.isEmpty ? bankProvider.bankAccounts : _filteredAccounts;
 
-    final totalBalance = accounts.fold<double>(
+    final totalBalance = bankProvider.bankAccounts.fold<double>(
       0.0,
           (prev, account) => prev + (account.balance ?? 0.0),
     );
@@ -81,28 +77,24 @@ class _BankAccountsTabState extends State<BankAccountsTab> {
     return Scaffold(
       body: Column(
         children: [
-          // If loading, show a loading indicator
           if (isLoading) const LinearProgressIndicator(),
-
-          // Expanded list area
           Expanded(
             child: RefreshIndicator(
               onRefresh: _onRefresh,
               child: errorMessage.isNotEmpty
                   ? ListView(
-                // If there's an error, show it
                 children: [
                   const SizedBox(height: 16),
                   Center(
                     child: Text(
                       'Error: $errorMessage',
-                      style:
-                      TextStyle(color: Theme.of(context).colorScheme.error),
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.error),
                     ),
                   ),
                 ],
               )
-                  : _buildAccountsList(context, totalBalance),
+                  : _buildAccountsList(context, totalBalance, accountsToDisplay),
             ),
           ),
         ],
@@ -110,9 +102,8 @@ class _BankAccountsTabState extends State<BankAccountsTab> {
     );
   }
 
-  Widget _buildAccountsList(BuildContext context, double totalBalance) {
-    // If using local _filteredAccounts, show that; if empty, show fallback
-    final accounts = _filteredAccounts;
+  Widget _buildAccountsList(
+      BuildContext context, double totalBalance, List accounts) {
     if (accounts.isEmpty) {
       return ListView(
         children: [
@@ -129,18 +120,22 @@ class _BankAccountsTabState extends State<BankAccountsTab> {
 
     return ListView(
       children: [
-        // Some summary up top
-        _buildOverviewCard('Total Balance: \$${totalBalance.toStringAsFixed(2)}',
-            'Sum of all bank account balances.'),
-        _buildOverviewCard('Number of Accounts: ${accounts.length}',
-            'Overview of your linked bank accounts.'),
+        // Overview cards for bank account summaries.
+        _buildOverviewCard(
+          'Total Balance: \$${totalBalance.toStringAsFixed(2)}',
+          'Sum of all bank account balances.',
+        ),
+        _buildOverviewCard(
+          'Number of Accounts: ${accounts.length}',
+          'Overview of your linked bank accounts.',
+        ),
         const SizedBox(height: 12),
-        // Then list all accounts
+        // List of bank account cards.
         ...accounts.map(
               (acct) => BankAccountCard(
             account: acct,
             onDelete: () {
-              // Example usage: you can call a confirm dialog, then bankProvider.deleteBankAccount(acct.id!);
+              // Optionally implement deletion functionality.
             },
           ),
         ),
@@ -150,6 +145,7 @@ class _BankAccountsTabState extends State<BankAccountsTab> {
 
   Widget _buildOverviewCard(String title, String subtitle) {
     return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: ListTile(
         title: Text(title),
         subtitle: Text(subtitle),

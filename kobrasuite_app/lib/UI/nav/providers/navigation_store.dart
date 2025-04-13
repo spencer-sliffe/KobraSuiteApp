@@ -9,6 +9,7 @@ class NavigationStore extends ChangeNotifier {
   Module _activeModule = Module.Finances;
   bool _hqActive = false;
   HQView _hqView = HQView.Dashboard;
+  VoidCallback? _refreshCallback;
 
   //Tab Control
   int _activeFinancesTabIndex = 0;
@@ -56,6 +57,7 @@ class NavigationStore extends ChangeNotifier {
   Module get activeModule => _activeModule;
   bool get hqActive => _hqActive;
   HQView get hqView => _hqView;
+  VoidCallback? get refreshCallback => _refreshCallback;
   int get activeFinancesTabIndex => _activeFinancesTabIndex;
   int get activeWorkTabIndex => _activeWorkTabIndex;
   int get activeSchoolTabIndex => _activeSchoolTabIndex;
@@ -299,6 +301,16 @@ class NavigationStore extends ChangeNotifier {
 
   void setAddGroceryListActive() {
     _addGroceryListActive = !_addGroceryListActive;
+    notifyListeners();
+  }
+
+  void setRefreshCallback(VoidCallback callback) {
+    _refreshCallback = callback;
+    notifyListeners();
+  }
+
+  void clearRefreshCallback() {
+    _refreshCallback = null;
     notifyListeners();
   }
 

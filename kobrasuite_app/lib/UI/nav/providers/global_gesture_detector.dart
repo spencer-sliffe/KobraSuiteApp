@@ -24,7 +24,7 @@ class _GlobalGestureDetectorState extends State<GlobalGestureDetector> {
   Timer? scrollResetTimer;
   Timer? subviewResetTimer;
 
-  final double desktopScrollThreshold = 500.0;
+  final double desktopScrollThreshold = 1500.0;
   final double hqSubviewScrollThreshold = 800.0;
   final double mobileSwipeThreshold = 120.0;
 

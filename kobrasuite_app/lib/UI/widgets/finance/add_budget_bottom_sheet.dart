@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // <-- Needed for FilteringTextInputFormatter
+import 'package:flutter/services.dart'; // For FilteringTextInputFormatter
 import 'package:provider/provider.dart';
 import '../../../providers/finance/budget_provider.dart';
-import '../../nav/providers/navigation_store.dart'; // <-- Make sure this import is correct in your project.
+import '../../nav/providers/navigation_store.dart';
 
 enum AddBudgetState { initial, adding, added }
 
@@ -45,7 +45,8 @@ class _AddBudgetBottomSheetState extends State<AddBudgetBottomSheet> {
 
     final name = _budgetNameController.text.trim();
     // Remove '$' before parsing
-    final rawAmount = _totalAmountController.text.replaceAll('\$', '').trim();
+    final rawAmount =
+    _totalAmountController.text.replaceAll('\$', '').trim();
     final totalAmount = double.tryParse(rawAmount) ?? 0.0;
     final startDate = _startDateController.text.trim();
     final endDate = _endDateController.text.trim();
@@ -64,16 +65,15 @@ class _AddBudgetBottomSheetState extends State<AddBudgetBottomSheet> {
       });
     } else {
       setState(() {
-        // Safely check the nullable errorMessage
         _errorFeedback = ((budgetProvider.errorMessage ?? '').isNotEmpty)
             ? budgetProvider.errorMessage!
-            : 'Failed to add bank account.';
+            : 'Failed to add budget.';
         _state = AddBudgetState.initial;
       });
     }
   }
 
-  /// You can show a calendar picker and fill the [controller] with YYYY-MM-DD
+  /// Opens a calendar picker to set the date on the given controller.
   Future<void> _pickDate(TextEditingController controller) async {
     final now = DateTime.now();
     final firstDate = DateTime(now.year - 5); // 5 years in the past
@@ -122,7 +122,7 @@ class _AddBudgetBottomSheetState extends State<AddBudgetBottomSheet> {
       );
     }
 
-    // Normal Form state
+    // Default: show the form.
     return Form(
       key: _formKey,
       child: SingleChildScrollView(
@@ -145,15 +145,15 @@ class _AddBudgetBottomSheetState extends State<AddBudgetBottomSheet> {
             ),
             const SizedBox(height: 12),
 
-            // Total Amount (formatted as currency, only 2 decimals)
+            // Total Amount (formatted as currency with two decimals)
             TextFormField(
               controller: _totalAmountController,
               decoration: const InputDecoration(
                 labelText: 'Total Amount',
-                prefixText: '\$', // Show "$" in the UI
+                prefixText: '\$', // Shows the "$" symbol.
               ),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              // Only allow digits + decimal up to 2 decimal places
+              keyboardType:
+              const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
               ],
@@ -170,10 +170,10 @@ class _AddBudgetBottomSheetState extends State<AddBudgetBottomSheet> {
             ),
             const SizedBox(height: 12),
 
-            // Start Date (with date picker)
+            // Start Date field with date picker.
             TextFormField(
               controller: _startDateController,
-              readOnly: true, // So users can’t manually edit if you prefer
+              readOnly: true,
               onTap: () => _pickDate(_startDateController),
               decoration: const InputDecoration(
                 labelText: 'Start Date (YYYY-MM-DD)',
@@ -184,7 +184,7 @@ class _AddBudgetBottomSheetState extends State<AddBudgetBottomSheet> {
             ),
             const SizedBox(height: 12),
 
-            // End Date (with date picker)
+            // End Date field with date picker.
             TextFormField(
               controller: _endDateController,
               readOnly: true,
@@ -210,7 +210,7 @@ class _AddBudgetBottomSheetState extends State<AddBudgetBottomSheet> {
             ),
             const SizedBox(height: 12),
 
-            // Show error feedback, if any
+            // Display error feedback if any.
             if (_errorFeedback.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 16),
@@ -257,7 +257,8 @@ class _AddBudgetBottomSheetState extends State<AddBudgetBottomSheet> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        padding:
+        const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
