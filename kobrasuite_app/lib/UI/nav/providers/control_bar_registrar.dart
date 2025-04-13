@@ -10,6 +10,7 @@ class ControlBarRegistrar extends StatefulWidget {
   final int? workTabIndex;
   final int? homelifeTabIndex;
   final int? schoolTabIndex;
+  final VoidCallback? refreshCallback;
 
   const ControlBarRegistrar({
     super.key,
@@ -19,6 +20,7 @@ class ControlBarRegistrar extends StatefulWidget {
     this.schoolTabIndex,
     this.workTabIndex,
     this.homelifeTabIndex,
+    this.refreshCallback,
   });
 
   @override
@@ -64,6 +66,9 @@ class _ControlBarRegistrarState extends State<ControlBarRegistrar> {
       shouldShow = (_navStore.activeHomeLifeTabIndex == widget.homelifeTabIndex);
     }
     if (shouldShow) {
+      if (widget.refreshCallback != null) {
+        _navStore.setRefreshCallback(widget.refreshCallback!);
+      }
       for (final button in widget.buttons) {
         if (!_registeredButtonIds.contains(button.id)) {
           _controlBarProvider.addEphemeralButton(button);
@@ -71,6 +76,10 @@ class _ControlBarRegistrarState extends State<ControlBarRegistrar> {
         }
       }
     } else {
+      if (widget.refreshCallback != null &&
+          _navStore.refreshCallback == widget.refreshCallback) {
+        _navStore.clearRefreshCallback();
+      }
       for (final button in widget.buttons) {
         if (_registeredButtonIds.contains(button.id)) {
           _controlBarProvider.removeEphemeralButton(button);

@@ -211,7 +211,7 @@ class _AddBankAccountBottomSheetState extends State<AddBankAccountBottomSheet> {
     if (_state == AddBankAccountState.added) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.read<NavigationStore>().setAddBankAccountActive(),
           child: const Text('Close'),
         ),
       ];

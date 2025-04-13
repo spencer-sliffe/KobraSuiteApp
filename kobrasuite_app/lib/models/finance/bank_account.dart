@@ -44,7 +44,6 @@ class BankAccount {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      // Make sure you POST/PUT 'finance_profile' if the backend expects that:
       'finance_profile': financeProfile,
       'account_name': accountName,
       'account_number': accountNumber,

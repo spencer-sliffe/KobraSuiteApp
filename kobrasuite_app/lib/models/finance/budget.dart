@@ -1,6 +1,6 @@
 class Budget {
   final int id;
-  final int profile;
+  final int financeProfile;
   final String name;
   final double totalAmount;
   final String startDate;
@@ -10,7 +10,7 @@ class Budget {
 
   Budget({
     required this.id,
-    required this.profile,
+    required this.financeProfile,
     required this.name,
     required this.totalAmount,
     required this.startDate,
@@ -22,9 +22,11 @@ class Budget {
   factory Budget.fromJson(Map<String, dynamic> json) {
     return Budget(
       id: json['id'],
-      profile: json['profile'],
+      financeProfile: json['finance_profile'],
       name: json['name'] ?? '',
-      totalAmount: (json['total_amount'] as num).toDouble(),
+      totalAmount: json['total_amount'] is String
+          ? double.tryParse(json['total_amount']) ?? 0.0
+          : (json['total_amount'] as num).toDouble(),
       startDate: json['start_date'] ?? '',
       endDate: json['end_date'] ?? '',
       isActive: json['is_active'] ?? false,
@@ -35,7 +37,7 @@ class Budget {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'profile': profile,
+      'finance_profile': financeProfile,
       'name': name,
       'total_amount': totalAmount,
       'start_date': startDate,

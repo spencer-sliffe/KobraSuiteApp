@@ -20,6 +20,8 @@ import 'package:kobrasuite_app/UI/screens/modules/finances/tabs/budget_categorie
 import 'package:kobrasuite_app/UI/screens/modules/finances/tabs/analysis_tab.dart';
 import 'package:kobrasuite_app/UI/screens/modules/finances/tabs/news_tab.dart';
 import 'package:kobrasuite_app/UI/screens/modules/finances/tabs/watchlist_tab.dart';
+import '../../providers/finance/bank_account_provider.dart';
+import '../../providers/finance/budget_provider.dart';
 import '../nav/overlays/universal_overlay.dart';
 import '../nav/providers/control_bar_registrar.dart';
 import 'modules/homelife/tabs/homelife_calendar_tab.dart';
@@ -51,7 +53,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           id: 'refresh',
           icon: Icons.refresh,
           label: 'Refresh',
-          onPressed: () {},
+          onPressed: () {
+            // This pulls the correct callback from the active tab:
+            context.read<NavigationStore>().refreshCallback?.call();
+          },
         ),
       );
       provider.addPersistentButton(
@@ -406,16 +411,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           return ControlBarRegistrar(
             financeTabIndex: 0,
             buttons: [
-              ControlBarButtonModel(
-                id: 'finances_overview_sync',
-                icon: Icons.sync,
-                label: 'Overview',
-                onPressed: () {
-                  context
-                      .read<NavigationStore>()
-                      .setSyncFinanceOverviewActive();
-                },
-              ),
             ],
             child: const OverviewTab(),
           );
@@ -431,22 +426,16 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                   context.read<NavigationStore>().setAddBankAccountActive();
                 },
               ),
-              ControlBarButtonModel(
-                id: 'finances_accounts_sync',
-                icon: Icons.sync,
-                label: 'Accounts',
-                onPressed: () {
-                  context
-                      .read<NavigationStore>()
-                      .setSyncFinanceAccountsActive();
-                },
-              ),
             ],
             child: const BankAccountsTab(),
           );
         case 'Budgets':
           return ControlBarRegistrar(
             financeTabIndex: 2,
+            refreshCallback: () async {
+              final budgetProvider = Provider.of<BudgetProvider>(context, listen: false);
+              await budgetProvider.loadBudgets();
+            },
             buttons: [
               ControlBarButtonModel(
                 id: 'finances_budget_add',
@@ -486,16 +475,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                   context.read<NavigationStore>().setAddTransactionActive();
                 },
               ),
-              ControlBarButtonModel(
-                id: 'finances_transactions_sync',
-                icon: Icons.sync,
-                label: 'Transactions',
-                onPressed: () {
-                  context
-                      .read<NavigationStore>()
-                      .setSyncFinanceTransactionsActive();
-                },
-              ),
             ],
             child: const TransactionsTab(),
           );
@@ -509,14 +488,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 label: 'Stock',
                 onPressed: () {
                   context.read<NavigationStore>().setAddStockActive();
-                },
-              ),
-              ControlBarButtonModel(
-                id: 'finances_stocks_sync',
-                icon: Icons.sync,
-                label: 'Stocks',
-                onPressed: () {
-                  context.read<NavigationStore>().setSyncStocksActive();
                 },
               ),
               ControlBarButtonModel(

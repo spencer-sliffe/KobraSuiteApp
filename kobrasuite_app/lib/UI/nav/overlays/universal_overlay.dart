@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:kobrasuite_app/UI/nav/overlays/universal_sync_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:kobrasuite_app/UI/nav/providers/navigation_store.dart';
 
@@ -52,31 +51,6 @@ class UniversalOverlay extends StatelessWidget {
       return const AddStockPortfolioOverlay();
     } else if (navStore.addWatchlistStockActive) {
       return const AddWatchlistStockOverlay();
-    } else if (navStore.syncFinanceOverviewActive) {
-      return const UniversalSyncOverlay(
-        title: 'Syncing Finance Overview...',
-        subtitle: 'Updating your finance overview data.',
-      );
-    } else if (navStore.syncFinanceAccountsActive) {
-      return const UniversalSyncOverlay(
-        title: 'Syncing Finance Accounts...',
-        subtitle: 'Updating your account details.',
-      );
-    } else if (navStore.syncFinanceTransactionsActive) {
-      return const UniversalSyncOverlay(
-        title: 'Syncing Transactions...',
-        subtitle: 'Updating transaction data.',
-      );
-    } else if (navStore.syncStocksActive) {
-      return const UniversalSyncOverlay(
-        title: 'Syncing Stocks...',
-        subtitle: 'Updating your stock positions.',
-      );
-    } else if (navStore.refreshFinanceNewsActive) {
-      return const UniversalSyncOverlay(
-        title: 'Refreshing News...',
-        subtitle: 'Gathering the latest market updates.',
-      );
     // } else if (navStore.aiChatActive) {
     //   return const AIChatOverlay();
     // } else if (navStore.runFinanceAnalysisActive) {
