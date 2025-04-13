@@ -10,12 +10,6 @@ class BudgetsTab extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text('Budget Overview', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 12),
-        const Text(
-          'Manage your budgets, track allocations, and view financial trends.',
-        ),
-        const SizedBox(height: 16),
         Card(
           child: ListTile(
             leading: const Icon(Icons.account_balance_wallet, color: Colors.green),
