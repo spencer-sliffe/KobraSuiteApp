@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../providers/finance/budget_category_provider.dart';
+import '../../../models/finance/budget_category.dart';
+import '../../nav/providers/navigation_store.dart';
 // If you have a BudgetCategoryProvider or service, import it here.
 
 enum AddBudgetCategoryState { initial, adding, added }
@@ -35,9 +39,19 @@ class _AddBudgetCategoryBottomSheetState extends State<AddBudgetCategoryBottomSh
       _errorFeedback = "";
     });
 
-    // Simulate a service call with a delay.
-    await Future.delayed(const Duration(seconds: 1));
-    final success = true; // Replace with actual API/service call.
+  final provider = context.read<BudgetCategoryProvider>();
+
+  final int activeBudgetId = ModalRoute.of(context)?.settings.arguments as int? ?? 0;
+    
+    // Call the provider's createCategory method
+    final success = await provider.createCategory(
+      budgetId: activeBudgetId,
+      name: _categoryNameController.text.trim(),
+      allocatedAmount: double.tryParse(
+        _allocatedAmountController.text.replaceAll('\$', '').trim(),
+      ) ?? 0.0,
+      categoryType: _categoryType,
+    );
 
     if (success) {
       setState(() {
@@ -45,7 +59,9 @@ class _AddBudgetCategoryBottomSheetState extends State<AddBudgetCategoryBottomSh
       });
     } else {
       setState(() {
-        _errorFeedback = 'Failed to add budget category.';
+        _errorFeedback = (provider.errorMessage.isNotEmpty)
+            ? provider.errorMessage
+            : 'Failed to add budget category.';
         _state = AddBudgetCategoryState.initial;
       });
     }

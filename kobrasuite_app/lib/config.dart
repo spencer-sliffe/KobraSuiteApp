@@ -8,7 +8,7 @@ class Config {
   /// Toggle this flag to switch between local dev and production.
   static String get baseUrl {
     if (kDebugMode) {
-      return 'http://0.0.0.0:8000';
+      return 'http://localhost:8000';
     } else {
       return 'https://kobrasuite-backend.azurewebsites.net';
     }
