@@ -2,12 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import '../../../services/general/auth_service.dart';
 import '../../../services/service_locator.dart';
+import '../../nav/providers/navigation_store.dart';
 
 class DraggableChatOverlay extends StatefulWidget {
-  final VoidCallback onClose;
-  const DraggableChatOverlay({super.key, required this.onClose});
+  const DraggableChatOverlay({Key? key}) : super(key: key);
 
   @override
   DraggableChatOverlayState createState() => DraggableChatOverlayState();
@@ -136,7 +137,9 @@ class DraggableChatOverlayState extends State<DraggableChatOverlay> {
                     const SizedBox(width: 12),
                     IconButton(
                       icon: const Icon(Icons.close, color: Colors.white),
-                      onPressed: widget.onClose,
+                      onPressed: () {
+                        context.read<NavigationStore>().setAIChatActive();
+                      },
                     ),
                   ],
                 ),
