@@ -11,6 +11,7 @@ import 'finance/add_transaction_overlay.dart';
 import 'homelife/add_calendar_event_overlay.dart';
 import 'homelife/add_chore_overlay.dart';
 import 'homelife/add_grocery_item_overlay.dart';
+import 'homelife/add_workout_routine_overlay.dart';
 import 'school/add_course_overlay.dart';
 import 'finance/add_watchlist_stock_overlay.dart';
 
@@ -51,6 +52,8 @@ class UniversalOverlay extends StatelessWidget {
       return const AddStockPortfolioOverlay();
     } else if (navStore.addWatchlistStockActive) {
       return const AddWatchlistStockOverlay();
+    } else if (navStore.addWorkoutRoutineActive) {
+      return const AddWorkoutRoutineOverlay();
     // } else if (navStore.aiChatActive) {
     //   return const AIChatOverlay();
     // } else if (navStore.runFinanceAnalysisActive) {
