@@ -18,7 +18,9 @@ class BudgetCategory {
       id: json['id'],
       name: json['name'] ?? '',
       budget: json['budget'],
-      allocatedAmount: (json['allocated_amount'] as num).toDouble(),
+      allocatedAmount: json['allocated_amount'] is String
+          ? double.tryParse(json['allocated_amount']) ?? 0.0
+          : (json['allocated_amount'] as num).toDouble(),
       categoryType: json['category_type'] ?? '',
     );
   }

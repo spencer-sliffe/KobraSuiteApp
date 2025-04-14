@@ -90,12 +90,15 @@ class BudgetCategoryViewSet(viewsets.ModelViewSet):
         """
         Enforces nested lookup:
         /users/<user_pk>/user_profile/<user_profile_pk>/finance_profile/<finance_profile_pk>/budgets/<budget_pk>/categories/
-        Because a BudgetCategory references Budget, we match all the way back.
+        This ensures only categories belonging to the specified budget are returned.
         """
         user_pk = self.kwargs.get('user_pk')
         user_profile_pk = self.kwargs.get('user_profile_pk')
         finance_profile_pk = self.kwargs.get('finance_profile_pk')
+        budget_pk = self.kwargs.get('budget_pk')
+
         return self.queryset.filter(
+            budget__id=budget_pk,
             budget__finance_profile=finance_profile_pk,
         )
 

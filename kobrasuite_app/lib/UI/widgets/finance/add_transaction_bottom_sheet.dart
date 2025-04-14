@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // For FilteringTextInputFormatter
 import 'package:provider/provider.dart';
+import '../../../providers/finance/transaction_provider.dart';
+import '../../nav/providers/navigation_store.dart';
 
 enum AddTransactionState { initial, adding, added }
 
@@ -16,7 +19,7 @@ class _AddTransactionBottomSheetState extends State<AddTransactionBottomSheet> {
 
   // Controllers for fields.
   final TextEditingController _transactionTypeController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
@@ -41,9 +44,20 @@ class _AddTransactionBottomSheetState extends State<AddTransactionBottomSheet> {
       _errorFeedback = "";
     });
 
-    // Simulate an asynchronous service call. Replace this with your actual API call.
-    await Future.delayed(const Duration(seconds: 1));
-    final success = true; // Replace with actual success state.
+    final transactionProvider = context.read<TransactionProvider>();
+
+    final transactionType = _transactionTypeController.text.trim();
+    final rawAmount = _amountController.text.trim();
+    final amount = double.tryParse(rawAmount) ?? 0.0;
+    final description = _descriptionController.text.trim();
+    final dateIso = _dateController.text.trim();
+
+    final success = await transactionProvider.createTransaction(
+      transactionType: transactionType,
+      amount: amount,
+      description: description.isNotEmpty ? description : null,
+      dateIso: dateIso,
+    );
 
     if (success) {
       setState(() {
@@ -51,9 +65,32 @@ class _AddTransactionBottomSheetState extends State<AddTransactionBottomSheet> {
       });
     } else {
       setState(() {
-        _errorFeedback = 'Failed to add transaction.';
+        _errorFeedback = ((transactionProvider.errorMessage).isNotEmpty)
+            ? transactionProvider.errorMessage
+            : 'Failed to add transaction.';
         _state = AddTransactionState.initial;
       });
+    }
+  }
+
+  /// Opens a calendar picker to set the date on the given controller.
+  Future<void> _pickDate() async {
+    final now = DateTime.now();
+    final firstDate = DateTime(now.year - 1); // 1 year in the past
+    final lastDate = DateTime(now.year + 1); // 1 year in the future
+
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: now,
+      firstDate: firstDate,
+      lastDate: lastDate,
+    );
+    if (pickedDate != null) {
+      // Format as YYYY-MM-DD
+      final year = pickedDate.year.toString().padLeft(4, '0');
+      final month = pickedDate.month.toString().padLeft(2, '0');
+      final day = pickedDate.day.toString().padLeft(2, '0');
+      _dateController.text = '$year-$month-$day';
     }
   }
 
@@ -100,19 +137,26 @@ class _AddTransactionBottomSheetState extends State<AddTransactionBottomSheet> {
             TextFormField(
               controller: _transactionTypeController,
               decoration:
-              const InputDecoration(labelText: 'Transaction Type'),
+                  const InputDecoration(labelText: 'Transaction Type'),
               validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Enter transaction type' : null,
+                  value == null || value.trim().isEmpty ? 'Enter transaction type' : null,
             ),
             const SizedBox(height: 12),
             // Amount
             TextFormField(
               controller: _amountController,
-              decoration: const InputDecoration(labelText: 'Amount'),
+              decoration: const InputDecoration(
+                labelText: 'Amount',
+                prefixText: '\$', // Shows the "$" symbol.
+              ),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+              ],
               validator: (value) {
                 if (value == null || value.trim().isEmpty) return 'Enter amount';
-                if (double.tryParse(value.trim()) == null) return 'Enter a valid number';
+                final rawAmount = value.replaceAll('\$', '').trim();
+                if (double.tryParse(rawAmount) == null) return 'Enter a valid number';
                 return null;
               },
             ),
@@ -121,17 +165,20 @@ class _AddTransactionBottomSheetState extends State<AddTransactionBottomSheet> {
             TextFormField(
               controller: _descriptionController,
               decoration:
-              const InputDecoration(labelText: 'Description (optional)'),
+                  const InputDecoration(labelText: 'Description (optional)'),
             ),
             const SizedBox(height: 12),
-            // Date field (e.g., transaction date)
+            // Date field with date picker
             TextFormField(
               controller: _dateController,
+              readOnly: true,
+              onTap: () => _pickDate(),
               decoration: const InputDecoration(
                 labelText: 'Transaction Date (YYYY-MM-DD)',
+                suffixIcon: Icon(Icons.calendar_today),
               ),
               validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Enter transaction date' : null,
+                  value == null || value.trim().isEmpty ? 'Enter transaction date' : null,
             ),
             if (_errorFeedback.isNotEmpty)
               Padding(
@@ -159,7 +206,8 @@ class _AddTransactionBottomSheetState extends State<AddTransactionBottomSheet> {
     if (_state == AddTransactionState.initial) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => 
+              context.read<NavigationStore>().setAddTransactionActive(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(

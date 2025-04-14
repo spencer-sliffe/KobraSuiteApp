@@ -1,60 +1,81 @@
+// lib/providers/finance/budget_category_provider.dart
+
 import 'package:flutter/foundation.dart';
 import '../../../services/finance/banking_service.dart';
 import '../../../services/service_locator.dart';
 import '../../../models/finance/budget_category.dart';
+import '../general/finance_profile_provider.dart';
 
 class BudgetCategoryProvider extends ChangeNotifier {
-  final BankingService _service;
-  int _userPk;
-  int _userProfilePk;
-  int _financeProfilePk;
+  final BankingService _budgetCategoryService;
+  FinanceProfileProvider _financeProfileProvider;
 
   bool _isLoading = false;
   String _errorMessage = '';
-  List<BudgetCategory> _categories = [];
+  // Store categories grouped by budget id
+  Map<int, List<BudgetCategory>> _categoriesByBudget = {};
 
-  BudgetCategoryProvider({
-    required int userPk,
-    required int userProfilePk,
-    required int financeProfilePk,
-  })  : _userPk = userPk,
-        _userProfilePk = userProfilePk,
-        _financeProfilePk = financeProfilePk,
-        _service = serviceLocator<BankingService>();
+  BudgetCategoryProvider({required FinanceProfileProvider financeProfileProvider})
+      : _financeProfileProvider = financeProfileProvider,
+        _budgetCategoryService = serviceLocator<BankingService>();
 
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
-  List<BudgetCategory> get categories => _categories;
+  // Expose the map of categories per budget id
+  Map<int, List<BudgetCategory>> get categoriesByBudget => _categoriesByBudget;
 
-  int get userPk => _userPk;
-  int get userProfilePk => _userProfilePk;
-  int get financeProfilePk => _financeProfilePk;
+  int get userPk => _financeProfileProvider.userPk;
+  int get userProfilePk => _financeProfileProvider.userProfilePk;
+  int get financeProfilePk => _financeProfileProvider.financeProfilePk;
 
-  void update({
-    required int newUserPk,
-    required int newUserProfilePk,
-    required int newFinanceProfilePk,
-  }) {
-    _userPk = newUserPk;
-    _userProfilePk = newUserProfilePk;
-    _financeProfilePk = newFinanceProfilePk;
+  void update(FinanceProfileProvider newFinanceProfileProvider) {
+    _financeProfileProvider = newFinanceProfileProvider;
     notifyListeners();
   }
 
-  Future<void> loadCategories() async {
+  // Load categories for a single budget id, updating the map.
+  Future<void> loadCategories({required int budgetId}) async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
+
     try {
-      final list = await _service.getBudgetCategories(
-        userPk: _userPk,
-        userProfilePk: _userProfilePk,
-        financeProfilePk: _financeProfilePk,
+      final list = await _budgetCategoryService.getBudgetCategories(
+        userPk: userPk,
+        userProfilePk: userProfilePk,
+        financeProfilePk: financeProfilePk,
+        budgetId: budgetId,
       );
-      _categories = list;
+      _categoriesByBudget[budgetId] = list;
     } catch (e) {
-      _errorMessage = 'Error loading budget categories: $e';
+      _errorMessage = 'Error loading budget categories for budget $budgetId: $e';
     }
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  // Load categories for all budgets by iterating through provided budget ids.
+  Future<void> loadCategoriesForAllBudgets({required List<int> budgetIds}) async {
+    _isLoading = true;
+    _errorMessage = '';
+    _categoriesByBudget.clear();
+    notifyListeners();
+
+    for (var budgetId in budgetIds) {
+      try {
+        final list = await _budgetCategoryService.getBudgetCategories(
+          userPk: userPk,
+          userProfilePk: userProfilePk,
+          financeProfilePk: financeProfilePk,
+          budgetId: budgetId,
+        );
+        _categoriesByBudget[budgetId] = list;
+      } catch (e) {
+        _errorMessage += 'Error loading categories for budget $budgetId: $e\n';
+      }
+    }
+
     _isLoading = false;
     notifyListeners();
   }
@@ -69,17 +90,17 @@ class BudgetCategoryProvider extends ChangeNotifier {
     _errorMessage = '';
     notifyListeners();
     try {
-      final success = await _service.createBudgetCategory(
-        userPk: _userPk,
-        userProfilePk: _userProfilePk,
-        financeProfilePk: _financeProfilePk,
+      final success = await _budgetCategoryService.createBudgetCategory(
+        userPk: userPk,
+        userProfilePk: userProfilePk,
+        financeProfilePk: financeProfilePk,
         budgetId: budgetId,
         name: name,
         allocatedAmount: allocatedAmount,
         categoryType: categoryType,
       );
       if (success) {
-        await loadCategories();
+        await loadCategories(budgetId: budgetId);  // Reload the updated list for that budget
       }
       return success;
     } catch (e) {
@@ -91,19 +112,19 @@ class BudgetCategoryProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> deleteCategory(int categoryId) async {
+  Future<bool> deleteCategory(int budgetId, int categoryId) async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
     try {
-      final success = await _service.deleteBudgetCategory(
-        userPk: _userPk,
-        userProfilePk: _userProfilePk,
-        financeProfilePk: _financeProfilePk,
+      final success = await _budgetCategoryService.deleteBudgetCategory(
+        userPk: userPk,
+        userProfilePk: userProfilePk,
+        financeProfilePk: financeProfilePk,
         categoryId: categoryId,
       );
       if (success) {
-        _categories.removeWhere((c) => c.id == categoryId);
+        _categoriesByBudget[budgetId]?.removeWhere((c) => c.id == categoryId);
       }
       return success;
     } catch (e) {
