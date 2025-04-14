@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../providers/finance/budget_provider.dart';
 import '../../../providers/finance/budget_category_provider.dart';
-import '../../../models/finance/budget_category.dart';
-import '../../nav/providers/navigation_store.dart';
-// If you have a BudgetCategoryProvider or service, import it here.
+import '../../../models/finance/budget.dart';
 
 enum AddBudgetCategoryState { initial, adding, added }
 
@@ -19,10 +18,13 @@ class _AddBudgetCategoryBottomSheetState extends State<AddBudgetCategoryBottomSh
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _categoryNameController = TextEditingController();
   final TextEditingController _allocatedAmountController = TextEditingController();
-  String _categoryType = 'EXPENSE'; // Default value.
+  String _categoryType = 'NECESSARY'; // Default type; adjust as needed.
 
   AddBudgetCategoryState _state = AddBudgetCategoryState.initial;
   String _errorFeedback = "";
+
+  /// The currently selected budget in our dropdown
+  Budget? _selectedBudget;
 
   @override
   void dispose() {
@@ -31,25 +33,45 @@ class _AddBudgetCategoryBottomSheetState extends State<AddBudgetCategoryBottomSh
     super.dispose();
   }
 
+  @override
+  void initState() {
+    super.initState();
+    // (Optional) Load budgets if needed
+    // You could also call `context.read<BudgetProvider>().loadBudgets()` here
+    // if your budgets are not already loaded at this point.
+
+    final budgetProvider = context.read<BudgetProvider>();
+    // If budgets are already loaded, set the first one as selected by default.
+    if (budgetProvider.budgets.isNotEmpty) {
+      _selectedBudget = budgetProvider.budgets.first;
+    }
+  }
+
   Future<void> _addBudgetCategory() async {
     if (!_formKey.currentState!.validate()) return;
+    if (_selectedBudget == null) {
+      setState(() {
+        _errorFeedback = 'Please select a budget.';
+      });
+      return;
+    }
 
     setState(() {
       _state = AddBudgetCategoryState.adding;
       _errorFeedback = "";
     });
 
-  final provider = context.read<BudgetCategoryProvider>();
+    final provider = context.read<BudgetCategoryProvider>();
 
-  final int activeBudgetId = ModalRoute.of(context)?.settings.arguments as int? ?? 0;
-    
-    // Call the provider's createCategory method
     final success = await provider.createCategory(
-      budgetId: activeBudgetId,
+      budgetId: _selectedBudget!.id,
       name: _categoryNameController.text.trim(),
       allocatedAmount: double.tryParse(
-        _allocatedAmountController.text.replaceAll('\$', '').trim(),
-      ) ?? 0.0,
+        _allocatedAmountController.text
+            .replaceAll('\$', '')
+            .trim(),
+      ) ??
+          0.0,
       categoryType: _categoryType,
     );
 
@@ -67,7 +89,7 @@ class _AddBudgetCategoryBottomSheetState extends State<AddBudgetCategoryBottomSh
     }
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context, List<Budget> budgets) {
     if (_state == AddBudgetCategoryState.adding) {
       return Center(
         child: Padding(
@@ -83,6 +105,7 @@ class _AddBudgetCategoryBottomSheetState extends State<AddBudgetCategoryBottomSh
         ),
       );
     }
+
     if (_state == AddBudgetCategoryState.added) {
       return Center(
         child: Padding(
@@ -95,6 +118,7 @@ class _AddBudgetCategoryBottomSheetState extends State<AddBudgetCategoryBottomSh
       );
     }
 
+    // Regular form
     return Form(
       key: _formKey,
       child: SingleChildScrollView(
@@ -107,6 +131,33 @@ class _AddBudgetCategoryBottomSheetState extends State<AddBudgetCategoryBottomSh
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Budget Selector
+            if (budgets.isNotEmpty)
+              DropdownButtonFormField<Budget>(
+                value: _selectedBudget,
+                decoration: const InputDecoration(labelText: 'Select Budget'),
+                items: budgets.map((budget) {
+                  return DropdownMenuItem<Budget>(
+                    value: budget,
+                    child: Text(budget.name),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedBudget = value;
+                  });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select a budget';
+                  }
+                  return null;
+                },
+              )
+            else
+              const Text('No budgets found. Please create a budget first.'),
+            const SizedBox(height: 12),
+
             // Category Name
             TextFormField(
               controller: _categoryNameController,
@@ -115,25 +166,31 @@ class _AddBudgetCategoryBottomSheetState extends State<AddBudgetCategoryBottomSh
               value == null || value.trim().isEmpty ? 'Enter category name' : null,
             ),
             const SizedBox(height: 12),
+
             // Allocated Amount
             TextFormField(
               controller: _allocatedAmountController,
               decoration: const InputDecoration(labelText: 'Allocated Amount'),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               validator: (value) {
-                if (value == null || value.trim().isEmpty) return 'Enter allocated amount';
-                if (double.tryParse(value.trim()) == null) return 'Enter a valid number';
+                if (value == null || value.trim().isEmpty) {
+                  return 'Enter allocated amount';
+                }
+                if (double.tryParse(value.trim()) == null) {
+                  return 'Enter a valid number';
+                }
                 return null;
               },
             ),
             const SizedBox(height: 12),
+
             // Category Type Dropdown
             DropdownButtonFormField<String>(
               value: _categoryType,
               items: const [
-                DropdownMenuItem(value: 'EXPENSE', child: Text('EXPENSE')),
-                DropdownMenuItem(value: 'SAVINGS', child: Text('SAVINGS')),
-                DropdownMenuItem(value: 'OTHER', child: Text('OTHER')),
+                DropdownMenuItem(value: 'NECESSARY', child: Text('Necessary Expenses')),
+                DropdownMenuItem(value: 'UNNECESSARY', child: Text('Unnecessary Expenses')),
+                DropdownMenuItem(value: 'INVESTING', child: Text('Investing')),
               ],
               onChanged: (value) {
                 if (value != null) {
@@ -144,6 +201,7 @@ class _AddBudgetCategoryBottomSheetState extends State<AddBudgetCategoryBottomSh
               },
               decoration: const InputDecoration(labelText: 'Category Type'),
             ),
+
             if (_errorFeedback.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 16),
@@ -167,6 +225,7 @@ class _AddBudgetCategoryBottomSheetState extends State<AddBudgetCategoryBottomSh
         )
       ];
     }
+
     if (_state == AddBudgetCategoryState.initial) {
       return [
         TextButton(
@@ -179,29 +238,40 @@ class _AddBudgetCategoryBottomSheetState extends State<AddBudgetCategoryBottomSh
         ),
       ];
     }
+
     return [];
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Add New Budget Category',
-                style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 16),
-            _buildContent(),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: _buildActions(),
+    // Read budgets from provider
+    return Consumer<BudgetProvider>(
+      builder: (context, budgetProvider, child) {
+        final isLoadingBudgets = budgetProvider.isLoading;
+        final budgets = budgetProvider.budgets;
+
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+            child: isLoadingBudgets
+                ? const Center(child: CircularProgressIndicator())
+                : Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Add New Budget Category',
+                    style: Theme.of(context).textTheme.headlineSmall),
+                const SizedBox(height: 16),
+                _buildContent(context, budgets),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: _buildActions(),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

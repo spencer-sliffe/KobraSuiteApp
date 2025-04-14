@@ -168,14 +168,11 @@ void main() async {
             return budgetProvider;
           },
         ),
-        ChangeNotifierProxyProvider2<AuthProvider, FinanceProfileProvider, BudgetCategoryProvider>(
-          create: (_) => BudgetCategoryProvider(userPk: 0, userProfilePk: 0, financeProfilePk: 0),
-          update: (_, auth, financeProfile, categoryProvider) {
-            categoryProvider!.update(
-              newUserPk: auth.userPk,
-              newUserProfilePk: auth.userProfilePk,
-              newFinanceProfilePk: financeProfile.financeProfile?.id ?? 0,
-            );
+        ChangeNotifierProxyProvider<FinanceProfileProvider, BudgetCategoryProvider>(
+          create: (context) => BudgetCategoryProvider(
+              financeProfileProvider: context.read<FinanceProfileProvider>()),
+          update: (context, financeProfile, categoryProvider) {
+            categoryProvider!.update(financeProfile);
             return categoryProvider;
           },
         ),

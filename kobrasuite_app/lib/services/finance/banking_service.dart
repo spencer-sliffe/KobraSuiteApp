@@ -143,16 +143,17 @@ class BankingService {
     }
   }
 
-  // Budget Categories
   Future<List<BudgetCategory>> getBudgetCategories({
     required int userPk,
     required int userProfilePk,
     required int financeProfilePk,
+    required int budgetId,
   }) async {
     try {
       final url =
           '/api/users/$userPk/profile/$userProfilePk/'
-          'finance_profile/$financeProfilePk/budget_categories/';
+          'finance_profile/$financeProfilePk/budgets/$budgetId/categories/';
+
       final response = await _dio.get(url);
       if (response.statusCode == 200) {
         final map = response.data as Map<String, dynamic>;
@@ -177,7 +178,8 @@ class BankingService {
     try {
       final url =
           '/api/users/$userPk/profile/$userProfilePk/'
-          'finance_profile/$financeProfilePk/budget_categories/';
+          'finance_profile/$financeProfilePk/budgets/$budgetId/categories/';
+
       final body = {
         'budget': budgetId,
         'name': name,
@@ -200,7 +202,7 @@ class BankingService {
     try {
       final url =
           '/api/users/$userPk/profile/$userProfilePk/'
-          'finance_profile/$financeProfilePk/budget_categories/$categoryId/';
+          'finance_profile/$financeProfilePk/categories/$categoryId/';
       final response = await _dio.delete(url);
       return response.statusCode == 204 || response.statusCode == 200;
     } catch (e) {
