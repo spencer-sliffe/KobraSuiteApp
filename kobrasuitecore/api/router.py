@@ -6,6 +6,7 @@ from homelife.views.child_profile_views import ChildProfileViewSet
 from homelife.views.chore_completion_views import ChoreCompletionViewSet
 from homelife.views.chore_views import ChoreViewSet
 from homelife.views.grocery_item_views import GroceryItemViewSet
+from homelife.views.grocery_list_views import GroceryListViewSet
 from homelife.views.household_invite_views import HouseholdInviteViewSet
 from homelife.views.household_views import HouseholdViewSet
 from homelife.views.meal_plan_views import MealPlanViewSet
@@ -97,7 +98,7 @@ household_router.register('pets', PetViewSet, basename='pets')
 household_router.register('chores', ChoreViewSet, basename='chores')
 household_router.register('calendar_events', SharedCalendarEventViewSet, basename='calendar_events')
 household_router.register('meal_plans', MealPlanViewSet, basename='meal_plans')
-household_router.register('grocery_items', GroceryItemViewSet, basename='grocery_items')
+household_router.register('grocery_lists', GroceryListViewSet, basename='grocery_lists')
 household_router.register('medications', MedicationViewSet, basename='medications')
 household_router.register('medical_appointments', MedicalAppointmentViewSet, basename='medical_appointments')
 household_router.register('workout_routines', WorkoutRoutineViewSet, basename='workout_routines')
@@ -105,6 +106,10 @@ household_router.register('household_invites', HouseholdInviteViewSet, basename=
 
 chore_router = routers.NestedDefaultRouter(household_router, 'chores', lookup='chore')
 chore_router.register('completions', ChoreCompletionViewSet, basename='chore_completions')
+
+grocery_router = routers.NestedDefaultRouter(household_router, 'grocery_lists', lookup='grocery_list')
+grocery_router.register('grocery_items', GroceryItemViewSet, basename='grocery_items')
+
 
 # URL PATTERNS
 urlpatterns = [

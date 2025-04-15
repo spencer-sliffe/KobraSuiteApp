@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:kobrasuite_app/services/homelife/personal_homelife_service.dart';
 
 // Import your services here
 import 'finance/stock_news_service.dart';
@@ -14,6 +15,10 @@ import 'general/homelife_profile_service.dart';
 import 'general/user_profile_service.dart';
 import 'general/school_profile_service.dart';
 import 'general/work_profile_service.dart';
+import 'homelife/calendar_service.dart';
+import 'homelife/health_service.dart';
+import 'homelife/household_service.dart';
+import 'homelife/meal_service.dart';
 import 'image/image_generation_service.dart';
 import 'school/university_service.dart';
 import 'school/university_news_service.dart';
@@ -141,6 +146,26 @@ Future<void> setupServiceLocator() async {
 
   serviceLocator.registerLazySingleton<ImageGenerationService>(
         () => ImageGenerationService(serviceLocator<Dio>()),
+  );
+
+  serviceLocator.registerLazySingleton<CalendarService>(
+        () => CalendarService(serviceLocator<Dio>()),
+  );
+
+  serviceLocator.registerLazySingleton<HealthService>(
+        () => HealthService(serviceLocator<Dio>()),
+  );
+
+  serviceLocator.registerLazySingleton<PersonalHomelifeService>(
+        () => PersonalHomelifeService(serviceLocator<Dio>()),
+  );
+
+  serviceLocator.registerLazySingleton<HouseholdService>(
+        () => HouseholdService(serviceLocator<Dio>()),
+  );
+
+  serviceLocator.registerLazySingleton<MealService>(
+        () => MealService(serviceLocator<Dio>()),
   );
   // Add other services here as needed
 }

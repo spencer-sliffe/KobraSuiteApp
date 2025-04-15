@@ -1,13 +1,11 @@
 import 'package:dio/dio.dart';
-import 'package:kobrasuite_app/models/homelife/shared_calendar_event.dart';
+import '../../models/homelife/workout_routine.dart';
 
-class CalendarService {
+class PersonalHomelifeService {
   final Dio _dio;
+  PersonalHomelifeService(this._dio);
 
-  CalendarService(this._dio);
-
-  // Bank Accounts
-  Future<List<SharedCalendarEvent>> getCalendarEvents({
+  Future<List<WorkoutRoutine>> getWorkoutRoutines({
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
@@ -16,12 +14,12 @@ class CalendarService {
     try {
       final url =
           '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
-          '$homelifeProfilePk/households/$householdPk/calendar_events/';
+          '$homelifeProfilePk/households/$householdPk/workout_routines/';
       final response = await _dio.get(url);
       if (response.statusCode == 200) {
         final map = response.data as Map<String, dynamic>;
         final results = map['results'] as List;
-        return results.map((e) => SharedCalendarEvent.fromJson(e)).toList();
+        return results.map((e) => WorkoutRoutine.fromJson(e)).toList();
       }
       return [];
     } catch (e) {
@@ -29,7 +27,7 @@ class CalendarService {
     }
   }
 
-  Future<bool> createCalendarEvent({
+  Future<bool> createWorkoutRoutine({
     ///Needs to be completed
     required int userPk,
     required int userProfilePk,
@@ -39,7 +37,7 @@ class CalendarService {
     try {
       final url =
           '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
-          '$homelifeProfilePk/households/$householdPk/calendar_events/';
+          '$homelifeProfilePk/households/$householdPk/workout_routines/';
       final body = {
         'homelife_profile': homelifeProfilePk,
       };
@@ -50,17 +48,17 @@ class CalendarService {
     }
   }
 
-  Future<bool> deleteCalendarEvent({
+  Future<bool> deleteWorkoutRoutine({
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
     required int householdPk,
-    required int calendarEventId,
+    required int workoutRoutineId,
   }) async {
     try {
       final url =
           '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
-          '$homelifeProfilePk/households/$householdPk/calendar_events/$calendarEventId';
+          '$homelifeProfilePk/households/$householdPk/calendar_events/$workoutRoutineId';
       final response = await _dio.delete(url);
       return response.statusCode == 204 || response.statusCode == 200;
     } catch (e) {

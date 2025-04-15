@@ -2,6 +2,7 @@
 class GroceryItem {
   final int id;
   final int household; // Household ID
+  final int groceryList; //Grocery list ID
   final String name;
   final String quantity;
   final bool purchased;
@@ -10,6 +11,7 @@ class GroceryItem {
   GroceryItem({
     required this.id,
     required this.household,
+    required this.groceryList,
     required this.name,
     this.quantity = '',
     this.purchased = false,
@@ -20,6 +22,7 @@ class GroceryItem {
     return GroceryItem(
       id: json['id'],
       household: json['household'],
+      groceryList: json['grocery_list'],
       name: json['name'] ?? '',
       quantity: json['quantity'] ?? '',
       purchased: json['purchased'] ?? false,
@@ -31,6 +34,7 @@ class GroceryItem {
     return {
       'id': id,
       'household': household,
+      'grocery_list': groceryList,
       'name': name,
       'quantity': quantity,
       'purchased': purchased,
