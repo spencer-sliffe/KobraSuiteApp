@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../nav/providers/navigation_store.dart';
 
 enum AddWorkoutRoutineState { initial, adding, added }
 
@@ -145,7 +148,8 @@ class _AddWorkoutRoutineBottomSheetState extends State<AddWorkoutRoutineBottomSh
     if (_state == AddWorkoutRoutineState.added) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddWorkoutRoutineActive(),
           child: const Text('Close'),
         ),
       ];
@@ -153,7 +157,8 @@ class _AddWorkoutRoutineBottomSheetState extends State<AddWorkoutRoutineBottomSh
     if (_state == AddWorkoutRoutineState.initial) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddWorkoutRoutineActive(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(

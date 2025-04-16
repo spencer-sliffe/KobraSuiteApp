@@ -1,5 +1,8 @@
 ///Not SPECIFIED FOR MEAL JUST HAS BASIC EXAMPLE OF TEXT FIELDS
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../nav/providers/navigation_store.dart';
 
 enum AddMealState { initial, adding, added }
 
@@ -120,7 +123,8 @@ class _AddMealBottomSheetState extends State<AddMealBottomSheet> {
     if (_state == AddMealState.added) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddMealActive(),
           child: const Text('Close'),
         ),
       ];
@@ -128,7 +132,8 @@ class _AddMealBottomSheetState extends State<AddMealBottomSheet> {
     if (_state == AddMealState.initial) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddMealActive(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(

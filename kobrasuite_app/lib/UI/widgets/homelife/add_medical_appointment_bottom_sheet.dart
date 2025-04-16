@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../nav/providers/navigation_store.dart';
 
 enum AddMedicalAppointmentState { initial, adding, added }
 
@@ -154,7 +157,8 @@ class _AddMedicalAppointmentBottomSheetState
     if (_state == AddMedicalAppointmentState.added) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddMedicalAppointmentActive(),
           child: const Text('Close'),
         ),
       ];
@@ -162,7 +166,8 @@ class _AddMedicalAppointmentBottomSheetState
     if (_state == AddMedicalAppointmentState.initial) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddMedicalAppointmentActive(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(

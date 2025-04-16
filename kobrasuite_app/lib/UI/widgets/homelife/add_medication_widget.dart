@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../nav/providers/navigation_store.dart';
 
 enum AddMedicationState { initial, adding, added }
 
@@ -150,7 +153,8 @@ class _AddMedicationBottomSheetState extends State<AddMedicationBottomSheet> {
     if (_state == AddMedicationState.added) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddMedicationActive(),
           child: const Text('Close'),
         ),
       ];
@@ -158,7 +162,8 @@ class _AddMedicationBottomSheetState extends State<AddMedicationBottomSheet> {
     if (_state == AddMedicationState.initial) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddMedicationActive(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(

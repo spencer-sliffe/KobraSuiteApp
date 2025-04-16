@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../nav/providers/navigation_store.dart';
 
 enum AddAssignmentState { initial, adding, added }
 
@@ -145,24 +148,26 @@ class _AddAssignmentBottomSheetState extends State<AddAssignmentBottomSheet> {
   List<Widget> _buildActions() {
     if (_state == AddAssignmentState.added) {
       return [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
-        )
+        // TextButton(
+        //   onPressed: ()
+        //   => context.read<NavigationStore>().setAddAssignmentActive(),
+        //   child: const Text('Close'),
+        // )
       ];
     }
-    if (_state == AddAssignmentState.initial) {
-      return [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: _addAssignment,
-          child: const Text('Add Assignment'),
-        )
-      ];
-    }
+    // if (_state == AddAssignmentState.initial) {
+    //   return [
+    //     TextButton(
+    //       onPressed: ()
+    //       => context.read<NavigationStore>().setAddAssignmentActive(),
+    //       child: const Text('Cancel'),
+    //     ),
+    //     ElevatedButton(
+    //       onPressed: _addAssignment,
+    //       child: const Text('Add Assignment'),
+    //     )
+    //   ];
+    // }
     return [];
   }
 

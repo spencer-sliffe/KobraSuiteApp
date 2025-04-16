@@ -9,8 +9,14 @@ import 'finance/add_portfolio_stock_overlay.dart';
 import 'finance/add_stock_portfolio_overlay.dart';
 import 'finance/add_transaction_overlay.dart';
 import 'homelife/add_calendar_event_overlay.dart';
+import 'homelife/add_child_profile_overlay.dart';
 import 'homelife/add_chore_overlay.dart';
 import 'homelife/add_grocery_item_overlay.dart';
+import 'homelife/add_grocerylist_overlay.dart';
+import 'homelife/add_meal_overlay.dart';
+import 'homelife/add_medical_appointment.dart';
+import 'homelife/add_medication_overlay.dart';
+import 'homelife/add_pet_overlay.dart';
 import 'homelife/add_workout_routine_overlay.dart';
 import 'school/add_course_overlay.dart';
 import 'finance/add_watchlist_stock_overlay.dart';
@@ -30,14 +36,24 @@ class UniversalOverlay extends StatelessWidget {
     //   return const AddTeamOverlay();
     // } else if (navStore.addTaskActive) {
     //   return const AddTaskOverlay();
+    } else if (navStore.addPetActive) {
+      return const AddPetOverlay();
+    } else if (navStore.addMedicationActive) {
+      return const AddMedicationOverlay();
+    } else if (navStore.addMedicalAppointmentActive) {
+      return const AddMedicalAppointmentOverlay();
+    } else if (navStore.addChildProfileActive) {
+      return const AddChildProfileOverlay();
     } else if (navStore.addChoreActive) {
       return const AddChoreOverlay();
     } else if (navStore.addCalendarEventActive) {
       return const AddCalendarEventOverlay();
-    // } else if (navStore.addMealActive) {
-    //   return const AddMealOverlay();
+    } else if (navStore.addMealActive) {
+      return const AddMealOverlay();
     } else if (navStore.addGroceryItemActive) {
       return const AddGroceryItemOverlay();
+    } else if (navStore.addGroceryListActive) {
+      return const AddGroceryListOverlay();
     } else if (navStore.addBankAccountActive) {
       return const AddBankAccountOverlay();
     } else if (navStore.addBudgetActive) {

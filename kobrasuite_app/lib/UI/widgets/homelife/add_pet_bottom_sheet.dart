@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../nav/providers/navigation_store.dart';
 
 enum AddPetState { initial, adding, added }
 
@@ -159,7 +162,8 @@ class _AddPetBottomSheetState extends State<AddPetBottomSheet> {
     if (_state == AddPetState.added) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddPetActive(),
           child: const Text('Close'),
         ),
       ];
@@ -167,7 +171,8 @@ class _AddPetBottomSheetState extends State<AddPetBottomSheet> {
     if (_state == AddPetState.initial) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddPetActive(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(

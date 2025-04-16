@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../nav/providers/navigation_store.dart';
 // If you have a BudgetCategoryProvider or service, import it here.
 
 enum AddBudgetCategoryState { initial, adding, added }
@@ -146,7 +149,8 @@ class _AddBudgetCategoryBottomSheetState extends State<AddBudgetCategoryBottomSh
     if (_state == AddBudgetCategoryState.added) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddCategoryActive(),
           child: const Text('Close'),
         )
       ];
@@ -154,7 +158,8 @@ class _AddBudgetCategoryBottomSheetState extends State<AddBudgetCategoryBottomSh
     if (_state == AddBudgetCategoryState.initial) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddCategoryActive(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(

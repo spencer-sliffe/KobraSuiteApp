@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../nav/providers/navigation_store.dart';
 
 enum AddTopicState { initial, adding, added }
 
@@ -131,7 +134,8 @@ class _AddTopicBottomSheetState extends State<AddTopicBottomSheet> {
     if (_state == AddTopicState.added) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddCourseTopicActive(),
           child: const Text('Close'),
         ),
       ];
@@ -139,7 +143,8 @@ class _AddTopicBottomSheetState extends State<AddTopicBottomSheet> {
     if (_state == AddTopicState.initial) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddCourseTopicActive(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(

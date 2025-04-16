@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../nav/providers/navigation_store.dart';
 
 enum AddChoreState { initial, adding, added }
 
@@ -174,7 +177,8 @@ class _AddChoreBottomSheetState extends State<AddChoreBottomSheet> {
     if (_state == AddChoreState.added) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddChoreActive(),
           child: const Text('Close'),
         ),
       ];
@@ -182,7 +186,8 @@ class _AddChoreBottomSheetState extends State<AddChoreBottomSheet> {
     if (_state == AddChoreState.initial) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddChoreActive(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(

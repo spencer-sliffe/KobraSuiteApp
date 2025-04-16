@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../nav/providers/navigation_store.dart';
 
 enum AddGroceryItemState { initial, adding, added }
 
@@ -138,7 +141,8 @@ class _AddGroceryItemBottomSheetState extends State<AddGroceryItemBottomSheet> {
     if (_state == AddGroceryItemState.added) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddGroceryItemActive(),
           child: const Text('Close'),
         ),
       ];
@@ -146,7 +150,8 @@ class _AddGroceryItemBottomSheetState extends State<AddGroceryItemBottomSheet> {
     if (_state == AddGroceryItemState.initial) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddGroceryItemActive(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(

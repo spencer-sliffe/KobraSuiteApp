@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/school/course_provider.dart';
+import '../../nav/providers/navigation_store.dart';
 
 enum AddCourseState { initial, verifying, verified, adding, added }
 
@@ -238,7 +239,8 @@ class _AddCourseBottomSheetState extends State<AddCourseBottomSheet> {
     if (_state == AddCourseState.added) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddCourseActive(),
           child: const Text('Close'),
         )
       ];
@@ -246,7 +248,8 @@ class _AddCourseBottomSheetState extends State<AddCourseBottomSheet> {
     if (_state == AddCourseState.initial) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddCourseActive(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(

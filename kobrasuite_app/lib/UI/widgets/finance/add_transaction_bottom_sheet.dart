@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../nav/providers/navigation_store.dart';
+
 enum AddTransactionState { initial, adding, added }
 
 class AddTransactionBottomSheet extends StatefulWidget {
@@ -151,7 +153,8 @@ class _AddTransactionBottomSheetState extends State<AddTransactionBottomSheet> {
     if (_state == AddTransactionState.added) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddTransactionActive(),
           child: const Text('Close'),
         ),
       ];
@@ -159,7 +162,8 @@ class _AddTransactionBottomSheetState extends State<AddTransactionBottomSheet> {
     if (_state == AddTransactionState.initial) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddTransactionActive(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(

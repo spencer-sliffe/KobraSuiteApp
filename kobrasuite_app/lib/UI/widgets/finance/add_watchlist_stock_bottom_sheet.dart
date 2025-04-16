@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../nav/providers/navigation_store.dart';
+
 enum AddWatchlistStockState { initial, adding, added }
 
 class AddWatchlistStockBottomSheet extends StatefulWidget {
@@ -116,7 +118,8 @@ class _AddWatchlistStockBottomSheetState
     if (_state == AddWatchlistStockState.added) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddWatchlistStockActive(),
           child: const Text('Close'),
         ),
       ];
@@ -124,7 +127,8 @@ class _AddWatchlistStockBottomSheetState
     if (_state == AddWatchlistStockState.initial) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddWatchlistStockActive(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(
