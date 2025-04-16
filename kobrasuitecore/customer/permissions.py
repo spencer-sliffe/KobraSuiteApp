@@ -27,12 +27,12 @@ class IsOwner(permissions.BasePermission):
 class IsOwnerOrAdmin(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return request.user.is_superuser or request.user.is_staff or obj == request.user
-
-
-class IsObjOwner(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        return request.user.is_superuser or request.user.is_staff or obj.profile.user == request.user
-
+#
+#
+# class IsObjOwner(permissions.BasePermission):
+#     def has_object_permission(self, request, view, obj):
+#         return request.user.is_superuser or request.user.is_staff or obj.profile.user == request.user
+#
 
 class IsAdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
