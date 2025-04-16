@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:kobrasuite_app/UI/nav/providers/navigation_store.dart';
 
+import '../../widgets/ai/draggable_chat_overlay.dart';
 import 'finance/add_bank_account_overlay.dart';
 import 'finance/add_budget_category_overlay.dart';
 import 'finance/add_budget_overlay.dart';
@@ -70,8 +71,8 @@ class UniversalOverlay extends StatelessWidget {
       return const AddWatchlistStockOverlay();
     } else if (navStore.addWorkoutRoutineActive) {
       return const AddWorkoutRoutineOverlay();
-    // } else if (navStore.aiChatActive) {
-    //   return const AIChatOverlay();
+    } else if (navStore.aiChatActive) {
+      return const DraggableChatOverlay();
     // } else if (navStore.runFinanceAnalysisActive) {
     //   return const RunFinanceAnalysisOverlay();
     }
