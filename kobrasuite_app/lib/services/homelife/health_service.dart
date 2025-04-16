@@ -11,7 +11,7 @@ class HealthService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk
+    required int? householdPk
   }) async {
     try {
       final url =
@@ -34,7 +34,7 @@ class HealthService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
   }) async {
     try {
       final url =
@@ -54,7 +54,7 @@ class HealthService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
     required int medicationId,
   }) async {
     try {
@@ -68,11 +68,11 @@ class HealthService {
     }
   }
 
-  Future<List<MedicalAppointment>> getMedicalAppointment({
+  Future<List<MedicalAppointment>> getMedicalAppointments({
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk
+    required int? householdPk
   }) async {
     try {
       final url =
@@ -95,7 +95,7 @@ class HealthService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
   }) async {
     try {
       final url =
@@ -115,7 +115,7 @@ class HealthService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
     required int medicalAppointmentId,
   }) async {
     try {

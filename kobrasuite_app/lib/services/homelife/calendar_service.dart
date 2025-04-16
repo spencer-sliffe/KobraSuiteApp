@@ -11,7 +11,7 @@ class CalendarService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk
+    required int? householdPk
   }) async {
     try {
       final url =
@@ -34,7 +34,7 @@ class CalendarService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
   }) async {
     try {
       final url =
@@ -54,7 +54,7 @@ class CalendarService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
     required int calendarEventId,
   }) async {
     try {

@@ -11,7 +11,7 @@ class MealService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk
+    required int? householdPk
   }) async {
     try {
       final url =
@@ -34,7 +34,7 @@ class MealService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
   }) async {
     try {
       final url =
@@ -54,7 +54,7 @@ class MealService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
     required int mealPlanId,
   }) async {
     try {
@@ -72,7 +72,7 @@ class MealService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk
+    required int? householdPk
   }) async {
     try {
       final url =
@@ -95,7 +95,7 @@ class MealService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
   }) async {
     try {
       final url =
@@ -115,7 +115,7 @@ class MealService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
     required int groceryListId,
   }) async {
     try {
@@ -133,7 +133,7 @@ class MealService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
     required int groceryListPk,
   }) async {
     try {
@@ -159,7 +159,7 @@ class MealService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
     required int groceryListPk,
   }) async {
     try {
@@ -181,7 +181,7 @@ class MealService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
     required int groceryListPk,
     required int groceryItemId
   }) async {

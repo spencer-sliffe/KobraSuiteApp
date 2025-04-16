@@ -1,23 +1,23 @@
 import 'package:flutter/foundation.dart';
-import 'package:kobrasuite_app/services/homelife/personal_homelife_service.dart';
-import '../../models/homelife/workout_routine.dart';
+import '../../models/homelife/household.dart';
+import '../../services/homelife/household_service.dart';
 import '../../services/service_locator.dart';
 import '../general/homelife_profile_provider.dart';
 
-class WorkoutRoutineProvider extends ChangeNotifier {
-  final PersonalHomelifeService _workoutService;
+class HouseholdProvider extends ChangeNotifier {
+  final HouseholdService _householdService;
   HomeLifeProfileProvider _homelifeProfileProvider;
   bool _isLoading = false;
   String? _errorMessage;
-  List<WorkoutRoutine> _workoutRoutines = [];
+  Household? _household;
 
-  WorkoutRoutineProvider({required HomeLifeProfileProvider homelifeProfileProvider})
+  HouseholdProvider({required HomeLifeProfileProvider homelifeProfileProvider})
       : _homelifeProfileProvider = homelifeProfileProvider,
-        _workoutService = serviceLocator<PersonalHomelifeService>();
+        _householdService = serviceLocator<HouseholdService>();
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
-  List<WorkoutRoutine> get workoutRoutines => _workoutRoutines;
+  Household? get household => _household;
 
   int get userPk => _homelifeProfileProvider.userPk;
   int get userProfilePk => _homelifeProfileProvider.userProfilePk;
@@ -29,26 +29,25 @@ class WorkoutRoutineProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> loadWorkoutRoutines() async {
+  Future<void> loadHousehold() async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
     try {
-      final workoutRoutines = await _workoutService.getWorkoutRoutines(
+      final household = await _householdService.getHousehold(
         userPk: userPk,
         userProfilePk: userProfilePk,
         homelifeProfilePk: homelifeProfilePk,
-        householdPk: householdPk,
       );
-      _workoutRoutines = workoutRoutines;
+      _household = household;
     } catch (e) {
-      _errorMessage = 'Error loading workouts: $e';
+      _errorMessage = 'Error loading household: $e';
     }
     _isLoading = false;
     notifyListeners();
   }
 
-  Future<bool> createWorkoutRoutine({
+  Future<bool> createHousehold({
     ///Needs Completed
     required int placholder,
   }) async {
@@ -56,18 +55,17 @@ class WorkoutRoutineProvider extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     try {
-      final success = await _workoutService.createWorkoutRoutine(
+      final success = await _householdService.createHousehold(
           userPk: userPk,
           userProfilePk: userProfilePk,
           homelifeProfilePk: homelifeProfilePk,
-          householdPk: householdPk
       );
       if (success) {
-        await loadWorkoutRoutines();
+        await loadHousehold();
       }
       return success;
     } catch (e) {
-      _errorMessage = 'Error creating workout routine: $e';
+      _errorMessage = 'Error creating household: $e';
       return false;
     } finally {
       _isLoading = false;
@@ -75,24 +73,23 @@ class WorkoutRoutineProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> deleteWorkoutRoutine(int workoutRoutineId) async {
+  Future<bool> deleteHousehold(int householdId) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
     try {
-      final success = await _workoutService.deleteWorkoutRoutine(
+      final success = await _householdService.deleteHousehold(
         userPk: userPk,
         userProfilePk: userProfilePk,
         homelifeProfilePk: homelifeProfilePk,
-        householdPk: householdPk,
-        workoutRoutineId: workoutRoutineId,
+        householdId: householdId,
       );
       if (success) {
-        _workoutRoutines.removeWhere((a) => a.id == workoutRoutineId);
+        _household = null;
       }
       return success;
     } catch (e) {
-      _errorMessage = 'Error deleting workout routine: $e';
+      _errorMessage = 'Error deleting household: $e';
       return false;
     } finally {
       _isLoading = false;

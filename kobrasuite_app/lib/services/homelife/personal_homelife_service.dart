@@ -9,7 +9,7 @@ class PersonalHomelifeService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk
+    required int? householdPk
   }) async {
     try {
       final url =
@@ -32,7 +32,7 @@ class PersonalHomelifeService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
   }) async {
     try {
       final url =
@@ -52,7 +52,7 @@ class PersonalHomelifeService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
     required int workoutRoutineId,
   }) async {
     try {

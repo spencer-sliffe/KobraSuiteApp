@@ -11,7 +11,7 @@ class HouseholdService {
 
   HouseholdService(this._dio);
 
-  Future<List<Household>> getHousehold({
+  Future<Household?> getHousehold({
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
@@ -24,9 +24,11 @@ class HouseholdService {
       if (response.statusCode == 200) {
         final map = response.data as Map<String, dynamic>;
         final results = map['results'] as List;
-        return results.map((e) => Household.fromJson(e)).toList();
+        if (results.isNotEmpty) {
+          return Household.fromJson(results[0]);
+        }
       }
-      return [];
+      return null;
     } catch (e) {
       rethrow;
     }
@@ -56,12 +58,12 @@ class HouseholdService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int householdId,
   }) async {
     try {
       final url =
           '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
-          '$homelifeProfilePk/households/$householdPk';
+          '$homelifeProfilePk/households/$householdId';
       final response = await _dio.delete(url);
       return response.statusCode == 204 || response.statusCode == 200;
     } catch (e) {
@@ -73,12 +75,11 @@ class HouseholdService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk
   }) async {
     try {
       final url =
           '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
-          '$homelifeProfilePk/households/$householdPk/household_invites/';
+          '$homelifeProfilePk/household_invites/';
       final response = await _dio.get(url);
       if (response.statusCode == 200) {
         final map = response.data as Map<String, dynamic>;
@@ -96,7 +97,7 @@ class HouseholdService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
   }) async {
     try {
       final url =
@@ -116,14 +117,14 @@ class HouseholdService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
-    required int householdInvitePk
+    required int? householdPk,
+    required int householdInviteId
   }) async {
     try {
       final url =
           '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
           '$homelifeProfilePk/households/$householdPk/household_invites/'
-          '/$householdInvitePk';
+          '/$householdInviteId';
       final response = await _dio.delete(url);
       return response.statusCode == 204 || response.statusCode == 200;
     } catch (e) {
@@ -135,7 +136,7 @@ class HouseholdService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk
+    required int? householdPk
   }) async {
     try {
       final url =
@@ -158,7 +159,7 @@ class HouseholdService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
   }) async {
     try {
       final url =
@@ -178,14 +179,14 @@ class HouseholdService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
-    required int petPk
+    required int? householdPk,
+    required int petId
   }) async {
     try {
       final url =
           '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
           '$homelifeProfilePk/households/$householdPk/pets/'
-          '/$petPk';
+          '/$petId';
       final response = await _dio.delete(url);
       return response.statusCode == 204 || response.statusCode == 200;
     } catch (e) {
@@ -197,7 +198,7 @@ class HouseholdService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk
+    required int? householdPk
   }) async {
     try {
       final url =
@@ -220,7 +221,7 @@ class HouseholdService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
   }) async {
     try {
       final url =
@@ -240,14 +241,14 @@ class HouseholdService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
-    required int chorePk
+    required int? householdPk,
+    required int choreId
   }) async {
     try {
       final url =
           '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
           '$homelifeProfilePk/households/$householdPk/chores/'
-          '/$chorePk';
+          '/$choreId';
       final response = await _dio.delete(url);
       return response.statusCode == 204 || response.statusCode == 200;
     } catch (e) {
@@ -259,7 +260,7 @@ class HouseholdService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
     required int chorePk,
   }) async {
     try {
@@ -283,7 +284,7 @@ class HouseholdService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
     required int chorePk,
   }) async {
     try {
@@ -304,15 +305,15 @@ class HouseholdService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
     required int chorePk,
-    required int choreCompletionPk,
+    required int choreCompletionId,
   }) async {
     try {
       final url =
           '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
           '$homelifeProfilePk/households/$householdPk/chores/$chorePk/completions/'
-          '/$choreCompletionPk';
+          '/$choreCompletionId';
       final response = await _dio.delete(url);
       return response.statusCode == 204 || response.statusCode == 200;
     } catch (e) {
@@ -324,7 +325,7 @@ class HouseholdService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
   }) async {
     try {
       final url =
@@ -347,7 +348,7 @@ class HouseholdService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
   }) async {
     try {
       final url =
@@ -367,7 +368,7 @@ class HouseholdService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int householdPk,
+    required int? householdPk,
     required int childProfileId,
   }) async {
     try {

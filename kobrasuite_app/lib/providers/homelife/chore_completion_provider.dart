@@ -1,23 +1,23 @@
 import 'package:flutter/foundation.dart';
-import 'package:kobrasuite_app/services/homelife/personal_homelife_service.dart';
-import '../../models/homelife/workout_routine.dart';
+import '../../models/homelife/chore_completion.dart';
+import '../../services/homelife/household_service.dart';
 import '../../services/service_locator.dart';
 import '../general/homelife_profile_provider.dart';
 
-class WorkoutRoutineProvider extends ChangeNotifier {
-  final PersonalHomelifeService _workoutService;
+class ChoreCompletionProvider extends ChangeNotifier {
+  final HouseholdService _choreCompletionService;
   HomeLifeProfileProvider _homelifeProfileProvider;
   bool _isLoading = false;
   String? _errorMessage;
-  List<WorkoutRoutine> _workoutRoutines = [];
+  List<ChoreCompletion> _choreCompletions = [];
 
-  WorkoutRoutineProvider({required HomeLifeProfileProvider homelifeProfileProvider})
+  ChoreCompletionProvider({required HomeLifeProfileProvider homelifeProfileProvider})
       : _homelifeProfileProvider = homelifeProfileProvider,
-        _workoutService = serviceLocator<PersonalHomelifeService>();
+        _choreCompletionService = serviceLocator<HouseholdService>();
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
-  List<WorkoutRoutine> get workoutRoutines => _workoutRoutines;
+  List<ChoreCompletion> get choreCompletions => _choreCompletions;
 
   int get userPk => _homelifeProfileProvider.userPk;
   int get userProfilePk => _homelifeProfileProvider.userProfilePk;
@@ -29,45 +29,47 @@ class WorkoutRoutineProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> loadWorkoutRoutines() async {
+  Future<void> loadChoreCompletions(int chorePk) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
     try {
-      final workoutRoutines = await _workoutService.getWorkoutRoutines(
+      final choreCompletions = await _choreCompletionService.getChoreCompletions(
         userPk: userPk,
         userProfilePk: userProfilePk,
         homelifeProfilePk: homelifeProfilePk,
         householdPk: householdPk,
+        chorePk: chorePk,
       );
-      _workoutRoutines = workoutRoutines;
+      _choreCompletions = choreCompletions;
     } catch (e) {
-      _errorMessage = 'Error loading workouts: $e';
+      _errorMessage = 'Error loading chore completions: $e';
     }
     _isLoading = false;
     notifyListeners();
   }
 
-  Future<bool> createWorkoutRoutine({
+  Future<bool> createChoreCompletion(
     ///Needs Completed
-    required int placholder,
-  }) async {
+    int chorePk
+  ) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
     try {
-      final success = await _workoutService.createWorkoutRoutine(
+      final success = await _choreCompletionService.createChoreCompletion(
           userPk: userPk,
           userProfilePk: userProfilePk,
           homelifeProfilePk: homelifeProfilePk,
-          householdPk: householdPk
+          householdPk: householdPk,
+          chorePk: chorePk,
       );
       if (success) {
-        await loadWorkoutRoutines();
+        await loadChoreCompletions(chorePk);
       }
       return success;
     } catch (e) {
-      _errorMessage = 'Error creating workout routine: $e';
+      _errorMessage = 'Error creating chore completion: $e';
       return false;
     } finally {
       _isLoading = false;
@@ -75,24 +77,25 @@ class WorkoutRoutineProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> deleteWorkoutRoutine(int workoutRoutineId) async {
+  Future<bool> deleteChore(int chorePk, int choreCompletionId) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
     try {
-      final success = await _workoutService.deleteWorkoutRoutine(
+      final success = await _choreCompletionService.deleteChoreCompletion(
         userPk: userPk,
         userProfilePk: userProfilePk,
         homelifeProfilePk: homelifeProfilePk,
         householdPk: householdPk,
-        workoutRoutineId: workoutRoutineId,
+        chorePk: chorePk,
+        choreCompletionId: choreCompletionId,
       );
       if (success) {
-        _workoutRoutines.removeWhere((a) => a.id == workoutRoutineId);
+        _choreCompletions.removeWhere((a) => a.id == choreCompletionId);
       }
       return success;
     } catch (e) {
-      _errorMessage = 'Error deleting workout routine: $e';
+      _errorMessage = 'Error deleting chore completion: $e';
       return false;
     } finally {
       _isLoading = false;
