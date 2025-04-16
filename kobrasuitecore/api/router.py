@@ -2,6 +2,19 @@ from rest_framework_nested import routers
 
 from customer.views.auth_views import AuthViewSet
 from customer.views.user_views import UserViewSet
+from homelife.views.child_profile_views import ChildProfileViewSet
+from homelife.views.chore_completion_views import ChoreCompletionViewSet
+from homelife.views.chore_views import ChoreViewSet
+from homelife.views.grocery_item_views import GroceryItemViewSet
+from homelife.views.grocery_list_views import GroceryListViewSet
+from homelife.views.household_invite_views import HouseholdInviteViewSet
+from homelife.views.household_views import HouseholdViewSet
+from homelife.views.meal_plan_views import MealPlanViewSet
+from homelife.views.medical_appointment_views import MedicalAppointmentViewSet
+from homelife.views.medication_views import MedicationViewSet
+from homelife.views.pet_views import PetViewSet
+from homelife.views.shared_calendar_event_views import SharedCalendarEventViewSet
+from homelife.views.workout_routine_views import WorkoutRoutineViewSet
 from hq.views.task_category_progress_views import TaskCategoryProgressViewSet
 from hq.views.school_profile_views import SchoolProfileViewSet
 from hq.views.user_profile_views import UserProfileViewSet
@@ -77,6 +90,25 @@ budget_router.register('categories', BudgetCategoryViewSet, basename='budget_cat
 
 # HOMELIFE
 homelife_profile_router = routers.NestedDefaultRouter(profile_router, 'homelife_profile', lookup='homelife_profile')
+homelife_profile_router.register('child_profiles', ChildProfileViewSet, basename='child_profiles')
+homelife_profile_router.register('households', HouseholdViewSet, basename='households')
+
+household_router = routers.NestedDefaultRouter(homelife_profile_router, 'households', lookup='household')
+household_router.register('pets', PetViewSet, basename='pets')
+household_router.register('chores', ChoreViewSet, basename='chores')
+household_router.register('calendar_events', SharedCalendarEventViewSet, basename='calendar_events')
+household_router.register('meal_plans', MealPlanViewSet, basename='meal_plans')
+household_router.register('grocery_lists', GroceryListViewSet, basename='grocery_lists')
+household_router.register('medications', MedicationViewSet, basename='medications')
+household_router.register('medical_appointments', MedicalAppointmentViewSet, basename='medical_appointments')
+household_router.register('workout_routines', WorkoutRoutineViewSet, basename='workout_routines')
+household_router.register('household_invites', HouseholdInviteViewSet, basename='household_invites')
+
+chore_router = routers.NestedDefaultRouter(household_router, 'chores', lookup='chore')
+chore_router.register('completions', ChoreCompletionViewSet, basename='chore_completions')
+
+grocery_router = routers.NestedDefaultRouter(household_router, 'grocery_lists', lookup='grocery_list')
+grocery_router.register('grocery_items', GroceryItemViewSet, basename='grocery_items')
 
 
 # URL PATTERNS
@@ -94,5 +126,7 @@ urlpatterns = [
     *finance_profile_router.urls,
     *stock_portfolio_router.urls,
     *homelife_profile_router.urls,
+    *household_router.urls,
+    *chore_router.urls,
     *budget_router.urls,
 ]

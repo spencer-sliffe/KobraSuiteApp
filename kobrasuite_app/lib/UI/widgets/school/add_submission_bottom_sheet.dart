@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../nav/providers/navigation_store.dart';
 
 enum AddSubmissionState { initial, adding, added }
 
@@ -165,7 +168,8 @@ class _AddSubmissionBottomSheetState extends State<AddSubmissionBottomSheet> {
     if (_state == AddSubmissionState.added) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddAssignmentSubmissionActive(),
           child: const Text('Close'),
         ),
       ];
@@ -173,7 +177,8 @@ class _AddSubmissionBottomSheetState extends State<AddSubmissionBottomSheet> {
     if (_state == AddSubmissionState.initial) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddAssignmentSubmissionActive(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(

@@ -96,18 +96,55 @@ class NavigationStore extends ChangeNotifier {
   bool get addGroceryListActive => _addGroceryListActive;
   bool get addGroceryItemActive => _addGroceryItemActive;
 
+  void _clearAllOverlayFlags() {
+    _searchUniversityActive = false;
+    _addCourseActive = false;
+    _addProjectActive = false;
+    _addTeamActive = false;
+    _addTaskActive = false;
+    _addChoreActive = false;
+    _addCalendarEventActive = false;
+    _addMealActive = false;
+    _addBankAccountActive = false;
+    _addBudgetActive = false;
+    _addCategoryActive = false;
+    _addTransactionActive = false;
+    _addStockActive = false;
+    _addWatchlistStockActive = false;
+    _syncFinanceOverviewActive = false;
+    _syncFinanceAccountsActive = false;
+    _syncFinanceTransactionsActive = false;
+    _syncStocksActive = false;
+    _refreshFinanceNewsActive = false;
+    _runFinanceAnalysisActive = false;
+    _addStockPortfolioActive = false;
+    _addTopicStudyDocumentActive = false;
+    _addCourseTopicActive = false;
+    _addAssignmentSubmissionActive = false;
+    _addPetActive = false;
+    _addMedicationActive = false;
+    _addMedicalAppointmentActive = false;
+    _sendHouseholdInviteActive = false;
+    _addWorkoutRoutineActive = false;
+    _addChildProfileActive = false;
+    _addGroceryListActive = false;
+    _addGroceryItemActive = false;
+  }
+
   void setModuleOrder(List<Module> newOrder) {
     _moduleOrder = newOrder;
     notifyListeners();
   }
 
   void setActiveModule(Module module) {
+    _clearAllOverlayFlags();
     _activeModule = module;
     notifyListeners();
   }
 
   void setActiveFinancesTabIndex(int index) {
     if (_activeFinancesTabIndex != index) {
+      _clearAllOverlayFlags();
       _activeFinancesTabIndex = index;
       notifyListeners();
     }
@@ -115,6 +152,7 @@ class NavigationStore extends ChangeNotifier {
 
   void setActiveSchoolTabIndex(int index) {
     if (_activeSchoolTabIndex != index) {
+      _clearAllOverlayFlags();
       _activeSchoolTabIndex = index;
       notifyListeners();
     }
@@ -122,6 +160,7 @@ class NavigationStore extends ChangeNotifier {
 
   void setActiveHomeLifeTabIndex(int index) {
     if (_activeHomeLifeTabIndex != index) {
+      _clearAllOverlayFlags();
       _activeHomeLifeTabIndex = index;
       notifyListeners();
     }
@@ -129,113 +168,254 @@ class NavigationStore extends ChangeNotifier {
 
   void setActiveWorkTabIndex(int index) {
     if (_activeWorkTabIndex != index) {
+      _clearAllOverlayFlags();
       _activeWorkTabIndex = index;
       notifyListeners();
     }
   }
 
   void toggleHQ() {
+    _clearAllOverlayFlags();
     _hqActive = !_hqActive;
     notifyListeners();
   }
 
   void setSearchUniversityActive() {
-    _searchUniversityActive = !_searchUniversityActive;
+    if (_searchUniversityActive) {
+      _searchUniversityActive = !_searchUniversityActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _searchUniversityActive = !_searchUniversityActive;
+    }
     notifyListeners();
   }
 
   void setAddCourseActive() {
-    _addCourseActive = !_addCourseActive;
+    if (_addCourseActive) {
+      _addCourseActive = !_addCourseActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _addCourseActive = !_addCourseActive;
+    }
     notifyListeners();
   }
 
   void setAddProjectActive() {
-    _addProjectActive = !_addProjectActive;
+    if (_addProjectActive) {
+      _addProjectActive = !_addProjectActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _addProjectActive = !_addProjectActive;
+    }
     notifyListeners();
   }
 
   void setAddTeamActive() {
-    _addTeamActive = !_addTeamActive;
+    if (_addTeamActive) {
+      _addTeamActive = !_addTeamActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _addTeamActive = !_addTeamActive;
+    }
     notifyListeners();
   }
 
   void setAddTaskActive() {
-    _addTaskActive = !_addTaskActive;
+    if (_addTaskActive) {
+      _addTaskActive = !_addTaskActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _addTaskActive = !_addTaskActive;
+    }
     notifyListeners();
   }
 
   void setAddChoreActive() {
-    _addChoreActive = !_addChoreActive;
+    if (_addChoreActive) {
+      _addChoreActive = !_addChoreActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _addChoreActive = !_addChoreActive;
+    }
     notifyListeners();
   }
 
   void setAddCalendarEventActive() {
-    _addCalendarEventActive = !_addCalendarEventActive;
+    if (_addCalendarEventActive) {
+      _addCalendarEventActive = !_addCalendarEventActive;
+    }
+    else {
+      _clearAllOverlayFlags();
+      _addCalendarEventActive = !_addCalendarEventActive;
+    }
     notifyListeners();
   }
 
   void setAddMealActive() {
-    _addMealActive = !_addMealActive;
+    if (_addMealActive) {
+      _addMealActive = !_addMealActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _addMealActive = !_addMealActive;
+    }
     notifyListeners();
   }
 
   void setAddGroceryItemActive() {
-    _addGroceryItemActive = !_addGroceryItemActive;
+    if (_addGroceryItemActive) {
+      _addGroceryItemActive = !_addGroceryItemActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _addGroceryItemActive = !_addGroceryItemActive;
+    }
     notifyListeners();
   }
 
   void setAddBankAccountActive() {
-    _addBankAccountActive = !_addBankAccountActive;
+    if (_addBankAccountActive) {
+      _addBankAccountActive = !_addBankAccountActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _addBankAccountActive = !_addBankAccountActive;
+    }
     notifyListeners();
   }
 
   void setAddBudgetActive() {
-    _addBudgetActive = !_addBudgetActive;
+    if (_addBudgetActive) {
+      _addBudgetActive = !_addBudgetActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _addBudgetActive = !_addBudgetActive;
+    }
     notifyListeners();
   }
 
   void setAddCategoryActive() {
-    _addCategoryActive = !_addCategoryActive;
+    if (_addCategoryActive) {
+      _addCategoryActive = !_addCategoryActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _addCategoryActive = !_addCategoryActive;
+    }
     notifyListeners();
   }
 
   void setAddTransactionActive() {
-    _addTransactionActive = !_addTransactionActive;
+    if (_addTransactionActive) {
+      _addTransactionActive = !_addTransactionActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _addTransactionActive = !_addTransactionActive;
+    }
     notifyListeners();
   }
 
   void setAddStockActive() {
-    _addStockActive = !_addStockActive;
+    if (_addStockActive) {
+      _addStockActive = !_addStockActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _addStockActive = !_addStockActive;
+    }
     notifyListeners();
   }
 
   void setAddWatchlistStockActive() {
-    _addWatchlistStockActive = !_addWatchlistStockActive;
+    if (_addWatchlistStockActive) {
+      _addWatchlistStockActive = !_addWatchlistStockActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _addWatchlistStockActive = !_addWatchlistStockActive;
+    }
     notifyListeners();
   }
 
   void setSyncFinanceOverviewActive() {
-    _syncFinanceOverviewActive = !_syncFinanceOverviewActive;
+    if (_syncFinanceOverviewActive) {
+      _syncFinanceOverviewActive = !_syncFinanceOverviewActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _syncFinanceOverviewActive = !_syncFinanceOverviewActive;
+    }
     notifyListeners();
   }
 
   void setSyncFinanceAccountsActive() {
-    _syncFinanceAccountsActive = !_syncFinanceAccountsActive;
+    if (_syncFinanceAccountsActive) {
+      _syncFinanceAccountsActive = !_syncFinanceAccountsActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _syncFinanceAccountsActive = !_syncFinanceAccountsActive;
+    }
     notifyListeners();
   }
 
   void setSyncFinanceTransactionsActive() {
-    _syncFinanceTransactionsActive = !_syncFinanceTransactionsActive;
+    if (_syncFinanceTransactionsActive) {
+      _syncFinanceTransactionsActive = !_syncFinanceTransactionsActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _syncFinanceTransactionsActive = !_syncFinanceTransactionsActive;
+    }
     notifyListeners();
   }
 
   void setSyncStocksActive() {
-    _syncStocksActive = !_syncStocksActive;
+    if (_syncStocksActive) {
+      _syncStocksActive = !_syncStocksActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _syncStocksActive = !_syncStocksActive;
+    }
     notifyListeners();
   }
 
   void setRefreshFinanceNewsActive() {
-    _refreshFinanceNewsActive = !_refreshFinanceNewsActive;
+    if (_refreshFinanceNewsActive) {
+      _refreshFinanceNewsActive = !_refreshFinanceNewsActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _refreshFinanceNewsActive = !_refreshFinanceNewsActive;
+    }
     notifyListeners();
   }
 
@@ -245,62 +425,145 @@ class NavigationStore extends ChangeNotifier {
   }
 
   void setRunFinanceAnalysisActive() {
-    _runFinanceAnalysisActive = !_runFinanceAnalysisActive;
+    if (_runFinanceAnalysisActive) {
+      _runFinanceAnalysisActive = !_runFinanceAnalysisActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _runFinanceAnalysisActive = !_runFinanceAnalysisActive;
+    }
     notifyListeners();
   }
 
   void setAddStockPortfolioActive() {
-    _addStockPortfolioActive = !_addStockPortfolioActive;
+    if (_addStockPortfolioActive) {
+      _addStockPortfolioActive = !_addStockPortfolioActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _addStockPortfolioActive = !_addStockPortfolioActive;
+    }
     notifyListeners();
   }
 
   void setAddAssignmentSubmissionActive() {
-    _addAssignmentSubmissionActive = !_addAssignmentSubmissionActive;
+    if (_addAssignmentSubmissionActive) {
+      _addAssignmentSubmissionActive = !_addAssignmentSubmissionActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _addAssignmentSubmissionActive = !_addAssignmentSubmissionActive;
+    }
     notifyListeners();
   }
 
   void setAddTopicStudyDocumentActive() {
-    _addTopicStudyDocumentActive = !_addTopicStudyDocumentActive;
+    if (_addTopicStudyDocumentActive) {
+      _addTopicStudyDocumentActive = !_addTopicStudyDocumentActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _addTopicStudyDocumentActive = !_addTopicStudyDocumentActive;
+    }
     notifyListeners();
   }
 
   void setAddCourseTopicActive() {
-    _addCourseTopicActive = !_addCourseTopicActive;
+    if (_addCourseTopicActive) {
+      _addCourseTopicActive = !_addCourseTopicActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _addCourseTopicActive = !_addCourseTopicActive;
+    }
     notifyListeners();
   }
 
   void setAddPetActive() {
-    _addPetActive = !_addPetActive;
+    if (_addPetActive) {
+      _addPetActive = !_addPetActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _addPetActive = !_addPetActive;
+    }
     notifyListeners();
   }
 
   void setAddWorkoutRoutineActive() {
-    _addWorkoutRoutineActive = !_addWorkoutRoutineActive;
+    if (_addWorkoutRoutineActive) {
+      _addWorkoutRoutineActive = !_addWorkoutRoutineActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _addWorkoutRoutineActive = !_addWorkoutRoutineActive;
+    }
     notifyListeners();
   }
 
   void setAddMedicationActive() {
-    _addMedicationActive = !_addMedicationActive;
+    if (_addMedicationActive) {
+      _addMedicationActive = !_addMedicationActive;
+    }
+    else {
+      _clearAllOverlayFlags();
+      _addMedicationActive = !_addMedicationActive;
+    }
     notifyListeners();
   }
 
   void setAddMedicalAppointmentActive() {
-    _addMedicalAppointmentActive = !_addMedicalAppointmentActive;
+    if (_addMedicalAppointmentActive) {
+      _addMedicalAppointmentActive = !_addMedicalAppointmentActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _addMedicalAppointmentActive = !_addMedicalAppointmentActive;
+    }
     notifyListeners();
   }
 
   void setSendHouseholdInviteActive() {
-    _sendHouseholdInviteActive = !_sendHouseholdInviteActive;
+    if (_sendHouseholdInviteActive) {
+      _sendHouseholdInviteActive = !_sendHouseholdInviteActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _sendHouseholdInviteActive = !_sendHouseholdInviteActive;
+    }
     notifyListeners();
   }
 
   void setAddChildProfileActive() {
-    _addChildProfileActive = !_addChildProfileActive;
+    if (_addChildProfileActive) {
+      _addChildProfileActive = !_addChildProfileActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _addChildProfileActive = !_addChildProfileActive;
+    }
     notifyListeners();
   }
 
   void setAddGroceryListActive() {
-    _addGroceryListActive = !_addGroceryListActive;
+    if (_addGroceryListActive) {
+      _addGroceryListActive = !_addGroceryListActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _addGroceryListActive = !_addGroceryListActive;
+    }
     notifyListeners();
   }
 

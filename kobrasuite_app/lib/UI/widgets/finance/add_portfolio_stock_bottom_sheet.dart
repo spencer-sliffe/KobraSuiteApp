@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../nav/providers/navigation_store.dart';
+
 // Enum for the form state.
 enum AddPortfolioStockState { initial, adding, added }
 
@@ -158,7 +160,8 @@ class _AddPortfolioStockBottomSheetState
     if (_state == AddPortfolioStockState.added) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddStockActive(),
           child: const Text('Close'),
         ),
       ];
@@ -166,7 +169,8 @@ class _AddPortfolioStockBottomSheetState
     if (_state == AddPortfolioStockState.initial) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setAddStockActive(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(

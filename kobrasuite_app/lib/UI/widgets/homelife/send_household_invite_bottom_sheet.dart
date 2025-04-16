@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../nav/providers/navigation_store.dart';
 
 enum SendHouseholdInviteState { initial, sending, sent }
 
@@ -116,7 +119,8 @@ class _SendHouseholdInviteBottomSheetState
     if (_state == SendHouseholdInviteState.sent) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setSendHouseholdInviteActive(),
           child: const Text('Close'),
         ),
       ];
@@ -124,7 +128,8 @@ class _SendHouseholdInviteBottomSheetState
     if (_state == SendHouseholdInviteState.initial) {
       return [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: ()
+          => context.read<NavigationStore>().setSendHouseholdInviteActive(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(

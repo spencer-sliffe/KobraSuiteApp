@@ -118,15 +118,25 @@ class MealPlan(models.Model): # creates meal plan Model
         ordering = ['-date']
 
 
+class GroceryList(models.Model):
+    household = models.ForeignKey(Household, on_delete=models.CASCADE, related_name='grocery_lists')
+    name = models.CharField(max_length=100)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['created_at', 'updated_at']
+
+
 class GroceryItem(models.Model): # Creates Grocery Model
-    household = models.ForeignKey(Household, on_delete=models.CASCADE, related_name='grocery_items')
+    grocery_list = models.ForeignKey(GroceryList, on_delete=models.CASCADE, related_name='grocery_items')
     name = models.CharField(max_length=100)
     quantity = models.CharField(max_length=50, blank=True)
     purchased = models.BooleanField(default=False)
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"{self.name} ({self.household.name})" # string representaion of Grocery ite
+        return f"{self.name} ({self.grocery_list.household.name})" # string representaion of Grocery ite
 # stores meta data
     class Meta:
         ordering = ['purchased', 'name']
