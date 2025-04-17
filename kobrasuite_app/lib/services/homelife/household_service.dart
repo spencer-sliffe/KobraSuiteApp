@@ -64,7 +64,7 @@ class HouseholdService {
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/$householdId';
       final response = await _dio.delete(url);
       return response.statusCode == 204 || response.statusCode == 200;
@@ -80,7 +80,7 @@ class HouseholdService {
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/household_invites/';
       final response = await _dio.get(url);
       if (response.statusCode == 200) {
@@ -103,7 +103,7 @@ class HouseholdService {
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/$householdPk/household_invites/';
       final body = {
         'homelife_profile': homelifeProfilePk,
@@ -124,7 +124,7 @@ class HouseholdService {
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/$householdPk/household_invites/'
           '/$householdInviteId';
       final response = await _dio.delete(url);
@@ -142,7 +142,7 @@ class HouseholdService {
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/$householdPk/pets/';
       final response = await _dio.get(url);
       if (response.statusCode == 200) {
@@ -162,13 +162,25 @@ class HouseholdService {
     required int userProfilePk,
     required int homelifeProfilePk,
     required int? householdPk,
+    required String petName,
+    required String petType,
+    required String specialInstructions,
+    required String medications,
+    required String foodInstructions,
+    required String waterInstructions,
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/$householdPk/pets/';
       final body = {
-        'homelife_profile': homelifeProfilePk,
+        'household': householdPk,
+        'name': petName,
+        'pet_type': petType,
+        'special_instructions': specialInstructions,
+        'medications': medications,
+        'food_instructions': foodInstructions,
+        'water_instructions': waterInstructions,
       };
       final response = await _dio.post(url, data: body);
       return response.statusCode == 201 || response.statusCode == 200;
@@ -186,7 +198,7 @@ class HouseholdService {
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/$householdPk/pets/'
           '/$petId';
       final response = await _dio.delete(url);
@@ -204,7 +216,7 @@ class HouseholdService {
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/$householdPk/chores/';
       final response = await _dio.get(url);
       if (response.statusCode == 200) {
@@ -227,7 +239,7 @@ class HouseholdService {
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/$householdPk/chores/';
       final body = {
         'homelife_profile': homelifeProfilePk,
@@ -248,7 +260,7 @@ class HouseholdService {
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/$householdPk/chores/'
           '/$choreId';
       final response = await _dio.delete(url);
@@ -267,7 +279,7 @@ class HouseholdService {
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/$householdPk/chores/$chorePk/completions/';
       final response = await _dio.get(url);
       if (response.statusCode == 200) {
@@ -291,7 +303,7 @@ class HouseholdService {
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/$householdPk/chores/$chorePk/completions/';
       final body = {
         'homelife_profile': homelifeProfilePk,
@@ -313,7 +325,7 @@ class HouseholdService {
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/$householdPk/chores/$chorePk/completions/'
           '/$choreCompletionId';
       final response = await _dio.delete(url);
@@ -331,7 +343,7 @@ class HouseholdService {
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/$householdPk/child_profiles';
       final response = await _dio.get(url);
       if (response.statusCode == 200) {
@@ -354,7 +366,7 @@ class HouseholdService {
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/$householdPk/child_profiles/';
       final body = {
         'homelife_profile': homelifeProfilePk,
@@ -375,7 +387,7 @@ class HouseholdService {
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/$householdPk/child_profiles/$childProfileId';
       final response = await _dio.delete(url);
       return response.statusCode == 204 || response.statusCode == 200;

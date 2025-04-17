@@ -4,6 +4,7 @@ import 'package:kobrasuite_app/providers/finance/stock_news_provider.dart';
 import 'package:kobrasuite_app/UI/nav/providers/control_bar_provider.dart';
 import 'package:kobrasuite_app/providers/general/homelife_profile_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/household_provider.dart';
+import 'package:kobrasuite_app/providers/homelife/pet_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:kobrasuite_app/services/service_locator.dart';
 import 'package:kobrasuite_app/services/general/auth_service.dart';
@@ -95,6 +96,15 @@ void main() async {
           update: (context, homeLifeProfile, householdProvider) {
             householdProvider!.update(homeLifeProfile);
             return householdProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider<HomeLifeProfileProvider, PetProvider>(
+          create: (context) => PetProvider(
+            homelifeProfileProvider: context.read<HomeLifeProfileProvider>(),
+          ),
+          update: (context, homeLifeProfile, petProvider) {
+            petProvider!.update(homeLifeProfile);
+            return petProvider;
           },
         ),
         ChangeNotifierProxyProvider<SchoolProfileProvider, UniversityProvider>(
