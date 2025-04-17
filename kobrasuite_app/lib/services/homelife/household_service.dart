@@ -18,7 +18,7 @@ class HouseholdService {
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/';
       final response = await _dio.get(url);
       if (response.statusCode == 200) {
@@ -35,17 +35,19 @@ class HouseholdService {
   }
 
   Future<bool> createHousehold({
-    ///Needs to be completed
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
+    required String householdName,
+    required String householdType,
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/';
       final body = {
-        'homelife_profile': homelifeProfilePk,
+        'name': householdName,
+        'household_type': householdType,
       };
       final response = await _dio.post(url, data: body);
       return response.statusCode == 201 || response.statusCode == 200;

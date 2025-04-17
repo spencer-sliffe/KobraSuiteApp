@@ -48,17 +48,19 @@ class HouseholdProvider extends ChangeNotifier {
   }
 
   Future<bool> createHousehold({
-    ///Needs Completed
-    required int placholder,
+    required String householdName,
+    required String householdType,
   }) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
     try {
       final success = await _householdService.createHousehold(
-          userPk: userPk,
-          userProfilePk: userProfilePk,
-          homelifeProfilePk: homelifeProfilePk,
+        userPk: userPk,
+        userProfilePk: userProfilePk,
+        homelifeProfilePk: homelifeProfilePk,
+        householdName: householdName,
+        householdType: householdType,
       );
       if (success) {
         await loadHousehold();

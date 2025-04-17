@@ -182,7 +182,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           'News',
         ];
       case Module.HomeLife:
-        return ['Personal', 'Chores', 'Meals', 'Household', 'Medical'];
+        return ['Household', 'Personal', 'Chores', 'Meals', 'Health'];
     }
   }
 
@@ -285,9 +285,40 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       }
     } else if (module == Module.HomeLife) {
       switch (tab) {
-        case 'Personal':
+        case 'Household':
           return ControlBarRegistrar(
             homelifeTabIndex: 0,
+            buttons: [
+              ControlBarButtonModel(
+                id: 'homelife_household_add',
+                icon: Icons.add,
+                label: 'Household',
+                onPressed: () {
+                  context.read<NavigationStore>().setAddHouseholdActive();
+                },
+              ),
+              ControlBarButtonModel(
+                id: 'homelife_pet_add',
+                icon: Icons.add,
+                label: 'Pet',
+                onPressed: () {
+                  context.read<NavigationStore>().setAddPetActive();
+                },
+              ),
+              ControlBarButtonModel(
+                id: 'homelife_child_account_add',
+                icon: Icons.add,
+                label: 'Child Profile',
+                onPressed: () {
+                  context.read<NavigationStore>().setAddChildProfileActive();
+                },
+              ),
+            ],
+            child: const HomelifeHouseholdTab(),
+          );
+        case 'Personal':
+          return ControlBarRegistrar(
+            homelifeTabIndex: 1,
             buttons: [
               ControlBarButtonModel(
                 id: 'homelife_calendar_add',
@@ -310,7 +341,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           );
         case 'Chores':
           return ControlBarRegistrar(
-            homelifeTabIndex: 1,
+            homelifeTabIndex: 2,
             buttons: [
               ControlBarButtonModel(
                 id: 'homelife_chores_add',
@@ -325,7 +356,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           );
         case 'Meals':
           return ControlBarRegistrar(
-            homelifeTabIndex: 2,
+            homelifeTabIndex: 3,
             buttons: [
               ControlBarButtonModel(
                 id: 'homelife_meals_add',
@@ -354,30 +385,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             ],
             child: const HomelifeMealsTab(),
           );
-        case 'Household':
-          return ControlBarRegistrar(
-            homelifeTabIndex: 3,
-            buttons: [
-              ControlBarButtonModel(
-                id: 'homelife_pet_add',
-                icon: Icons.add,
-                label: 'Pet',
-                onPressed: () {
-                  context.read<NavigationStore>().setAddPetActive();
-                },
-              ),
-              ControlBarButtonModel(
-                id: 'homelife_child_account_add',
-                icon: Icons.add,
-                label: 'Child Profile',
-                onPressed: () {
-                  context.read<NavigationStore>().setAddChildProfileActive();
-                },
-              ),
-            ],
-            child: const HomelifeHouseholdTab(),
-          );
-        case 'Medical':
+        case 'Health':
           return ControlBarRegistrar(
             homelifeTabIndex: 4,
             buttons: [
