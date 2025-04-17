@@ -313,6 +313,14 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                   context.read<NavigationStore>().setAddChildProfileActive();
                 },
               ),
+              ControlBarButtonModel(
+                id: 'homelife_household_invite_send',
+                icon: Icons.send,
+                label: 'Household Invite',
+                onPressed: () {
+                  context.read<NavigationStore>().setSendHouseholdInviteActive();
+                },
+              ),
             ],
             child: const HomelifeHouseholdTab(),
           );

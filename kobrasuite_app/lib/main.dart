@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:kobrasuite_app/providers/finance/stock_news_provider.dart';
 import 'package:kobrasuite_app/UI/nav/providers/control_bar_provider.dart';
 import 'package:kobrasuite_app/providers/general/homelife_profile_provider.dart';
+import 'package:kobrasuite_app/providers/homelife/household_invite_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/household_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/pet_provider.dart';
 import 'package:provider/provider.dart';
@@ -105,6 +106,15 @@ void main() async {
           update: (context, homeLifeProfile, petProvider) {
             petProvider!.update(homeLifeProfile);
             return petProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider<HomeLifeProfileProvider, HouseholdInviteProvider>(
+          create: (context) => HouseholdInviteProvider(
+            homelifeProfileProvider: context.read<HomeLifeProfileProvider>(),
+          ),
+          update: (context, homeLifeProfile, householdInviteProvider) {
+            householdInviteProvider!.update(homeLifeProfile);
+            return householdInviteProvider;
           },
         ),
         ChangeNotifierProxyProvider<SchoolProfileProvider, UniversityProvider>(

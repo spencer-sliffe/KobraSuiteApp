@@ -100,13 +100,17 @@ class HouseholdService {
     required int userProfilePk,
     required int homelifeProfilePk,
     required int? householdPk,
+    required String code,
+    required int inviter,
   }) async {
     try {
       final url =
           '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/$householdPk/household_invites/';
       final body = {
-        'homelife_profile': homelifeProfilePk,
+        'code': code,
+        'inviter': inviter,
+        'household': householdPk,
       };
       final response = await _dio.post(url, data: body);
       return response.statusCode == 201 || response.statusCode == 200;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kobrasuite_app/UI/nav/overlays/homelife/send_household_invite_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:kobrasuite_app/UI/nav/providers/navigation_store.dart';
 
@@ -40,6 +41,8 @@ class UniversalOverlay extends StatelessWidget {
     //   return const AddTaskOverlay();
     } else if (navStore.addHouseholdActive) {
       return const AddHouseholdOverlay();
+    } else if (navStore.sendHouseholdInviteActive) {
+      return const SendHouseholdInviteOverlay();
     } else if (navStore.addPetActive) {
       return const AddPetOverlay();
     } else if (navStore.addMedicationActive) {
