@@ -348,7 +348,7 @@ class HouseholdService {
     try {
       final url =
           '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
-          '$homelifeProfilePk/households/$householdPk/child_profiles';
+          '$homelifeProfilePk/child_profiles';
       final response = await _dio.get(url);
       if (response.statusCode == 200) {
         final map = response.data as Map<String, dynamic>;
@@ -366,14 +366,17 @@ class HouseholdService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int? householdPk,
+    required String name,
+    required String dateOfBirth,
   }) async {
     try {
       final url =
           '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
-          '$homelifeProfilePk/households/$householdPk/child_profiles/';
+          '$homelifeProfilePk/child_profiles/';
       final body = {
-        'homelife_profile': homelifeProfilePk,
+        'parent_profile': homelifeProfilePk,
+        'name': name,
+        'date_of_birth': dateOfBirth
       };
       final response = await _dio.post(url, data: body);
       return response.statusCode == 201 || response.statusCode == 200;
