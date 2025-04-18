@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:kobrasuite_app/UI/screens/modules/homelife/tabs/homelife_meals_tab.dart';
 import 'package:kobrasuite_app/UI/screens/modules/work/tabs/work_projects_tabs.dart';
 import 'package:kobrasuite_app/UI/screens/modules/work/tabs/work_tasks_tab.dart';
@@ -593,7 +594,11 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           title: Row(
             children: [
               const SizedBox(width: 12),
-              const Icon(Icons.flutter_dash, size: 28),
+              SvgPicture.asset(
+                'assets/images/kobra_logo.svg',
+                height: 28,               // keeps the original 28‑px visual height
+                fit: BoxFit.contain,
+              ),
               const SizedBox(width: 8),
               const Text('KobraSuite'),
               if (_tabs.isNotEmpty) ...[

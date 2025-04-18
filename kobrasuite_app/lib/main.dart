@@ -11,6 +11,8 @@ import 'package:kobrasuite_app/providers/homelife/grocery_list_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/household_invite_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/household_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/meal_provider.dart';
+import 'package:kobrasuite_app/providers/homelife/medical_appointment_provider.dart';
+import 'package:kobrasuite_app/providers/homelife/medication_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/pet_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/workout_routine_provider.dart';
 import 'package:provider/provider.dart';
@@ -158,6 +160,24 @@ void main() async {
           update: (context, homeLifeProfile, mealProvider) {
             mealProvider!.update(homeLifeProfile);
             return mealProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider<HomeLifeProfileProvider, MedicalAppointmentProvider>(
+          create: (context) => MedicalAppointmentProvider(
+            homelifeProfileProvider: context.read<HomeLifeProfileProvider>(),
+          ),
+          update: (context, homeLifeProfile, medicalAppointmentProvider) {
+            medicalAppointmentProvider!.update(homeLifeProfile);
+            return medicalAppointmentProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider<HomeLifeProfileProvider, MedicationProvider>(
+          create: (context) => MedicationProvider(
+            homelifeProfileProvider: context.read<HomeLifeProfileProvider>(),
+          ),
+          update: (context, homeLifeProfile, medicationProvider) {
+            medicationProvider!.update(homeLifeProfile);
+            return medicationProvider;
           },
         ),
         ChangeNotifierProxyProvider<HomeLifeProfileProvider, PetProvider>(

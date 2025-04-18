@@ -62,7 +62,7 @@ dependencies:
   async: any
   web_socket_channel: any
 
-  flutter_svg: ^2.0.7
+  flutter_svg: ^2.1.0
 
 dev_dependencies:
   flutter_test:
@@ -88,6 +88,7 @@ flutter:
     - assets/images/house1.svg
     - assets/images/house2.svg
     - assets/images/KS_SHORT.png
+    - assets/images/kobra_logo.svg
 
   # Fonts configuration (example)
   fonts:
