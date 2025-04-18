@@ -1,84 +1,77 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../providers/homelife/medical_appointment_provider.dart';
+import '../../../providers/homelife/medication_provider.dart';
 import '../../nav/providers/navigation_store.dart';
 
 enum _SheetState { initial, adding, added }
 
-class AddMedicalAppointmentBottomSheet extends StatefulWidget {
-  const AddMedicalAppointmentBottomSheet({super.key});
+class AddMedicationBottomSheet extends StatefulWidget {
+  const AddMedicationBottomSheet({super.key});
 
   @override
-  State<AddMedicalAppointmentBottomSheet> createState() =>
-      _AddMedicalAppointmentBottomSheetState();
+  State<AddMedicationBottomSheet> createState() =>
+      _AddMedicationBottomSheetState();
 }
 
-class _AddMedicalAppointmentBottomSheetState
-    extends State<AddMedicalAppointmentBottomSheet> {
+class _AddMedicationBottomSheetState extends State<AddMedicationBottomSheet> {
   final _formKey = GlobalKey<FormState>();
 
-  final _titleCtrl       = TextEditingController();
-  final _doctorCtrl      = TextEditingController();
-  final _locationCtrl    = TextEditingController();
-  final _descriptionCtrl = TextEditingController();
+  final _nameCtrl   = TextEditingController();
+  final _dosageCtrl = TextEditingController();
+  final _freqCtrl   = TextEditingController();
+  final _notesCtrl  = TextEditingController();
 
-  DateTime? _when;                                 // ← chosen value
+  DateTime? _nextDose;                               // ← chosen value
   _SheetState _state = _SheetState.initial;
   String _error = '';
 
-  // ───────────────────────── helpers ──────────────────────────
-  Future<void> _pickDateTime() async {
-    /// Replace this body with your own custom picker if desired.
+  Future<void> _pickNextDose() async {
     final now  = DateTime.now();
     final date = await showDatePicker(
       context: context,
-      initialDate: _when ?? now,
+      initialDate: _nextDose ?? now,
       firstDate: now.subtract(const Duration(days: 365 * 2)),
       lastDate : now.add(const Duration(days: 365 * 5)),
     );
     if (date == null) return;
     final time = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.fromDateTime(_when ?? now),
+      initialTime: TimeOfDay.fromDateTime(_nextDose ?? now),
     );
     if (time == null) return;
     setState(() {
-      _when = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+      _nextDose =
+          DateTime(date.year, date.month, date.day, time.hour, time.minute);
     });
   }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_when == null) {
-      setState(() => _error = 'Pick a date & time');
-      return;
-    }
 
     setState(() {
       _state = _SheetState.adding;
       _error = '';
     });
 
-    final ok = await context.read<MedicalAppointmentProvider>()
-        .createMedicalAppointment(
-      title          : _titleCtrl.text.trim(),
-      appointmentIso : _when!.toIso8601String(),
-      doctorName     : _doctorCtrl.text.trim(),
-      location       : _locationCtrl.text.trim(),
-      description    : _descriptionCtrl.text.trim(),
+    final ok = await context.read<MedicationProvider>().createMedication(
+      name       : _nameCtrl.text.trim(),
+      dosage     : _dosageCtrl.text.trim(),
+      frequency  : _freqCtrl.text.trim(),
+      nextDoseIso: _nextDose?.toIso8601String(),
+      notes      : _notesCtrl.text.trim(),
     );
 
     setState(() {
       _state = ok ? _SheetState.added : _SheetState.initial;
       if (!ok) {
-        _error = context.read<MedicalAppointmentProvider>().errorMessage ??
-            'Failed to add appointment.';
+        _error = context.read<MedicationProvider>().errorMessage ??
+            'Failed to add medication.';
       }
     });
   }
 
-  // ───────────────────────── UI ──────────────────────────
+  // ───────────────────── UI ─────────────────────
   @override
   Widget build(BuildContext context) {
     Widget body;
@@ -90,8 +83,8 @@ class _AddMedicalAppointmentBottomSheetState
     } else if (_state == _SheetState.added) {
       body = Padding(
         padding: const EdgeInsets.all(24),
-        child: Text('Appointment added!',
-            style: Theme.of(context).textTheme.titleLarge),
+        child:
+        Text('Medication added!', style: Theme.of(context).textTheme.titleLarge),
       );
     } else {
       body = Form(
@@ -102,35 +95,48 @@ class _AddMedicalAppointmentBottomSheetState
           child: Column(
             children: [
               TextFormField(
-                controller: _titleCtrl,
-                decoration: const InputDecoration(labelText: 'Title'),
+                controller: _nameCtrl,
+                decoration: const InputDecoration(labelText: 'Name'),
                 validator: (v) =>
                 v == null || v.trim().isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 12),
-              // ── Date‑time chip ────────────────────────────
+              TextFormField(
+                controller: _dosageCtrl,
+                decoration: const InputDecoration(labelText: 'Dosage'),
+                validator: (v) =>
+                v == null || v.trim().isEmpty ? 'Required' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _freqCtrl,
+                decoration: const InputDecoration(labelText: 'Frequency'),
+                validator: (v) =>
+                v == null || v.trim().isEmpty ? 'Required' : null,
+              ),
+              const SizedBox(height: 12),
               InkWell(
-                onTap: _pickDateTime,
+                onTap: _pickNextDose,
                 borderRadius: BorderRadius.circular(12),
                 child: InputDecorator(
                   decoration: const InputDecoration(
-                    labelText: 'Date & time',
+                    labelText: 'Next dose (optional)',
                     border : OutlineInputBorder(),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.calendar_today,
+                      Icon(Icons.schedule,
                           size: 20,
                           color: Theme.of(context).colorScheme.secondary),
                       const SizedBox(width: 8),
                       Text(
-                        _when == null
+                        _nextDose == null
                             ? 'Choose…'
                             : MaterialLocalizations.of(context)
-                            .formatMediumDate(_when!) +
+                            .formatMediumDate(_nextDose!) +
                             '  ' +
                             MaterialLocalizations.of(context)
-                                .formatTimeOfDay(TimeOfDay.fromDateTime(_when!)),
+                                .formatTimeOfDay(TimeOfDay.fromDateTime(_nextDose!)),
                       ),
                     ],
                   ),
@@ -138,22 +144,10 @@ class _AddMedicalAppointmentBottomSheetState
               ),
               const SizedBox(height: 12),
               TextFormField(
-                controller: _doctorCtrl,
+                controller: _notesCtrl,
                 decoration:
-                const InputDecoration(labelText: 'Doctor (optional)'),
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _locationCtrl,
-                decoration: const InputDecoration(labelText: 'Location'),
-                validator: (v) =>
-                v == null || v.trim().isEmpty ? 'Required' : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _descriptionCtrl,
-                decoration: const InputDecoration(labelText: 'Description'),
-                maxLines: 3,
+                const InputDecoration(labelText: 'Notes (optional)'),
+                maxLines: 2,
               ),
               if (_error.isNotEmpty)
                 Padding(
@@ -170,17 +164,15 @@ class _AddMedicalAppointmentBottomSheetState
     final actions = (_state == _SheetState.added)
         ? [
       TextButton(
-        onPressed: () => context
-            .read<NavigationStore>()
-            .setAddMedicalAppointmentActive(),
+        onPressed: () =>
+            context.read<NavigationStore>().setAddMedicationActive(),
         child: const Text('Close'),
       )
     ]
         : [
       TextButton(
-        onPressed: () => context
-            .read<NavigationStore>()
-            .setAddMedicalAppointmentActive(),
+        onPressed: () =>
+            context.read<NavigationStore>().setAddMedicationActive(),
         child: const Text('Cancel'),
       ),
       ElevatedButton(onPressed: _submit, child: const Text('Add')),
@@ -192,7 +184,7 @@ class _AddMedicalAppointmentBottomSheetState
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Add Medical Appointment',
+            Text('Add Medication',
                 style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 16),
             body,

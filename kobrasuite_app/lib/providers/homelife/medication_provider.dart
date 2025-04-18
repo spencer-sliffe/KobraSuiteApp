@@ -5,99 +5,95 @@ import '../../services/service_locator.dart';
 import '../general/homelife_profile_provider.dart';
 
 class MedicationProvider extends ChangeNotifier {
-  final HealthService _medicationService;
-  HomeLifeProfileProvider _homelifeProfileProvider;
-  bool _isLoading = false;
-  String? _errorMessage;
-  List<Medication> _medications = [];
-
+  final HealthService _service = serviceLocator<HealthService>();
+  HomeLifeProfileProvider _profile;
   MedicationProvider({required HomeLifeProfileProvider homelifeProfileProvider})
-      : _homelifeProfileProvider = homelifeProfileProvider,
-        _medicationService = serviceLocator<HealthService>();
+      : _profile = homelifeProfileProvider;
 
+  bool _isLoading = false;
+  String? _error;
+  List<Medication> _items = [];
+
+  // ───────── getters
   bool get isLoading => _isLoading;
-  String? get errorMessage => _errorMessage;
-  List<Medication> get medications => _medications;
+  String? get errorMessage => _error;
+  List<Medication> get medications => _items;
 
-  int get userPk => _homelifeProfileProvider.userPk;
-  int get userProfilePk => _homelifeProfileProvider.userProfilePk;
-  int get homelifeProfilePk => _homelifeProfileProvider.homeLifeProfilePk;
-  int? get householdPk => _homelifeProfileProvider.householdPk;
+  // ───────── handy aliases
+  int  get _userPk          => _profile.userPk;
+  int  get _userProfilePk   => _profile.userProfilePk;
+  int  get _homeLifePk      => _profile.homeLifeProfilePk;
+  int? get _householdPk     => _profile.householdPk;
 
-  void update(HomeLifeProfileProvider newHomelifeProfileProvider) {
-    _homelifeProfileProvider = newHomelifeProfileProvider;
+  void update(HomeLifeProfileProvider newProvider) {
+    _profile = newProvider;
     notifyListeners();
   }
 
+  // ───────────────────────── CRUD ─────────────────────────
+
   Future<void> loadMedications() async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
+    _isLoading = true; _error = null; notifyListeners();
     try {
-      final medications = await
-      _medicationService.getMedications(
-        userPk: userPk,
-        userProfilePk: userProfilePk,
-        homelifeProfilePk: homelifeProfilePk,
-        householdPk: householdPk,
+      _items = await _service.getMedications(
+        userPk: _userPk,
+        userProfilePk: _userProfilePk,
+        homelifeProfilePk: _homeLifePk,
+        householdPk: _householdPk,
       );
-      _medications = medications;
     } catch (e) {
-      _errorMessage = 'Error loading medications: $e';
+      _error = 'Unable to load medications: $e';
     }
-    _isLoading = false;
-    notifyListeners();
+    _isLoading = false; notifyListeners();
   }
 
   Future<bool> createMedication({
-    ///Needs Completed
-    required int placholder,
+    required String name,
+    required String dosage,
+    required String frequency,
+    String? nextDoseIso,
+    String notes = '',
   }) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
+    _isLoading = true; _error = null; notifyListeners();
     try {
-      final success = await _medicationService.createMedication(
-          userPk: userPk,
-          userProfilePk: userProfilePk,
-          homelifeProfilePk: homelifeProfilePk,
-          householdPk: householdPk
+      final ok = await _service.createMedication(
+        userPk: _userPk,
+        userProfilePk: _userProfilePk,
+        homelifeProfilePk: _homeLifePk,
+        householdPk: _householdPk,
+        name: name,
+        dosage: dosage,
+        frequency: frequency,
+        nextDoseIso: nextDoseIso,
+        notes: notes,
       );
-      if (success) {
-        await loadMedications();
-      }
-      return success;
+      if (ok) await loadMedications();
+      return ok;
     } catch (e) {
-      _errorMessage = 'Error creating medication: $e';
+      _error = 'Medication creation failed: $e';
       return false;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _isLoading = false; notifyListeners();
     }
   }
 
-  Future<bool> deleteMedication(int medicationId) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
+  Future<bool> deleteMedication(int id) async {
+    _isLoading = true; _error = null; notifyListeners();
     try {
-      final success = await _medicationService.deleteMedication(
-        userPk: userPk,
-        userProfilePk: userProfilePk,
-        homelifeProfilePk: homelifeProfilePk,
-        householdPk: householdPk,
-        medicationId: medicationId,
+      final ok = await _service.deleteMedication(
+        userPk: _userPk,
+        userProfilePk: _userProfilePk,
+        homelifeProfilePk: _homeLifePk,
+        householdPk: _householdPk,
+        medicationId: id,
       );
-      if (success) {
-        _medications.removeWhere((a) => a.id == medicationId);
-      }
-      return success;
+      if (ok) _items.removeWhere((m) => m.id == id);
+      return ok;
     } catch (e) {
-      _errorMessage = 'Error deleting medication: $e';
+      _error = 'Delete failed: $e';
       return false;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _isLoading = false; notifyListeners();
     }
   }
 }

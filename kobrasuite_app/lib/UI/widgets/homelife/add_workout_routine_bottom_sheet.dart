@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../providers/homelife/workout_routine_provider.dart';
 import '../../nav/providers/navigation_store.dart';
 
 enum AddWorkoutRoutineState { initial, adding, added }
@@ -13,43 +14,90 @@ class AddWorkoutRoutineBottomSheet extends StatefulWidget {
       _AddWorkoutRoutineBottomSheetState();
 }
 
-class _AddWorkoutRoutineBottomSheetState extends State<AddWorkoutRoutineBottomSheet> {
+class _AddWorkoutRoutineBottomSheetState
+    extends State<AddWorkoutRoutineBottomSheet> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // Controllers for form fields.
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _scheduleController = TextEditingController();
-  final TextEditingController _exercisesController = TextEditingController();
 
   AddWorkoutRoutineState _state = AddWorkoutRoutineState.initial;
   String _errorFeedback = "";
+
+  // --- Schedule state ---
+  static const _days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  final List<bool> _selectedDays = List<bool>.filled(_days.length, false);
+
+  // --- Exercises state ---
+  final List<TextEditingController> _exerciseControllers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // start with one exercise field
+    _addExerciseField();
+  }
+
+  void _addExerciseField() {
+    setState(() {
+      _exerciseControllers.add(TextEditingController());
+    });
+  }
+
+  void _removeExerciseField(int index) {
+    setState(() {
+      _exerciseControllers[index].dispose();
+      _exerciseControllers.removeAt(index);
+    });
+  }
 
   @override
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
-    _scheduleController.dispose();
-    _exercisesController.dispose();
+    for (final c in _exerciseControllers) {
+      c.dispose();
+    }
     super.dispose();
   }
 
   Future<void> _addWorkoutRoutine() async {
     if (!_formKey.currentState!.validate()) return;
 
+    final selectedDaysList = <String>[];
+    for (var i = 0; i < _days.length; i++) {
+      if (_selectedDays[i]) selectedDaysList.add(_days[i]);
+    }
+    if (selectedDaysList.isEmpty) {
+      setState(() => _errorFeedback = 'Please select at least one day.');
+      return;
+    }
+
+    final exercises = _exerciseControllers
+        .map((c) => c.text.trim())
+        .where((t) => t.isNotEmpty)
+        .toList();
+    if (exercises.isEmpty) {
+      setState(() => _errorFeedback = 'Please add at least one exercise.');
+      return;
+    }
+
     setState(() {
       _state = AddWorkoutRoutineState.adding;
       _errorFeedback = "";
     });
 
-    // Simulate an asynchronous service call.
-    await Future.delayed(const Duration(seconds: 1));
-    final success = true; // Replace with your actual API call.
+    final workoutRoutineProvider = context.read<WorkoutRoutineProvider>();
+    final success = await workoutRoutineProvider.createWorkoutRoutine(
+      title: _titleController.text.trim(),
+      description: _descriptionController.text.trim(),
+      schedule: selectedDaysList.join(', '),
+      exercises: exercises.join(', '),
+    );
 
     if (success) {
-      setState(() {
-        _state = AddWorkoutRoutineState.added;
-      });
+      setState(() => _state = AddWorkoutRoutineState.added);
     } else {
       setState(() {
         _errorFeedback = 'Failed to add workout routine.';
@@ -85,6 +133,7 @@ class _AddWorkoutRoutineBottomSheetState extends State<AddWorkoutRoutineBottomSh
         ),
       );
     }
+
     return Form(
       key: _formKey,
       child: SingleChildScrollView(
@@ -97,36 +146,83 @@ class _AddWorkoutRoutineBottomSheetState extends State<AddWorkoutRoutineBottomSh
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Title Field.
+            // Title
             TextFormField(
               controller: _titleController,
               decoration: const InputDecoration(labelText: 'Routine Title'),
-              validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Enter title' : null,
+              validator: (v) =>
+              v == null || v.trim().isEmpty ? 'Enter title' : null,
             ),
             const SizedBox(height: 12),
-            // Description Field (optional).
+
+            // Description (optional)
             TextFormField(
               controller: _descriptionController,
-              decoration: const InputDecoration(labelText: 'Description (optional)'),
+              decoration:
+              const InputDecoration(labelText: 'Description (optional)'),
               maxLines: 2,
             ),
-            const SizedBox(height: 12),
-            // Schedule Field.
-            TextFormField(
-              controller: _scheduleController,
-              decoration: const InputDecoration(labelText: 'Schedule (e.g., Mon, Wed, Fri)'),
-              validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Enter schedule' : null,
+            const SizedBox(height: 16),
+
+            // Schedule toggles
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text('Schedule', style: Theme.of(context).textTheme.labelLarge),
             ),
-            const SizedBox(height: 12),
-            // Exercises Field.
-            TextFormField(
-              controller: _exercisesController,
-              decoration: const InputDecoration(labelText: 'Exercises (comma-separated)'),
-              validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Enter exercises' : null,
+            const SizedBox(height: 8),
+            ToggleButtons(
+              isSelected: _selectedDays,
+              onPressed: (i) {
+                setState(() => _selectedDays[i] = !_selectedDays[i]);
+              },
+              children: _days.map((d) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text(d),
+              )).toList(),
             ),
+            const SizedBox(height: 16),
+
+            // Exercises list
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text('Exercises', style: Theme.of(context).textTheme.labelLarge),
+            ),
+            const SizedBox(height: 8),
+            ..._exerciseControllers.asMap().entries.map((e) {
+              final idx = e.key;
+              final ctrl = e.value;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: ctrl,
+                        decoration: InputDecoration(
+                          labelText: 'Exercise ${idx + 1}',
+                        ),
+                        validator: (v) =>
+                        v == null || v.trim().isEmpty
+                            ? 'Enter exercise'
+                            : null,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    if (_exerciseControllers.length > 1)
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline),
+                        onPressed: () => _removeExerciseField(idx),
+                      ),
+                  ],
+                ),
+              );
+            }).toList(),
+            TextButton.icon(
+              onPressed: _addExerciseField,
+              icon: const Icon(Icons.add),
+              label: const Text('Add Exercise'),
+            ),
+
             if (_errorFeedback.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 16),
@@ -148,8 +244,8 @@ class _AddWorkoutRoutineBottomSheetState extends State<AddWorkoutRoutineBottomSh
     if (_state == AddWorkoutRoutineState.added) {
       return [
         TextButton(
-          onPressed: ()
-          => context.read<NavigationStore>().setAddWorkoutRoutineActive(),
+          onPressed: () =>
+              context.read<NavigationStore>().setAddWorkoutRoutineActive(),
           child: const Text('Close'),
         ),
       ];
@@ -157,8 +253,8 @@ class _AddWorkoutRoutineBottomSheetState extends State<AddWorkoutRoutineBottomSh
     if (_state == AddWorkoutRoutineState.initial) {
       return [
         TextButton(
-          onPressed: ()
-          => context.read<NavigationStore>().setAddWorkoutRoutineActive(),
+          onPressed: () =>
+              context.read<NavigationStore>().setAddWorkoutRoutineActive(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(

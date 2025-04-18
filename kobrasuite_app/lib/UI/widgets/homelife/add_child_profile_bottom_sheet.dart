@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../nav/providers/navigation_store.dart';
+import 'package:kobrasuite_app/providers/homelife/child_profile_provider.dart';
 
 enum AddChildProfileState { initial, adding, added }
 
@@ -14,8 +15,6 @@ class AddChildProfileBottomSheet extends StatefulWidget {
 
 class _AddChildProfileBottomSheetState extends State<AddChildProfileBottomSheet> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  // Controllers for the fields.
   final TextEditingController _childNameController = TextEditingController();
   final TextEditingController _dateOfBirthController = TextEditingController();
 
@@ -29,6 +28,24 @@ class _AddChildProfileBottomSheetState extends State<AddChildProfileBottomSheet>
     super.dispose();
   }
 
+  Future<void> _pickDate(TextEditingController controller) async {
+    final now = DateTime.now();
+    final firstDate = DateTime(now.year - 18);
+    final lastDate = now;
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: now,
+      firstDate: firstDate,
+      lastDate: lastDate,
+    );
+    if (pickedDate != null) {
+      final year = pickedDate.year.toString().padLeft(4, '0');
+      final month = pickedDate.month.toString().padLeft(2, '0');
+      final day = pickedDate.day.toString().padLeft(2, '0');
+      controller.text = '$year-$month-$day';
+    }
+  }
+
   Future<void> _addChildProfile() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -37,14 +54,14 @@ class _AddChildProfileBottomSheetState extends State<AddChildProfileBottomSheet>
       _errorFeedback = "";
     });
 
-    // Simulate an asynchronous API/service call.
-    await Future.delayed(const Duration(seconds: 1));
-    final success = true; // Replace with your real call.
+    final childProfileProvider = context.read<ChildProfileProvider>();
+    final success = await childProfileProvider.createChildProfile(
+      name: _childNameController.text.trim(),
+      dateOfBirth: _dateOfBirthController.text.trim(),
+    );
 
     if (success) {
-      setState(() {
-        _state = AddChildProfileState.added;
-      });
+      setState(() => _state = AddChildProfileState.added);
     } else {
       setState(() {
         _errorFeedback = 'Failed to add child profile.';
@@ -92,7 +109,6 @@ class _AddChildProfileBottomSheetState extends State<AddChildProfileBottomSheet>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Child Name
             TextFormField(
               controller: _childNameController,
               decoration: const InputDecoration(labelText: 'Child Name'),
@@ -100,18 +116,26 @@ class _AddChildProfileBottomSheetState extends State<AddChildProfileBottomSheet>
               value == null || value.trim().isEmpty ? 'Enter child name' : null,
             ),
             const SizedBox(height: 12),
-            // Date of Birth (optional)
             TextFormField(
               controller: _dateOfBirthController,
-              decoration: const InputDecoration(labelText: 'Date of Birth (YYYY-MM-DD)'),
-              // Optionally add a validator if needed.
+              readOnly: true,
+              onTap: () => _pickDate(_dateOfBirthController),
+              decoration: const InputDecoration(
+                labelText: 'Date of Birth (YYYY-MM-DD)',
+                suffixIcon: Icon(Icons.calendar_today),
+              ),
+              validator: (value) =>
+              value == null || value.trim().isEmpty ? 'Enter date of birth' : null,
             ),
             if (_errorFeedback.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 16),
                 child: Text(
                   _errorFeedback,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.red),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: Colors.red),
                 ),
               ),
           ],
@@ -124,8 +148,8 @@ class _AddChildProfileBottomSheetState extends State<AddChildProfileBottomSheet>
     if (_state == AddChildProfileState.added) {
       return [
         TextButton(
-          onPressed: ()
-          => context.read<NavigationStore>().setAddChildProfileActive(),
+          onPressed: () =>
+              context.read<NavigationStore>().setAddChildProfileActive(),
           child: const Text('Close'),
         ),
       ];
@@ -133,8 +157,8 @@ class _AddChildProfileBottomSheetState extends State<AddChildProfileBottomSheet>
     if (_state == AddChildProfileState.initial) {
       return [
         TextButton(
-          onPressed: ()
-          => context.read<NavigationStore>().setAddChildProfileActive(),
+          onPressed: () =>
+              context.read<NavigationStore>().setAddChildProfileActive(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(
@@ -154,7 +178,10 @@ class _AddChildProfileBottomSheetState extends State<AddChildProfileBottomSheet>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Add New Child Profile', style: Theme.of(context).textTheme.headlineSmall),
+            Text(
+              'Add New Child Profile',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
             const SizedBox(height: 16),
             _buildContent(),
             const SizedBox(height: 24),

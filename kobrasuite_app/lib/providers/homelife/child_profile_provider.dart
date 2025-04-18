@@ -50,7 +50,8 @@ class ChildProfileProvider extends ChangeNotifier {
 
   Future<bool> createChildProfile({
     ///Needs Completed
-    required int placholder,
+    required String name,
+    required String dateOfBirth,
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -60,7 +61,9 @@ class ChildProfileProvider extends ChangeNotifier {
           userPk: userPk,
           userProfilePk: userProfilePk,
           homelifeProfilePk: homelifeProfilePk,
-          householdPk: householdPk
+          householdPk: householdPk,
+          name: name,
+          dateOfBirth: dateOfBirth,
       );
       if (success) {
         await loadChildProfiles();

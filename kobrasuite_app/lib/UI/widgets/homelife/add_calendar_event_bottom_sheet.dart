@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
+import '../../../providers/homelife/calendar_provider.dart';
 import '../../nav/providers/navigation_store.dart';
 
 enum AddSharedCalendarEventState { initial, adding, added }
@@ -16,8 +18,6 @@ class AddSharedCalendarEventBottomSheet extends StatefulWidget {
 class _AddSharedCalendarEventBottomSheetState
     extends State<AddSharedCalendarEventBottomSheet> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  // Controllers for the fields.
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _startDatetimeController = TextEditingController();
   final TextEditingController _endDatetimeController = TextEditingController();
@@ -37,22 +37,62 @@ class _AddSharedCalendarEventBottomSheetState
     super.dispose();
   }
 
+  Future<void> _selectDateTime({required bool isStart}) async {
+    final now = DateTime.now();
+    DateTime initial = now;
+    final existingText = isStart
+        ? _startDatetimeController.text
+        : _endDatetimeController.text;
+    if (existingText.isNotEmpty) {
+      try {
+        initial = DateFormat('yyyy-MM-dd HH:mm').parseStrict(existingText);
+      } catch (_) {}
+    }
+    final DateTime? date = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (date == null) return;
+    final TimeOfDay? time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(initial),
+    );
+    if (time == null) return;
+    final picked = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      time.hour,
+      time.minute,
+    );
+    final formatted = DateFormat('yyyy-MM-dd HH:mm').format(picked);
+    setState(() {
+      if (isStart) {
+        _startDatetimeController.text = formatted;
+      } else {
+        _endDatetimeController.text = formatted;
+      }
+    });
+  }
+
   Future<void> _addCalendarEvent() async {
     if (!_formKey.currentState!.validate()) return;
-
     setState(() {
       _state = AddSharedCalendarEventState.adding;
       _errorFeedback = "";
     });
-
-    // Simulate an asynchronous service call.
-    await Future.delayed(const Duration(seconds: 1));
-    final success = true; // Replace with your actual service call.
-
+    final calendarProvider = context.read<CalendarProvider>();
+    final success = await calendarProvider.createCalendarEvent(
+      title: _titleController.text.trim(),
+      startDateTime: _startDatetimeController.text.trim(),
+      endDateTime: _endDatetimeController.text.trim(),
+      description: _descriptionController.text.trim(),
+      location: _locationController.text.trim(),
+    );
     if (success) {
-      setState(() {
-        _state = AddSharedCalendarEventState.added;
-      });
+      setState(() => _state = AddSharedCalendarEventState.added);
     } else {
       setState(() {
         _errorFeedback = 'Failed to add calendar event.';
@@ -100,45 +140,49 @@ class _AddSharedCalendarEventBottomSheetState
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Title Field.
             TextFormField(
               controller: _titleController,
               decoration: const InputDecoration(labelText: 'Event Title'),
-              validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Enter title' : null,
+              validator: (v) =>
+              v == null || v.trim().isEmpty ? 'Enter title' : null,
             ),
             const SizedBox(height: 12),
-            // Start Datetime Field.
             TextFormField(
               controller: _startDatetimeController,
-              decoration:
-              const InputDecoration(labelText: 'Start Datetime (YYYY-MM-DD HH:MM)'),
-              validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Enter start datetime' : null,
+              decoration: const InputDecoration(
+                labelText: 'Start Datetime',
+                hintText: 'YYYY-MM-DD HH:MM',
+              ),
+              readOnly: true,
+              onTap: () => _selectDateTime(isStart: true),
+              validator: (v) => v == null || v.trim().isEmpty
+                  ? 'Enter start datetime'
+                  : null,
             ),
             const SizedBox(height: 12),
-            // End Datetime Field.
             TextFormField(
               controller: _endDatetimeController,
-              decoration:
-              const InputDecoration(labelText: 'End Datetime (YYYY-MM-DD HH:MM)'),
-              validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Enter end datetime' : null,
+              decoration: const InputDecoration(
+                labelText: 'End Datetime',
+                hintText: 'YYYY-MM-DD HH:MM',
+              ),
+              readOnly: true,
+              onTap: () => _selectDateTime(isStart: false),
+              validator: (v) =>
+              v == null || v.trim().isEmpty ? 'Enter end datetime' : null,
             ),
             const SizedBox(height: 12),
-            // Description Field.
             TextFormField(
               controller: _descriptionController,
               decoration: const InputDecoration(labelText: 'Description'),
               maxLines: 3,
             ),
             const SizedBox(height: 12),
-            // Location Field.
             TextFormField(
               controller: _locationController,
               decoration: const InputDecoration(labelText: 'Location'),
-              validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Enter location' : null,
+              validator: (v) =>
+              v == null || v.trim().isEmpty ? 'Enter location' : null,
             ),
             if (_errorFeedback.isNotEmpty)
               Padding(
@@ -161,8 +205,8 @@ class _AddSharedCalendarEventBottomSheetState
     if (_state == AddSharedCalendarEventState.added) {
       return [
         TextButton(
-          onPressed: ()
-          => context.read<NavigationStore>().setAddCalendarEventActive(),
+          onPressed: () =>
+              context.read<NavigationStore>().setAddCalendarEventActive(),
           child: const Text('Close'),
         )
       ];
@@ -170,8 +214,8 @@ class _AddSharedCalendarEventBottomSheetState
     if (_state == AddSharedCalendarEventState.initial) {
       return [
         TextButton(
-          onPressed: ()
-          => context.read<NavigationStore>().setAddCalendarEventActive(),
+          onPressed: () =>
+              context.read<NavigationStore>().setAddCalendarEventActive(),
           child: const Text('Cancel'),
         ),
         ElevatedButton(
@@ -191,8 +235,10 @@ class _AddSharedCalendarEventBottomSheetState
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Add New Calendar Event',
-                style: Theme.of(context).textTheme.headlineSmall),
+            Text(
+              'Add New Calendar Event',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
             const SizedBox(height: 16),
             _buildContent(),
             const SizedBox(height: 24),

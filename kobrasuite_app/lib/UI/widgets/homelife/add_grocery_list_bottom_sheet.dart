@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../providers/homelife/grocery_list_provider.dart';
 import '../../nav/providers/navigation_store.dart';
 
 enum AddGroceryListState { initial, adding, added }
@@ -9,141 +10,46 @@ class AddGroceryListBottomSheet extends StatefulWidget {
   const AddGroceryListBottomSheet({Key? key}) : super(key: key);
 
   @override
-  State<AddGroceryListBottomSheet> createState() => _AddGroceryListBottomSheetState();
+  State<AddGroceryListBottomSheet> createState() =>
+      _AddGroceryListBottomSheetState();
 }
 
-class _AddGroceryListBottomSheetState extends State<AddGroceryListBottomSheet> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
+class _AddGroceryListBottomSheetState
+    extends State<AddGroceryListBottomSheet> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameCtrl = TextEditingController();
+  final _descCtrl = TextEditingController();
 
   AddGroceryListState _state = AddGroceryListState.initial;
-  String _errorFeedback = "";
+  String _error = '';
 
   @override
   void dispose() {
-    _titleController.dispose();
-    _descriptionController.dispose();
+    _nameCtrl.dispose();
+    _descCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _addGroceryList() async {
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
       _state = AddGroceryListState.adding;
-      _errorFeedback = "";
+      _error = '';
     });
 
-    // Simulate a service call. Replace with your actual API call.
-    await Future.delayed(const Duration(seconds: 1));
-    final success = true; // Replace with actual call result.
-
-    if (success) {
-      setState(() {
-        _state = AddGroceryListState.added;
-      });
-    } else {
-      setState(() {
-        _errorFeedback = 'Failed to add grocery list.';
-        _state = AddGroceryListState.initial;
-      });
-    }
-  }
-
-  Widget _buildContent() {
-    if (_state == AddGroceryListState.adding) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              CircularProgressIndicator(),
-              SizedBox(width: 16),
-              Text('Adding grocery list...'),
-            ],
-          ),
-        ),
-      );
-    }
-    if (_state == AddGroceryListState.added) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            'Grocery list added successfully.',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-        ),
-      );
-    }
-    return Form(
-      key: _formKey,
-      child: SingleChildScrollView(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 16,
-          right: 16,
-          top: 16,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Title Field.
-            TextFormField(
-              controller: _titleController,
-              decoration: const InputDecoration(labelText: 'Grocery List Title'),
-              validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Enter title' : null,
-            ),
-            const SizedBox(height: 12),
-            // Description Field.
-            TextFormField(
-              controller: _descriptionController,
-              decoration: const InputDecoration(labelText: 'Description (optional)'),
-              maxLines: 3,
-            ),
-            if (_errorFeedback.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Text(
-                  _errorFeedback,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.red),
-                ),
-              ),
-          ],
-        ),
-      ),
+    final ok = await context.read<GroceryListProvider>().createGroceryList(
+      name: _nameCtrl.text.trim(),
+      description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
     );
+
+    setState(() {
+      _state = ok ? AddGroceryListState.added : AddGroceryListState.initial;
+      if (!ok) _error = 'Failed to add grocery list.';
+    });
   }
 
-  List<Widget> _buildActions() {
-    if (_state == AddGroceryListState.added) {
-      return [
-        TextButton(
-          onPressed: ()
-          => context.read<NavigationStore>().setAddGroceryListActive(),
-          child: const Text('Close'),
-        ),
-      ];
-    }
-    if (_state == AddGroceryListState.initial) {
-      return [
-        TextButton(
-          onPressed: ()
-          => context.read<NavigationStore>().setAddGroceryListActive(),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: _addGroceryList,
-          child: const Text('Add List'),
-        ),
-      ];
-    }
-    return [];
-  }
-
+  // ------------------------------------------------------------ UI
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -152,14 +58,81 @@ class _AddGroceryListBottomSheetState extends State<AddGroceryListBottomSheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Add New Grocery List', style: Theme.of(context).textTheme.headlineSmall),
+            Text('Add New Grocery List',
+                style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 16),
-            _buildContent(),
+
+            // ---------- body ----------
+            if (_state == AddGroceryListState.adding)
+              const Padding(
+                padding: EdgeInsets.all(24),
+                child: CircularProgressIndicator(),
+              )
+            else if (_state == AddGroceryListState.added)
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text('Grocery list added.',
+                    style: Theme.of(context).textTheme.titleLarge),
+              )
+            else
+              Form(
+                key: _formKey,
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom),
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _nameCtrl,
+                        decoration:
+                        const InputDecoration(labelText: 'List name'),
+                        validator: (v) =>
+                        v == null || v.trim().isEmpty ? 'Required' : null,
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _descCtrl,
+                        decoration: const InputDecoration(
+                            labelText: 'Description (optional)'),
+                        maxLines: 2,
+                      ),
+                      if (_error.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Text(_error,
+                              style: const TextStyle(color: Colors.red)),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+
+            // ---------- actions ----------
             const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
-              children: _buildActions(),
-            )
+              children: [
+                if (_state != AddGroceryListState.adding)
+                  TextButton(
+                    onPressed: () => context
+                        .read<NavigationStore>()
+                        .setAddGroceryListActive(),
+                    child: const Text('Cancel'),
+                  ),
+                if (_state == AddGroceryListState.initial)
+                  ElevatedButton(
+                    onPressed: _submit,
+                    child: const Text('Add List'),
+                  ),
+                if (_state == AddGroceryListState.added)
+                  ElevatedButton(
+                    onPressed: () => context
+                        .read<NavigationStore>()
+                        .setAddGroceryListActive(),
+                    child: const Text('Close'),
+                  ),
+              ],
+            ),
           ],
         ),
       ),

@@ -1,25 +1,36 @@
-from rest_framework import viewsets
+# homelife/views/household_views.py
+
+from rest_framework import viewsets, mixins
 from django.shortcuts import get_object_or_404
+from rest_framework.generics import ListAPIView
+
 from homelife.models import Household
 from homelife.serializers.household_serializer import HouseholdSerializer
 from hq.models import HomeLifeProfile
+from hq.serializers.homelife_profile_serializers import HomeLifeProfileSerializer
 
 
 class HouseholdViewSet(viewsets.ModelViewSet):
-    """
-    Nested under homelife_profile_router:
-    e.g. /.../homelife_profile/<homelife_profile_pk>/households/
-    """
     serializer_class = HouseholdSerializer
 
     def get_queryset(self):
         homelife_profile_id = self.kwargs.get('homelife_profile_pk')
-        return Household.objects.all()
+        return Household.objects.filter(homelife_profiles__pk=homelife_profile_id)
 
     def perform_create(self, serializer):
-        # If you link a newly created Household to the homelife_profile in some manner:
         homelife_profile_id = self.kwargs.get('homelife_profile_pk')
         homelife_profile = get_object_or_404(HomeLifeProfile, pk=homelife_profile_id)
-        # Insert any logic that sets fields, e.g. homelife_profile=...
-        # If not needed, you can skip it entirely
-        serializer.save()
+        household = serializer.save()
+        # link it back to the HomeLifeProfile
+        homelife_profile.household = household
+        homelife_profile.save()
+
+
+class HouseholdMemberViewSet(mixins.ListModelMixin,
+                             viewsets.GenericViewSet):
+    serializer_class = HomeLifeProfileSerializer
+
+    def get_queryset(self):
+        return HomeLifeProfile.objects.filter(
+            household_id=self.kwargs["household_pk"]
+        )

@@ -50,7 +50,10 @@ class WorkoutRoutineProvider extends ChangeNotifier {
 
   Future<bool> createWorkoutRoutine({
     ///Needs Completed
-    required int placholder,
+    required String title,
+    required String description,
+    required String schedule,
+    required String exercises
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -60,7 +63,11 @@ class WorkoutRoutineProvider extends ChangeNotifier {
           userPk: userPk,
           userProfilePk: userProfilePk,
           homelifeProfilePk: homelifeProfilePk,
-          householdPk: householdPk
+          householdPk: householdPk,
+          title: title,
+          description: description,
+          schedule: schedule,
+          exercises: exercises,
       );
       if (success) {
         await loadWorkoutRoutines();

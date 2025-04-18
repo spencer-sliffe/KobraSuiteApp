@@ -13,7 +13,7 @@ class PersonalHomelifeService {
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/$householdPk/workout_routines/';
       final response = await _dio.get(url);
       if (response.statusCode == 200) {
@@ -33,13 +33,21 @@ class PersonalHomelifeService {
     required int userProfilePk,
     required int homelifeProfilePk,
     required int? householdPk,
+    required String title,
+    required String description,
+    required String schedule,
+    required String exercises
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/$householdPk/workout_routines/';
       final body = {
-        'homelife_profile': homelifeProfilePk,
+        'household': householdPk,
+        'title': title,
+        'description': description,
+        'schedule': schedule,
+        'exercises': exercises
       };
       final response = await _dio.post(url, data: body);
       return response.statusCode == 201 || response.statusCode == 200;
@@ -57,7 +65,7 @@ class PersonalHomelifeService {
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/$householdPk/calendar_events/$workoutRoutineId';
       final response = await _dio.delete(url);
       return response.statusCode == 204 || response.statusCode == 200;

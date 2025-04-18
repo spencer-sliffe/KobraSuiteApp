@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../models/homelife/household.dart';
 import '../../models/homelife/pet.dart';
 import '../../services/homelife/household_service.dart';
 import '../../services/service_locator.dart';
@@ -49,8 +50,12 @@ class PetProvider extends ChangeNotifier {
   }
 
   Future<bool> createPet({
-    ///Needs Completed
-    required int placholder,
+    required String petName,
+    required String petType,
+    required String specialInstructions,
+    required String medications,
+    required String foodInstructions,
+    required String waterInstructions
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -60,7 +65,13 @@ class PetProvider extends ChangeNotifier {
           userPk: userPk,
           userProfilePk: userProfilePk,
           homelifeProfilePk: homelifeProfilePk,
-          householdPk: householdPk
+          householdPk: householdPk,
+          petName: petName,
+          petType: petType,
+          specialInstructions: specialInstructions,
+          medications: medications,
+          foodInstructions: foodInstructions,
+          waterInstructions: waterInstructions,
       );
       if (success) {
         await loadPets();

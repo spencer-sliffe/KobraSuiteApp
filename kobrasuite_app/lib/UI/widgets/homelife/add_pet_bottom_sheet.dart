@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import '../../../providers/homelife/pet_provider.dart';
 import '../../nav/providers/navigation_store.dart';
 
 enum AddPetState { initial, adding, added }
@@ -44,10 +44,15 @@ class _AddPetBottomSheetState extends State<AddPetBottomSheet> {
       _state = AddPetState.adding;
       _errorFeedback = "";
     });
-
-    // Simulate an asynchronous service call. Replace this with your actual API call.
-    await Future.delayed(const Duration(seconds: 1));
-    final success = true; // Replace with the actual success status
+    final petProvider = context.read<PetProvider>();
+    final success = await petProvider.createPet(
+      petName: _nameController.text.trim(),
+      petType: _petTypeController.text.trim(),
+      specialInstructions: _specialInstructionsController.text.trim(),
+      medications: _medicationsController.text.trim(),
+      foodInstructions: _foodInstructionsController.text.trim(),
+      waterInstructions: _waterInstructionsController.text.trim(),
+    );
 
     if (success) {
       setState(() {

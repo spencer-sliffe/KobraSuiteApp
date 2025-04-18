@@ -5,99 +5,95 @@ import '../../services/service_locator.dart';
 import '../general/homelife_profile_provider.dart';
 
 class MedicalAppointmentProvider extends ChangeNotifier {
-  final HealthService _medicalAppointmentService;
-  HomeLifeProfileProvider _homelifeProfileProvider;
-  bool _isLoading = false;
-  String? _errorMessage;
-  List<MedicalAppointment> _medicalAppointments = [];
-
+  final HealthService _service = serviceLocator<HealthService>();
+  HomeLifeProfileProvider _profile;
   MedicalAppointmentProvider({required HomeLifeProfileProvider homelifeProfileProvider})
-      : _homelifeProfileProvider = homelifeProfileProvider,
-        _medicalAppointmentService = serviceLocator<HealthService>();
+      : _profile = homelifeProfileProvider;
 
+  bool _isLoading = false;
+  String? _error;
+  List<MedicalAppointment> _items = [];
+
+  // getters
   bool get isLoading => _isLoading;
-  String? get errorMessage => _errorMessage;
-  List<MedicalAppointment> get medicalAppointments => _medicalAppointments;
+  String? get errorMessage => _error;
+  List<MedicalAppointment> get medicalAppointments => _items;
 
-  int get userPk => _homelifeProfileProvider.userPk;
-  int get userProfilePk => _homelifeProfileProvider.userProfilePk;
-  int get homelifeProfilePk => _homelifeProfileProvider.homeLifeProfilePk;
-  int? get householdPk => _homelifeProfileProvider.householdPk;
+  // aliases
+  int  get _userPk        => _profile.userPk;
+  int  get _userProfilePk => _profile.userProfilePk;
+  int  get _homeLifePk    => _profile.homeLifeProfilePk;
+  int? get _householdPk   => _profile.householdPk;
 
-  void update(HomeLifeProfileProvider newHomelifeProfileProvider) {
-    _homelifeProfileProvider = newHomelifeProfileProvider;
+  void update(HomeLifeProfileProvider newProvider) {
+    _profile = newProvider;
     notifyListeners();
   }
 
+  // ───────────────────────── CRUD ─────────────────────────
+
   Future<void> loadMedicalAppointments() async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
+    _isLoading = true; _error = null; notifyListeners();
     try {
-      final medicalAppointments = await
-      _medicalAppointmentService.getMedicalAppointments(
-        userPk: userPk,
-        userProfilePk: userProfilePk,
-        homelifeProfilePk: homelifeProfilePk,
-        householdPk: householdPk,
+      _items = await _service.getMedicalAppointments(
+        userPk: _userPk,
+        userProfilePk: _userProfilePk,
+        homelifeProfilePk: _homeLifePk,
+        householdPk: _householdPk,
       );
-      _medicalAppointments = medicalAppointments;
     } catch (e) {
-      _errorMessage = 'Error loading medical appointments: $e';
+      _error = 'Unable to load appointments: $e';
     }
-    _isLoading = false;
-    notifyListeners();
+    _isLoading = false; notifyListeners();
   }
 
   Future<bool> createMedicalAppointment({
-    ///Needs Completed
-    required int placholder,
+    required String title,
+    required String appointmentIso,   // ISO‑8601 date‑time
+    String doctorName = '',
+    String location   = '',
+    String description = '',
   }) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
+    _isLoading = true; _error = null; notifyListeners();
     try {
-      final success = await _medicalAppointmentService.createMedicalAppointment(
-          userPk: userPk,
-          userProfilePk: userProfilePk,
-          homelifeProfilePk: homelifeProfilePk,
-          householdPk: householdPk
+      final ok = await _service.createMedicalAppointment(
+        userPk: _userPk,
+        userProfilePk: _userProfilePk,
+        homelifeProfilePk: _homeLifePk,
+        householdPk: _householdPk,
+        title: title,
+        appointmentIso: appointmentIso,
+        doctorName: doctorName,
+        location: location,
+        description: description,
       );
-      if (success) {
-        await loadMedicalAppointments();
-      }
-      return success;
+      if (ok) await loadMedicalAppointments();
+      return ok;
     } catch (e) {
-      _errorMessage = 'Error creating medical appointment: $e';
+      _error = 'Creation failed: $e';
       return false;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _isLoading = false; notifyListeners();
     }
   }
 
-  Future<bool> deleteMedicalAppointment(int medicalAppointmentId) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
+  Future<bool> deleteMedicalAppointment(int id) async {
+    _isLoading = true; _error = null; notifyListeners();
     try {
-      final success = await _medicalAppointmentService.deleteMedicalAppointment(
-        userPk: userPk,
-        userProfilePk: userProfilePk,
-        homelifeProfilePk: homelifeProfilePk,
-        householdPk: householdPk,
-        medicalAppointmentId: medicalAppointmentId,
+      final ok = await _service.deleteMedicalAppointment(
+        userPk: _userPk,
+        userProfilePk: _userProfilePk,
+        homelifeProfilePk: _homeLifePk,
+        householdPk: _householdPk,
+        medicalAppointmentId: id,
       );
-      if (success) {
-        _medicalAppointments.removeWhere((a) => a.id == medicalAppointmentId);
-      }
-      return success;
+      if (ok) _items.removeWhere((a) => a.id == id);
+      return ok;
     } catch (e) {
-      _errorMessage = 'Error deleting medical appointment: $e';
+      _error = 'Delete failed: $e';
       return false;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _isLoading = false; notifyListeners();
     }
   }
 }

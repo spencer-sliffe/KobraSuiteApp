@@ -3,6 +3,18 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:kobrasuite_app/providers/finance/stock_news_provider.dart';
 import 'package:kobrasuite_app/UI/nav/providers/control_bar_provider.dart';
 import 'package:kobrasuite_app/providers/general/homelife_profile_provider.dart';
+import 'package:kobrasuite_app/providers/homelife/calendar_provider.dart';
+import 'package:kobrasuite_app/providers/homelife/child_profile_provider.dart';
+import 'package:kobrasuite_app/providers/homelife/chore_provider.dart';
+import 'package:kobrasuite_app/providers/homelife/grocery_item_provider.dart';
+import 'package:kobrasuite_app/providers/homelife/grocery_list_provider.dart';
+import 'package:kobrasuite_app/providers/homelife/household_invite_provider.dart';
+import 'package:kobrasuite_app/providers/homelife/household_provider.dart';
+import 'package:kobrasuite_app/providers/homelife/meal_provider.dart';
+import 'package:kobrasuite_app/providers/homelife/medical_appointment_provider.dart';
+import 'package:kobrasuite_app/providers/homelife/medication_provider.dart';
+import 'package:kobrasuite_app/providers/homelife/pet_provider.dart';
+import 'package:kobrasuite_app/providers/homelife/workout_routine_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:kobrasuite_app/services/service_locator.dart';
 import 'package:kobrasuite_app/services/general/auth_service.dart';
@@ -85,6 +97,114 @@ void main() async {
           update: (_, auth, homeLifeProfile) {
             homeLifeProfile!.update(auth.userPk, auth.userProfilePk, auth.homeLifeProfilePk);
             return homeLifeProfile;
+          },
+        ),
+        ChangeNotifierProxyProvider<HomeLifeProfileProvider, HouseholdProvider>(
+          create: (context) => HouseholdProvider(
+            homelifeProfileProvider: context.read<HomeLifeProfileProvider>(),
+          ),
+          update: (context, homeLifeProfile, householdProvider) {
+            householdProvider!.update(homeLifeProfile);
+            return householdProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider<HomeLifeProfileProvider, CalendarProvider>(
+          create: (context) => CalendarProvider(
+            homelifeProfileProvider: context.read<HomeLifeProfileProvider>(),
+          ),
+          update: (context, homeLifeProfile, calendarProvider) {
+            calendarProvider!.update(homeLifeProfile);
+            return calendarProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider<HomeLifeProfileProvider, WorkoutRoutineProvider>(
+          create: (context) => WorkoutRoutineProvider(
+            homelifeProfileProvider: context.read<HomeLifeProfileProvider>(),
+          ),
+          update: (context, homeLifeProfile, workoutRoutineProvider) {
+            workoutRoutineProvider!.update(homeLifeProfile);
+            return workoutRoutineProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider<HomeLifeProfileProvider, ChoreProvider>(
+          create: (context) => ChoreProvider(
+            homelifeProfileProvider: context.read<HomeLifeProfileProvider>(),
+          ),
+          update: (context, homeLifeProfile, choreProvider) {
+            choreProvider!.update(homeLifeProfile);
+            return choreProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider<HomeLifeProfileProvider, GroceryItemProvider>(
+          create: (context) => GroceryItemProvider(
+            homelifeProfileProvider: context.read<HomeLifeProfileProvider>(),
+          ),
+          update: (context, homeLifeProfile, groceryItemProvider) {
+            groceryItemProvider!.update(homeLifeProfile);
+            return groceryItemProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider<HomeLifeProfileProvider, GroceryListProvider>(
+          create: (context) => GroceryListProvider(
+            homelifeProfileProvider: context.read<HomeLifeProfileProvider>(),
+          ),
+          update: (context, homeLifeProfile, groceryListProvider) {
+            groceryListProvider!.update(homeLifeProfile);
+            return groceryListProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider<HomeLifeProfileProvider, MealProvider>(
+          create: (context) => MealProvider(
+            homelifeProfileProvider: context.read<HomeLifeProfileProvider>(),
+          ),
+          update: (context, homeLifeProfile, mealProvider) {
+            mealProvider!.update(homeLifeProfile);
+            return mealProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider<HomeLifeProfileProvider, MedicalAppointmentProvider>(
+          create: (context) => MedicalAppointmentProvider(
+            homelifeProfileProvider: context.read<HomeLifeProfileProvider>(),
+          ),
+          update: (context, homeLifeProfile, medicalAppointmentProvider) {
+            medicalAppointmentProvider!.update(homeLifeProfile);
+            return medicalAppointmentProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider<HomeLifeProfileProvider, MedicationProvider>(
+          create: (context) => MedicationProvider(
+            homelifeProfileProvider: context.read<HomeLifeProfileProvider>(),
+          ),
+          update: (context, homeLifeProfile, medicationProvider) {
+            medicationProvider!.update(homeLifeProfile);
+            return medicationProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider<HomeLifeProfileProvider, PetProvider>(
+          create: (context) => PetProvider(
+            homelifeProfileProvider: context.read<HomeLifeProfileProvider>(),
+          ),
+          update: (context, homeLifeProfile, petProvider) {
+            petProvider!.update(homeLifeProfile);
+            return petProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider<HomeLifeProfileProvider, HouseholdInviteProvider>(
+          create: (context) => HouseholdInviteProvider(
+            homelifeProfileProvider: context.read<HomeLifeProfileProvider>(),
+          ),
+          update: (context, homeLifeProfile, householdInviteProvider) {
+            householdInviteProvider!.update(homeLifeProfile);
+            return householdInviteProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider<HomeLifeProfileProvider, ChildProfileProvider>(
+          create: (context) => ChildProfileProvider(
+            homelifeProfileProvider: context.read<HomeLifeProfileProvider>(),
+          ),
+          update: (context, homeLifeProfile, childProfileProvider) {
+            childProfileProvider!.update(homeLifeProfile);
+            return childProfileProvider;
           },
         ),
         ChangeNotifierProxyProvider<SchoolProfileProvider, UniversityProvider>(

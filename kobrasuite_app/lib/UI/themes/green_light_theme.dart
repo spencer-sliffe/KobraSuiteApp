@@ -85,6 +85,7 @@ final ThemeData greenLightTheme = ThemeData(
     style: ElevatedButton.styleFrom(
       backgroundColor: const Color(0xFF7C3FC5),
       foregroundColor: Colors.white,
+      iconColor: const Color(0xFF2FCCA9),
       textStyle: const TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.bold,
@@ -117,7 +118,7 @@ final ThemeData greenLightTheme = ThemeData(
     filled: true,
     fillColor: const Color(0xFF1E1E1E),
     hintStyle: const TextStyle(color: Colors.white60),
-    labelStyle: const TextStyle(color: Color(0xFF7C3FC5)),
+    labelStyle: const TextStyle(color: Color(0xFF2FCCA9)),
     floatingLabelBehavior: FloatingLabelBehavior.auto,
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     enabledBorder: OutlineInputBorder(

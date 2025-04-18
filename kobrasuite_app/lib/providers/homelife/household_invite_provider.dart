@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../models/homelife/homelife_profile.dart';
 import '../../models/homelife/household_invite.dart';
 import '../../services/homelife/household_service.dart';
 import '../../services/service_locator.dart';
@@ -49,7 +50,7 @@ class HouseholdInviteProvider extends ChangeNotifier {
 
   Future<bool> createHouseholdInvite({
     ///Needs Completed
-    required int placholder,
+    required String code,
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -59,7 +60,9 @@ class HouseholdInviteProvider extends ChangeNotifier {
           userPk: userPk,
           userProfilePk: userProfilePk,
           homelifeProfilePk: homelifeProfilePk,
-          householdPk: householdPk
+          householdPk: householdPk,
+          code: code,
+          inviter: homelifeProfilePk,
       );
       if (success) {
         await loadHouseholdInvites();

@@ -15,7 +15,7 @@ class CalendarService {
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/$householdPk/calendar_events/';
       final response = await _dio.get(url);
       if (response.statusCode == 200) {
@@ -35,13 +35,23 @@ class CalendarService {
     required int userProfilePk,
     required int homelifeProfilePk,
     required int? householdPk,
+    required String title,
+    required String startDateTime,
+    required String endDateTime,
+    required String description,
+    required String location
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/$householdPk/calendar_events/';
       final body = {
-        'homelife_profile': homelifeProfilePk,
+        'household': householdPk,
+        'title': title,
+        'start_datetime': startDateTime,
+        'end_datetime': endDateTime,
+        'description': description,
+        'location': location,
       };
       final response = await _dio.post(url, data: body);
       return response.statusCode == 201 || response.statusCode == 200;
@@ -59,7 +69,7 @@ class CalendarService {
   }) async {
     try {
       final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
           '$homelifeProfilePk/households/$householdPk/calendar_events/$calendarEventId';
       final response = await _dio.delete(url);
       return response.statusCode == 204 || response.statusCode == 200;

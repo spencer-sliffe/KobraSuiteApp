@@ -51,6 +51,7 @@ class NavigationStore extends ChangeNotifier {
   bool _addChildProfileActive = false;
   bool _addGroceryListActive = false;
   bool _addGroceryItemActive = false;
+  bool _addHouseholdActive = false;
 
 
   List<Module> get moduleOrder => _moduleOrder;
@@ -95,6 +96,7 @@ class NavigationStore extends ChangeNotifier {
   bool get addChildProfileActive => _addChildProfileActive;
   bool get addGroceryListActive => _addGroceryListActive;
   bool get addGroceryItemActive => _addGroceryItemActive;
+  bool get addHouseholdActive => _addHouseholdActive;
 
   void _clearAllOverlayFlags() {
     _searchUniversityActive = false;
@@ -129,6 +131,7 @@ class NavigationStore extends ChangeNotifier {
     _addChildProfileActive = false;
     _addGroceryListActive = false;
     _addGroceryItemActive = false;
+    _addHouseholdActive = false;
   }
 
   void setModuleOrder(List<Module> newOrder) {
@@ -563,6 +566,18 @@ class NavigationStore extends ChangeNotifier {
     {
       _clearAllOverlayFlags();
       _addGroceryListActive = !_addGroceryListActive;
+    }
+    notifyListeners();
+  }
+
+  void setAddHouseholdActive() {
+    if (_addHouseholdActive) {
+      _addHouseholdActive = !_addHouseholdActive;
+    }
+    else
+    {
+      _clearAllOverlayFlags();
+      _addHouseholdActive = !_addHouseholdActive;
     }
     notifyListeners();
   }

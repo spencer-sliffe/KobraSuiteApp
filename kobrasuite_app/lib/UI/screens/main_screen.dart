@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:kobrasuite_app/UI/screens/modules/homelife/tabs/homelife_meals_tab.dart';
 import 'package:kobrasuite_app/UI/screens/modules/work/tabs/work_projects_tabs.dart';
 import 'package:kobrasuite_app/UI/screens/modules/work/tabs/work_tasks_tab.dart';
@@ -182,7 +183,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           'News',
         ];
       case Module.HomeLife:
-        return ['Personal', 'Chores', 'Meals', 'Household', 'Medical'];
+        return ['Household', 'Personal', 'Chores', 'Meals', 'Health'];
     }
   }
 
@@ -285,9 +286,40 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       }
     } else if (module == Module.HomeLife) {
       switch (tab) {
-        case 'Personal':
+        case 'Household':
           return ControlBarRegistrar(
             homelifeTabIndex: 0,
+            buttons: [
+              ControlBarButtonModel(
+                id: 'homelife_household_add',
+                icon: Icons.add,
+                label: 'Household',
+                onPressed: () {
+                  context.read<NavigationStore>().setAddHouseholdActive();
+                },
+              ),
+              ControlBarButtonModel(
+                id: 'homelife_pet_add',
+                icon: Icons.add,
+                label: 'Pet',
+                onPressed: () {
+                  context.read<NavigationStore>().setAddPetActive();
+                },
+              ),
+              ControlBarButtonModel(
+                id: 'homelife_household_invite_send',
+                icon: Icons.send,
+                label: 'Household Invite',
+                onPressed: () {
+                  context.read<NavigationStore>().setSendHouseholdInviteActive();
+                },
+              ),
+            ],
+            child: const HomelifeHouseholdTab(),
+          );
+        case 'Personal':
+          return ControlBarRegistrar(
+            homelifeTabIndex: 1,
             buttons: [
               ControlBarButtonModel(
                 id: 'homelife_calendar_add',
@@ -305,12 +337,20 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                   context.read<NavigationStore>().setAddWorkoutRoutineActive();
                 },
               ),
+              ControlBarButtonModel(
+                id: 'homelife_child_account_add',
+                icon: Icons.add,
+                label: 'Child Profile',
+                onPressed: () {
+                  context.read<NavigationStore>().setAddChildProfileActive();
+                },
+              ),
             ],
             child: const HomelifeCalendarTab(),
           );
         case 'Chores':
           return ControlBarRegistrar(
-            homelifeTabIndex: 1,
+            homelifeTabIndex: 2,
             buttons: [
               ControlBarButtonModel(
                 id: 'homelife_chores_add',
@@ -325,7 +365,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           );
         case 'Meals':
           return ControlBarRegistrar(
-            homelifeTabIndex: 2,
+            homelifeTabIndex: 3,
             buttons: [
               ControlBarButtonModel(
                 id: 'homelife_meals_add',
@@ -354,30 +394,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             ],
             child: const HomelifeMealsTab(),
           );
-        case 'Household':
-          return ControlBarRegistrar(
-            homelifeTabIndex: 3,
-            buttons: [
-              ControlBarButtonModel(
-                id: 'homelife_pet_add',
-                icon: Icons.add,
-                label: 'Pet',
-                onPressed: () {
-                  context.read<NavigationStore>().setAddPetActive();
-                },
-              ),
-              ControlBarButtonModel(
-                id: 'homelife_child_account_add',
-                icon: Icons.add,
-                label: 'Child Profile',
-                onPressed: () {
-                  context.read<NavigationStore>().setAddChildProfileActive();
-                },
-              ),
-            ],
-            child: const HomelifeHouseholdTab(),
-          );
-        case 'Medical':
+        case 'Health':
           return ControlBarRegistrar(
             homelifeTabIndex: 4,
             buttons: [
@@ -577,7 +594,11 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           title: Row(
             children: [
               const SizedBox(width: 12),
-              const Icon(Icons.flutter_dash, size: 28),
+              SvgPicture.asset(
+                'assets/images/kobra_logo.svg',
+                height: 28,               // keeps the original 28‑px visual height
+                fit: BoxFit.contain,
+              ),
               const SizedBox(width: 8),
               const Text('KobraSuite'),
               if (_tabs.isNotEmpty) ...[

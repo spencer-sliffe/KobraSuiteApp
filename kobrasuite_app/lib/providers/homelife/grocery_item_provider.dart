@@ -5,101 +5,98 @@ import '../../services/service_locator.dart';
 import '../general/homelife_profile_provider.dart';
 
 class GroceryItemProvider extends ChangeNotifier {
-  final MealService _groceryItemService;
-  HomeLifeProfileProvider _homelifeProfileProvider;
-  bool _isLoading = false;
-  String? _errorMessage;
-  List<GroceryItem> _groceryItems = [];
+  final MealService _service = serviceLocator<MealService>();
+  HomeLifeProfileProvider _profile;
 
   GroceryItemProvider({required HomeLifeProfileProvider homelifeProfileProvider})
-      : _homelifeProfileProvider = homelifeProfileProvider,
-        _groceryItemService = serviceLocator<MealService>();
+      : _profile = homelifeProfileProvider;
 
-  bool get isLoading => _isLoading;
-  String? get errorMessage => _errorMessage;
-  List<GroceryItem> get groceryItems => _groceryItems;
+  // ---------------------------------------------------------------- state
+  bool _loading = false;
+  String? _error;
+  List<GroceryItem> _items = [];
 
-  int get userPk => _homelifeProfileProvider.userPk;
-  int get userProfilePk => _homelifeProfileProvider.userProfilePk;
-  int get homelifeProfilePk => _homelifeProfileProvider.homeLifeProfilePk;
-  int? get householdPk => _homelifeProfileProvider.householdPk;
+  bool  get isLoading     => _loading;
+  String? get errorMessage => _error;
+  List<GroceryItem> get groceryItems => _items;
 
-  void update(HomeLifeProfileProvider newHomelifeProfileProvider) {
-    _homelifeProfileProvider = newHomelifeProfileProvider;
+  // ---------------------------------------------------------------- helpers
+  int  get _userPk        => _profile.userPk;
+  int  get _profilePk     => _profile.userProfilePk;
+  int  get _hlPk          => _profile.homeLifeProfilePk;
+  int? get _hhPk          => _profile.householdPk;
+
+  void update(HomeLifeProfileProvider p) {
+    _profile = p;
     notifyListeners();
   }
 
-  Future<void> loadGroceryItems(int groceryListId) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
+  // ---------------------------------------------------------------- actions
+  Future<void> loadGroceryItems(int listId) async {
+    _loading = true; _error = null; notifyListeners();
     try {
-      final groceryItems = await _groceryItemService.getGroceryItems(
-        userPk: userPk,
-        userProfilePk: userProfilePk,
-        homelifeProfilePk: homelifeProfilePk,
-        householdPk: householdPk,
-        groceryListPk: groceryListId,
+      _items = await _service.getGroceryItems(
+        userPk: _userPk,
+        userProfilePk: _profilePk,
+        homelifeProfilePk: _hlPk,
+        householdPk: _hhPk,
+        groceryListPk: listId,
       );
-      _groceryItems = groceryItems;
     } catch (e) {
-      _errorMessage = 'Error loading grocery items: $e';
+      _error = 'Error loading grocery items: $e';
     }
-    _isLoading = false;
-    notifyListeners();
+    _loading = false; notifyListeners();
   }
 
-  Future<bool> createGroceryList(
-    ///Needs Completed
-    int groceryListId,
-  ) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
+  Future<bool> createGroceryItem({
+    required int groceryListId,
+    required String name,
+    String? quantity,
+    required bool purchased,
+  }) async {
+    _loading = true; _error = null; notifyListeners();
     try {
-      final success = await _groceryItemService.createGroceryItem(
-          userPk: userPk,
-          userProfilePk: userProfilePk,
-          homelifeProfilePk: homelifeProfilePk,
-          householdPk: householdPk,
-          groceryListPk: groceryListId
+      final ok = await _service.createGroceryItem(
+        userPk: _userPk,
+        userProfilePk: _profilePk,
+        homelifeProfilePk: _hlPk,
+        householdPk: _hhPk,
+        groceryListPk: groceryListId,
+        name: name,
+        quantity: quantity,
+        purchased: purchased,
       );
-      if (success) {
-        await loadGroceryItems(groceryListId);
-      }
-      return success;
+      if (ok) await loadGroceryItems(groceryListId);
+      return ok;
     } catch (e) {
-      _errorMessage = 'Error creating grocery item: $e';
+      _error = 'Error creating grocery item: $e';
       return false;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _loading = false; notifyListeners();
     }
   }
 
-  Future<bool> deleteGroceryItem(int groceryListId, int groceryItemId) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
+  Future<bool> deleteGroceryItem({
+    required int groceryListId,
+    required int groceryItemId,
+  }) async {
+    _loading = true; _error = null; notifyListeners();
     try {
-      final success = await _groceryItemService.deleteGroceryItem(
-        userPk: userPk,
-        userProfilePk: userProfilePk,
-        homelifeProfilePk: homelifeProfilePk,
-        householdPk: householdPk,
+      final ok = await _service.deleteGroceryItem(
+        userPk: _userPk,
+        userProfilePk: _profilePk,
+        homelifeProfilePk: _hlPk,
+        householdPk: _hhPk,
         groceryListPk: groceryListId,
-        groceryItemId: groceryItemId
+        groceryItemId: groceryItemId,
       );
-      if (success) {
-        _groceryItems.removeWhere((a) => a.id == groceryItemId);
-      }
-      return success;
+      if (ok) _items.removeWhere((i) => i.id == groceryItemId);
+      return ok;
     } catch (e) {
-      _errorMessage = 'Error deleting grocery item: $e';
+      _error = 'Error deleting grocery item: $e';
       return false;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _loading = false; notifyListeners();
     }
   }
 }

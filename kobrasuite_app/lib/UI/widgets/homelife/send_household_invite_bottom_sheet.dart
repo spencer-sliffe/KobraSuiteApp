@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import '../../../providers/homelife/household_invite_provider.dart';
 import '../../nav/providers/navigation_store.dart';
 
 enum SendHouseholdInviteState { initial, sending, sent }
@@ -17,8 +17,6 @@ class _SendHouseholdInviteBottomSheetState
     extends State<SendHouseholdInviteBottomSheet> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  // For a household invite, you might request a code or an email address.
-  // Here we assume you simply enter an invite code.
   final TextEditingController _inviteCodeController = TextEditingController();
 
   SendHouseholdInviteState _state = SendHouseholdInviteState.initial;
@@ -37,10 +35,10 @@ class _SendHouseholdInviteBottomSheetState
       _state = SendHouseholdInviteState.sending;
       _errorFeedback = "";
     });
-
-    // Simulate an asynchronous service call.
-    await Future.delayed(const Duration(seconds: 1));
-    final success = true; // Replace with actual API/service call result.
+    final householdInviteProvider = context.read<HouseholdInviteProvider>();
+    final success = await householdInviteProvider.createHouseholdInvite(
+      code: _inviteCodeController.text.trim()
+    );
 
     if (success) {
       setState(() {
@@ -53,6 +51,7 @@ class _SendHouseholdInviteBottomSheetState
       });
     }
   }
+
 
   Widget _buildContent() {
     if (_state == SendHouseholdInviteState.sending) {
