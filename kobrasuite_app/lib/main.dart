@@ -5,6 +5,7 @@ import 'package:kobrasuite_app/UI/nav/providers/control_bar_provider.dart';
 import 'package:kobrasuite_app/providers/general/homelife_profile_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/calendar_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/child_profile_provider.dart';
+import 'package:kobrasuite_app/providers/homelife/chore_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/household_invite_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/household_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/pet_provider.dart';
@@ -118,6 +119,15 @@ void main() async {
           update: (context, homeLifeProfile, workoutRoutineProvider) {
             workoutRoutineProvider!.update(homeLifeProfile);
             return workoutRoutineProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider<HomeLifeProfileProvider, ChoreProvider>(
+          create: (context) => ChoreProvider(
+            homelifeProfileProvider: context.read<HomeLifeProfileProvider>(),
+          ),
+          update: (context, homeLifeProfile, choreProvider) {
+            choreProvider!.update(homeLifeProfile);
+            return choreProvider;
           },
         ),
         ChangeNotifierProxyProvider<HomeLifeProfileProvider, PetProvider>(

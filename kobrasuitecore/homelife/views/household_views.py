@@ -1,10 +1,13 @@
 # homelife/views/household_views.py
 
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
 from django.shortcuts import get_object_or_404
+from rest_framework.generics import ListAPIView
+
 from homelife.models import Household
 from homelife.serializers.household_serializer import HouseholdSerializer
 from hq.models import HomeLifeProfile
+from hq.serializers.homelife_profile_serializers import HomeLifeProfileSerializer
 
 
 class HouseholdViewSet(viewsets.ModelViewSet):
@@ -21,3 +24,13 @@ class HouseholdViewSet(viewsets.ModelViewSet):
         # link it back to the HomeLifeProfile
         homelife_profile.household = household
         homelife_profile.save()
+
+
+class HouseholdMemberViewSet(mixins.ListModelMixin,
+                             viewsets.GenericViewSet):
+    serializer_class = HomeLifeProfileSerializer
+
+    def get_queryset(self):
+        return HomeLifeProfile.objects.filter(
+            household_id=self.kwargs["household_pk"]
+        )

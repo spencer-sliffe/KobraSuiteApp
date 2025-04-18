@@ -49,22 +49,35 @@ class ChoreProvider extends ChangeNotifier {
   }
 
   Future<bool> createChore({
-    ///Needs Completed
-    required int placholder,
+    required String title,
+    required String description,
+    required String frequency,
+    required int priority,
+    String? availableFrom,
+    String? availableUntil,
+    int? assignedTo,            // adult PK
+    int? childAssignedTo,       // child PK
   }) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
+
     try {
       final success = await _choreService.createChore(
-          userPk: userPk,
-          userProfilePk: userProfilePk,
-          homelifeProfilePk: homelifeProfilePk,
-          householdPk: householdPk
+        userPk: userPk,
+        userProfilePk: userProfilePk,
+        homelifeProfilePk: homelifeProfilePk,
+        householdPk: householdPk,
+        title: title,
+        description: description,
+        frequency: frequency,
+        priority: priority,
+        availableFrom: availableFrom,
+        availableUntil: availableUntil,
+        assignedTo: assignedTo,
+        childAssignedTo: childAssignedTo,
       );
-      if (success) {
-        await loadChores();
-      }
+      if (success) await loadChores();
       return success;
     } catch (e) {
       _errorMessage = 'Error creating chore: $e';

@@ -61,6 +61,7 @@ class ChildProfileProvider extends ChangeNotifier {
           userPk: userPk,
           userProfilePk: userProfilePk,
           homelifeProfilePk: homelifeProfilePk,
+          householdPk: householdPk,
           name: name,
           dateOfBirth: dateOfBirth,
       );

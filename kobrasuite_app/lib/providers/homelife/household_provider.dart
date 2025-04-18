@@ -1,4 +1,7 @@
 import 'package:flutter/foundation.dart';
+import '../../models/homelife/assignee.dart';
+import '../../models/homelife/child_profile.dart';
+import '../../models/homelife/homelife_profile.dart';
 import '../../models/homelife/household.dart';
 import '../../services/homelife/household_service.dart';
 import '../../services/service_locator.dart';
@@ -10,6 +13,20 @@ class HouseholdProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   Household? _household;
+  List<HomeLifeProfile> _members = [];
+  List<ChildProfile> _children = [];
+  List<Assignee> get assignees => [
+    ..._members.map((m) => Assignee(
+      id: m.id,
+      name: m.username,
+      type: AssigneeType.adult,
+    )),
+    ..._children.map((c) => Assignee(
+      id: c.id,
+      name: c.name,
+      type: AssigneeType.child,
+    )),
+  ];
 
   HouseholdProvider({required HomeLifeProfileProvider homelifeProfileProvider})
       : _homelifeProfileProvider = homelifeProfileProvider,
@@ -47,6 +64,30 @@ class HouseholdProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> loadAssignees() async {
+    if (householdPk == null) return;
+    _isLoading = true;
+    notifyListeners();
+    try {
+      _members = await _householdService.getHouseholdMembers(
+        userPk: userPk,
+        userProfilePk: userProfilePk,
+        homelifeProfilePk: homelifeProfilePk,
+        householdPk: householdPk,
+      );
+      _children = await _householdService.getChildProfiles(
+        userPk: userPk,
+        userProfilePk: userProfilePk,
+        homelifeProfilePk: homelifeProfilePk,
+        householdPk: householdPk,
+      );
+    } catch (e) {
+      _errorMessage = 'Error loading assignees: $e';
+    }
+    _isLoading = false;
+    notifyListeners();
+  }
+
   Future<bool> createHousehold({
     required String householdName,
     required String householdType,
@@ -63,7 +104,7 @@ class HouseholdProvider extends ChangeNotifier {
         householdType: householdType,
       );
       if (success) {
-        await loadHousehold();
+        await loadHousehold();  // reload your newly‐created household
       }
       return success;
     } catch (e) {

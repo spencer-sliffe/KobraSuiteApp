@@ -17,6 +17,7 @@ home-life features.
 Collaborators: SPENCER SLIFFE
 ---------------------------------------------
 """
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from homelife.types import HouseholdType, ChoreFrequency, MealType
@@ -61,7 +62,25 @@ class Chore(models.Model): # creates chore model
     priority = models.IntegerField(default=1)
     available_from = models.DateTimeField(null=True, blank=True)
     available_until = models.DateTimeField(null=True, blank=True)
-    assigned_to = models.ForeignKey('hq.HomeLifeProfile', null=True, blank=True, on_delete=models.SET_NULL, related_name='assigned_chores')
+    assigned_to = models.ForeignKey(
+        'hq.HomeLifeProfile',
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name='assigned_chores'
+    )
+
+    child_assigned_to = models.ForeignKey(
+        'homelife.ChildProfile',
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name='assigned_child_chores'
+    )
+
+    def clean(self):
+        """ensure exactly one assignee or none."""
+        if self.assigned_to and self.child_assigned_to:
+            raise ValidationError("Chore may be assigned to either an adult OR a child, not both.")
+
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 

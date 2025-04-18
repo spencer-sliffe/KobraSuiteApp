@@ -1,222 +1,243 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import '../../../models/homelife/assignee.dart';
+import '../../../providers/homelife/chore_provider.dart';
+import '../../../providers/homelife/household_provider.dart';
 import '../../nav/providers/navigation_store.dart';
 
 enum AddChoreState { initial, adding, added }
 
 class AddChoreBottomSheet extends StatefulWidget {
-  const AddChoreBottomSheet({Key? key}) : super(key: key);
+  const AddChoreBottomSheet({super.key});
 
   @override
   State<AddChoreBottomSheet> createState() => _AddChoreBottomSheetState();
 }
 
 class _AddChoreBottomSheetState extends State<AddChoreBottomSheet> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
-  // Controllers for chore fields.
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _frequencyController = TextEditingController();
-  final TextEditingController _priorityController = TextEditingController();
-  final TextEditingController _availableFromController = TextEditingController();
-  final TextEditingController _availableUntilController = TextEditingController();
-  final TextEditingController _assignedToController = TextEditingController();
+  final _titleCtrl = TextEditingController();
+  final _descriptionCtrl = TextEditingController();
+
+  String? _frequency;
+  int _priority = 1;
+  DateTime? _from;
+  DateTime? _until;
+  Assignee? _assignee;                       // ← keep the object itself
 
   AddChoreState _state = AddChoreState.initial;
-  String _errorFeedback = "";
+  String _error = '';
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<HouseholdProvider>().loadAssignees();
+  }
 
   @override
   void dispose() {
-    _titleController.dispose();
-    _descriptionController.dispose();
-    _frequencyController.dispose();
-    _priorityController.dispose();
-    _availableFromController.dispose();
-    _availableUntilController.dispose();
-    _assignedToController.dispose();
+    _titleCtrl.dispose();
+    _descriptionCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _addChore() async {
+  Future<void> _pickDate(bool isStart) async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: now,
+      firstDate: now.subtract(const Duration(days: 365)),
+      lastDate: now.add(const Duration(days: 365 * 2)),
+    );
+    if (picked == null) return;
+    setState(() {
+      if (isStart) {
+        _from = picked;
+        if (_until != null && _until!.isBefore(picked)) _until = null;
+      } else {
+        _until = picked;
+      }
+    });
+  }
+
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
       _state = AddChoreState.adding;
-      _errorFeedback = "";
+      _error = '';
     });
 
-    // Simulate an asynchronous service call.
-    await Future.delayed(const Duration(seconds: 1));
-    final success = true; // Replace with your API call result.
-
-    if (success) {
-      setState(() {
-        _state = AddChoreState.added;
-      });
-    } else {
-      setState(() {
-        _errorFeedback = 'Failed to add chore.';
-        _state = AddChoreState.initial;
-      });
-    }
-  }
-
-  Widget _buildContent() {
-    if (_state == AddChoreState.adding) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              CircularProgressIndicator(),
-              SizedBox(width: 16),
-              Text('Adding chore...'),
-            ],
-          ),
-        ),
-      );
-    }
-    if (_state == AddChoreState.added) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            'Chore added successfully.',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-        ),
-      );
-    }
-    return Form(
-      key: _formKey,
-      child: SingleChildScrollView(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 16,
-          right: 16,
-          top: 16,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Title (required)
-            TextFormField(
-              controller: _titleController,
-              decoration: const InputDecoration(labelText: 'Chore Title'),
-              validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Enter chore title' : null,
-            ),
-            const SizedBox(height: 12),
-            // Description (optional)
-            TextFormField(
-              controller: _descriptionController,
-              decoration: const InputDecoration(labelText: 'Description (optional)'),
-              maxLines: 2,
-            ),
-            const SizedBox(height: 12),
-            // Frequency (required)
-            TextFormField(
-              controller: _frequencyController,
-              decoration: const InputDecoration(labelText: 'Frequency (e.g., Daily, Weekly)'),
-              validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Enter frequency' : null,
-            ),
-            const SizedBox(height: 12),
-            // Priority (required, numeric)
-            TextFormField(
-              controller: _priorityController,
-              decoration: const InputDecoration(labelText: 'Priority (1-5)'),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) return 'Enter priority';
-                final intVal = int.tryParse(value.trim());
-                if (intVal == null || intVal < 1 || intVal > 5) return 'Enter a value between 1 and 5';
-                return null;
-              },
-            ),
-            const SizedBox(height: 12),
-            // Available From (optional)
-            TextFormField(
-              controller: _availableFromController,
-              decoration: const InputDecoration(labelText: 'Available From (YYYY-MM-DD)'),
-            ),
-            const SizedBox(height: 12),
-            // Available Until (optional)
-            TextFormField(
-              controller: _availableUntilController,
-              decoration: const InputDecoration(labelText: 'Available Until (YYYY-MM-DD)'),
-            ),
-            const SizedBox(height: 12),
-            // Assigned To (optional, numeric)
-            TextFormField(
-              controller: _assignedToController,
-              decoration: const InputDecoration(labelText: 'Assigned To (Profile ID)'),
-              keyboardType: TextInputType.number,
-            ),
-            if (_errorFeedback.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Text(
-                  _errorFeedback,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: Colors.red),
-                ),
-              ),
-          ],
-        ),
-      ),
+    final ok = await context.read<ChoreProvider>().createChore(
+      title: _titleCtrl.text.trim(),
+      description: _descriptionCtrl.text.trim(),
+      frequency: _frequency!,
+      priority: _priority,
+      availableFrom: _from?.toIso8601String(),
+      availableUntil: _until?.toIso8601String(),
+      assignedTo:     _assignee?.type == AssigneeType.adult ? _assignee!.id : null,
+      childAssignedTo:_assignee?.type == AssigneeType.child ? _assignee!.id : null,
     );
-  }
 
-  List<Widget> _buildActions() {
-    if (_state == AddChoreState.added) {
-      return [
-        TextButton(
-          onPressed: ()
-          => context.read<NavigationStore>().setAddChoreActive(),
-          child: const Text('Close'),
-        ),
-      ];
-    }
-    if (_state == AddChoreState.initial) {
-      return [
-        TextButton(
-          onPressed: ()
-          => context.read<NavigationStore>().setAddChoreActive(),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: _addChore,
-          child: const Text('Add Chore'),
-        ),
-      ];
-    }
-    return [];
+    setState(() {
+      _state = ok ? AddChoreState.added : AddChoreState.initial;
+      if (!ok) _error = 'Failed to add chore.';
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final assignees = context.watch<HouseholdProvider>().assignees;
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Add New Chore', style: Theme.of(context).textTheme.headlineSmall),
+            Text('Add New Chore',
+                style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 16),
-            _buildContent(),
+
+            // ---------- body ----------
+            if (_state == AddChoreState.adding)
+              const Padding(
+                padding: EdgeInsets.all(24),
+                child: CircularProgressIndicator(),
+              )
+            else if (_state == AddChoreState.added)
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text('Chore added.',
+                    style: Theme.of(context).textTheme.titleLarge),
+              )
+            else
+              Form(
+                key: _formKey,
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom),
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _titleCtrl,
+                        decoration:
+                        const InputDecoration(labelText: 'Chore title'),
+                        validator: (v) =>
+                        (v == null || v.trim().isEmpty) ? 'Required' : null,
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _descriptionCtrl,
+                        decoration:
+                        const InputDecoration(labelText: 'Description'),
+                        maxLines: 2,
+                      ),
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<String>(
+                        value: _frequency,
+                        items: const ['ONE_TIME', 'DAILY', 'WEEKLY', 'MONTHLY']
+                            .map((f) => DropdownMenuItem(
+                          value: f,
+                          child: Text(f
+                              .toLowerCase()
+                              .replaceAll('_', ' ')
+                              .toUpperCase()),
+                        ))
+                            .toList(),
+                        decoration:
+                        const InputDecoration(labelText: 'Frequency'),
+                        onChanged: (v) => setState(() => _frequency = v),
+                        validator: (v) =>
+                        v == null ? 'Choose frequency' : null,
+                      ),
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<int>(
+                        value: _priority,
+                        items: List.generate(
+                            5,
+                                (i) => DropdownMenuItem(
+                              value: i + 1,
+                              child: Text('${i + 1}'),
+                            )),
+                        decoration:
+                        const InputDecoration(labelText: 'Priority'),
+                        onChanged: (v) => setState(() => _priority = v ?? 1),
+                      ),
+                      const SizedBox(height: 12),
+                      _dateField('Available from', true),
+                      const SizedBox(height: 12),
+                      _dateField('Available until', false),
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<Assignee>(
+                        value: _assignee,
+                        items: assignees
+                            .map((a) => DropdownMenuItem(
+                          value: a,
+                          child: Text(a.name +
+                              (a.type == AssigneeType.child
+                                  ? ' (child)'
+                                  : '')),
+                        ))
+                            .toList(),
+                        decoration:
+                        const InputDecoration(labelText: 'Assign to'),
+                        onChanged: (v) => setState(() => _assignee = v),
+                        validator: (v) => v == null ? 'Pick someone' : null,
+                      ),
+                      if (_error.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Text(_error,
+                              style: const TextStyle(color: Colors.red)),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+
+            // ---------- actions ----------
             const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
-              children: _buildActions(),
-            )
+              children: [
+                if (_state != AddChoreState.adding)
+                  TextButton(
+                    onPressed: () =>
+                        context.read<NavigationStore>().setAddChoreActive(),
+                    child: const Text('Cancel'),
+                  ),
+                if (_state == AddChoreState.initial)
+                  ElevatedButton(onPressed: _submit, child: const Text('Add Chore')),
+                if (_state == AddChoreState.added)
+                  ElevatedButton(
+                    onPressed: () =>
+                        context.read<NavigationStore>().setAddChoreActive(),
+                    child: const Text('Close'),
+                  ),
+              ],
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  // helper
+  Widget _dateField(String label, bool isStart) {
+    final dt = isStart ? _from : _until;
+    return TextFormField(
+      readOnly: true,
+      decoration: InputDecoration(
+        labelText: label,
+        suffixIcon: IconButton(
+          icon: const Icon(Icons.calendar_today),
+          onPressed: () => _pickDate(isStart),
+        ),
+      ),
+      controller: TextEditingController(
+        text: dt == null ? '' : dt.toIso8601String().substring(0, 10),
       ),
     );
   }

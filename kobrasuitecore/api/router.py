@@ -8,7 +8,7 @@ from homelife.views.chore_views import ChoreViewSet
 from homelife.views.grocery_item_views import GroceryItemViewSet
 from homelife.views.grocery_list_views import GroceryListViewSet
 from homelife.views.household_invite_views import HouseholdInviteViewSet
-from homelife.views.household_views import HouseholdViewSet
+from homelife.views.household_views import HouseholdViewSet, HouseholdMemberViewSet
 from homelife.views.meal_plan_views import MealPlanViewSet
 from homelife.views.medical_appointment_views import MedicalAppointmentViewSet
 from homelife.views.medication_views import MedicationViewSet
@@ -90,10 +90,10 @@ budget_router.register('categories', BudgetCategoryViewSet, basename='budget_cat
 
 # HOMELIFE
 homelife_profile_router = routers.NestedDefaultRouter(profile_router, 'homelife_profile', lookup='homelife_profile')
-homelife_profile_router.register('child_profiles', ChildProfileViewSet, basename='child_profiles')
 homelife_profile_router.register('households', HouseholdViewSet, basename='households')
 
 household_router = routers.NestedDefaultRouter(homelife_profile_router, 'households', lookup='household')
+household_router.register('child_profiles', ChildProfileViewSet, basename='child_profiles')
 household_router.register('pets', PetViewSet, basename='pets')
 household_router.register('chores', ChoreViewSet, basename='chores')
 household_router.register('calendar_events', SharedCalendarEventViewSet, basename='calendar_events')
@@ -103,6 +103,7 @@ household_router.register('medications', MedicationViewSet, basename='medication
 household_router.register('medical_appointments', MedicalAppointmentViewSet, basename='medical_appointments')
 household_router.register('workout_routines', WorkoutRoutineViewSet, basename='workout_routines')
 household_router.register('household_invites', HouseholdInviteViewSet, basename='household_invites')
+household_router.register('household_members', HouseholdMemberViewSet, basename='household_members')
 
 chore_router = routers.NestedDefaultRouter(household_router, 'chores', lookup='chore')
 chore_router.register('completions', ChoreCompletionViewSet, basename='chore_completions')
