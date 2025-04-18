@@ -25,10 +25,10 @@ import '../../providers/finance/bank_account_provider.dart';
 import '../../providers/finance/budget_provider.dart';
 import '../nav/overlays/universal_overlay.dart';
 import '../nav/providers/control_bar_registrar.dart';
-import 'modules/homelife/tabs/homelife_calendar_tab.dart';
 import 'modules/homelife/tabs/homelife_chores_tab.dart';
 import 'modules/homelife/tabs/homelife_household_tab.dart';
 import 'modules/homelife/tabs/homelife_medical_tab.dart';
+import 'modules/homelife/tabs/homelife_personal_tab.dart';
 import 'modules/work/tabs/work_teams_tabs.dart';
 
 class MainScreen extends StatefulWidget {
@@ -346,7 +346,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 },
               ),
             ],
-            child: const HomelifeCalendarTab(),
+            child: const HomelifePersonalTab(),
           );
         case 'Chores':
           return ControlBarRegistrar(
