@@ -50,7 +50,11 @@ class CalendarProvider extends ChangeNotifier {
 
   Future<bool> createCalendarEvent({
     ///Needs Completed
-    required int placholder,
+    required String title,
+    required String startDateTime,
+    required String endDateTime,
+    required String description,
+    required String location,
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -60,7 +64,12 @@ class CalendarProvider extends ChangeNotifier {
         userPk: userPk,
         userProfilePk: userProfilePk,
         homelifeProfilePk: homelifeProfilePk,
-        householdPk: householdPk
+        householdPk: householdPk,
+        title: title,
+        startDateTime: startDateTime,
+        endDateTime: endDateTime,
+        description: description,
+        location: location
       );
       if (success) {
         await loadCalendarEvents();
