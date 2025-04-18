@@ -6,8 +6,11 @@ import 'package:kobrasuite_app/providers/general/homelife_profile_provider.dart'
 import 'package:kobrasuite_app/providers/homelife/calendar_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/child_profile_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/chore_provider.dart';
+import 'package:kobrasuite_app/providers/homelife/grocery_item_provider.dart';
+import 'package:kobrasuite_app/providers/homelife/grocery_list_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/household_invite_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/household_provider.dart';
+import 'package:kobrasuite_app/providers/homelife/meal_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/pet_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/workout_routine_provider.dart';
 import 'package:provider/provider.dart';
@@ -128,6 +131,33 @@ void main() async {
           update: (context, homeLifeProfile, choreProvider) {
             choreProvider!.update(homeLifeProfile);
             return choreProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider<HomeLifeProfileProvider, GroceryItemProvider>(
+          create: (context) => GroceryItemProvider(
+            homelifeProfileProvider: context.read<HomeLifeProfileProvider>(),
+          ),
+          update: (context, homeLifeProfile, groceryItemProvider) {
+            groceryItemProvider!.update(homeLifeProfile);
+            return groceryItemProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider<HomeLifeProfileProvider, GroceryListProvider>(
+          create: (context) => GroceryListProvider(
+            homelifeProfileProvider: context.read<HomeLifeProfileProvider>(),
+          ),
+          update: (context, homeLifeProfile, groceryListProvider) {
+            groceryListProvider!.update(homeLifeProfile);
+            return groceryListProvider;
+          },
+        ),
+        ChangeNotifierProxyProvider<HomeLifeProfileProvider, MealProvider>(
+          create: (context) => MealProvider(
+            homelifeProfileProvider: context.read<HomeLifeProfileProvider>(),
+          ),
+          update: (context, homeLifeProfile, mealProvider) {
+            mealProvider!.update(homeLifeProfile);
+            return mealProvider;
           },
         ),
         ChangeNotifierProxyProvider<HomeLifeProfileProvider, PetProvider>(

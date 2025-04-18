@@ -1,7 +1,7 @@
-///Not SPECIFIED FOR MEAL JUST HAS BASIC EXAMPLE OF TEXT FIELDS
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../providers/homelife/meal_provider.dart';
 import '../../nav/providers/navigation_store.dart';
 
 enum AddMealState { initial, adding, added }
@@ -14,137 +14,58 @@ class AddMealBottomSheet extends StatefulWidget {
 }
 
 class _AddMealBottomSheetState extends State<AddMealBottomSheet> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  DateTime? _date;
+  String? _mealType;
+  final _recipeCtrl = TextEditingController();
+  final _notesCtrl = TextEditingController();
 
   AddMealState _state = AddMealState.initial;
-  String _errorFeedback = "";
+  String _error = '';
+
+  final _mealTypes = const ['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK'];
 
   @override
   void dispose() {
-    _titleController.dispose();
-    _descriptionController.dispose();
+    _recipeCtrl.dispose();
+    _notesCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _addMeal() async {
+  Future<void> _pickDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: now,
+      firstDate: now.subtract(const Duration(days: 365)),
+      lastDate: now.add(const Duration(days: 365 * 2)),
+    );
+    if (picked != null) setState(() => _date = picked);
+  }
+
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
       _state = AddMealState.adding;
-      _errorFeedback = "";
+      _error = '';
     });
 
-    // Simulate a service call. Replace with your actual API call.
-    await Future.delayed(const Duration(seconds: 1));
-    final success = true; // Replace with actual call result.
-
-    if (success) {
-      setState(() {
-        _state = AddMealState.added;
-      });
-    } else {
-      setState(() {
-        _errorFeedback = 'Failed to add meal list.';
-        _state = AddMealState.initial;
-      });
-    }
-  }
-
-  Widget _buildContent() {
-    if (_state == AddMealState.adding) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              CircularProgressIndicator(),
-              SizedBox(width: 16),
-              Text('Adding meal...'),
-            ],
-          ),
-        ),
-      );
-    }
-    if (_state == AddMealState.added) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            'Meal added successfully.',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-        ),
-      );
-    }
-    return Form(
-      key: _formKey,
-      child: SingleChildScrollView(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 16,
-          right: 16,
-          top: 16,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Title Field.
-            TextFormField(
-              controller: _titleController,
-              decoration: const InputDecoration(labelText: 'Meal Title'),
-              validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Enter title' : null,
-            ),
-            const SizedBox(height: 12),
-            // Description Field.
-            TextFormField(
-              controller: _descriptionController,
-              decoration: const InputDecoration(labelText: 'Description (optional)'),
-              maxLines: 3,
-            ),
-            if (_errorFeedback.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Text(
-                  _errorFeedback,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.red),
-                ),
-              ),
-          ],
-        ),
-      ),
+    final ok = await context.read<MealProvider>().createMeal(
+      date: _date!.toIso8601String().substring(0, 10),
+      mealType: _mealType!,
+      recipeName: _recipeCtrl.text.trim(),
+      notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
     );
+
+    setState(() {
+      _state = ok ? AddMealState.added : AddMealState.initial;
+      if (!ok) _error = 'Failed to add meal.';
+    });
   }
 
-  List<Widget> _buildActions() {
-    if (_state == AddMealState.added) {
-      return [
-        TextButton(
-          onPressed: ()
-          => context.read<NavigationStore>().setAddMealActive(),
-          child: const Text('Close'),
-        ),
-      ];
-    }
-    if (_state == AddMealState.initial) {
-      return [
-        TextButton(
-          onPressed: ()
-          => context.read<NavigationStore>().setAddMealActive(),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: _addMeal,
-          child: const Text('Add List'),
-        ),
-      ];
-    }
-    return [];
-  }
-
+  // ------------------------------------------------------------ UI
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -153,14 +74,117 @@ class _AddMealBottomSheetState extends State<AddMealBottomSheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Add New Meal', style: Theme.of(context).textTheme.headlineSmall),
+            Text('Add New Meal',
+                style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 16),
-            _buildContent(),
+
+            if (_state == AddMealState.adding)
+              const Padding(
+                padding: EdgeInsets.all(24),
+                child: CircularProgressIndicator(),
+              )
+            else if (_state == AddMealState.added)
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text('Meal added.',
+                    style: Theme.of(context).textTheme.titleLarge),
+              )
+            else
+              Form(
+                key: _formKey,
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom),
+                  child: Column(
+                    children: [
+                      // --- date ---
+                      TextFormField(
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          labelText: 'Date',
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.calendar_today),
+                            onPressed: _pickDate,
+                          ),
+                        ),
+                        controller: TextEditingController(
+                          text: _date == null
+                              ? ''
+                              : _date!.toIso8601String().substring(0, 10),
+                        ),
+                        validator: (v) =>
+                        _date == null ? 'Pick a date' : null,
+                      ),
+                      const SizedBox(height: 12),
+
+                      // --- meal type ---
+                      DropdownButtonFormField<String>(
+                        value: _mealType,
+                        items: _mealTypes
+                            .map((t) => DropdownMenuItem(
+                          value: t,
+                          child: Text(t),
+                        ))
+                            .toList(),
+                        decoration:
+                        const InputDecoration(labelText: 'Meal type'),
+                        onChanged: (v) => setState(() => _mealType = v),
+                        validator: (v) =>
+                        v == null ? 'Choose meal type' : null,
+                      ),
+                      const SizedBox(height: 12),
+
+                      // --- recipe name ---
+                      TextFormField(
+                        controller: _recipeCtrl,
+                        decoration:
+                        const InputDecoration(labelText: 'Recipe name'),
+                        validator: (v) =>
+                        v == null || v.trim().isEmpty ? 'Required' : null,
+                      ),
+                      const SizedBox(height: 12),
+
+                      // --- notes ---
+                      TextFormField(
+                        controller: _notesCtrl,
+                        decoration: const InputDecoration(
+                            labelText: 'Notes (optional)'),
+                        maxLines: 3,
+                      ),
+                      if (_error.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Text(_error,
+                              style: const TextStyle(color: Colors.red)),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+
             const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
-              children: _buildActions(),
-            )
+              children: [
+                if (_state != AddMealState.adding)
+                  TextButton(
+                    onPressed: () =>
+                        context.read<NavigationStore>().setAddMealActive(),
+                    child: const Text('Cancel'),
+                  ),
+                if (_state == AddMealState.initial)
+                  ElevatedButton(
+                    onPressed: _submit,
+                    child: const Text('Add Meal'),
+                  ),
+                if (_state == AddMealState.added)
+                  ElevatedButton(
+                    onPressed: () =>
+                        context.read<NavigationStore>().setAddMealActive(),
+                    child: const Text('Close'),
+                  ),
+              ],
+            ),
           ],
         ),
       ),

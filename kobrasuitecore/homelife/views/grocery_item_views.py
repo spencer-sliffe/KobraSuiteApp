@@ -1,21 +1,31 @@
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
-from homelife.models import GroceryItem, Household
+from homelife.models import GroceryItem, GroceryList
 from homelife.serializers.grocery_item_serializer import GroceryItemSerializer
 
 
 class GroceryItemViewSet(viewsets.ModelViewSet):
     """
-    Nested under household_router:
-    e.g. /.../households/<household_pk>/grocery_lists/<grocery_list_pk>/grocery_items/<grocery_item_pk>
+    Nested under household_router → grocery_router:
+    /.../households/<household_pk>/grocery_lists/<grocery_list_pk>/grocery_items/<grocery_item_pk>/
     """
     serializer_class = GroceryItemSerializer
 
+    # --- READ ---------------------------------------------------------------
     def get_queryset(self):
-        household_id = self.kwargs.get('household_pk')
-        return GroceryItem.objects.filter(household_id=household_id)
+        """
+        Return only the items that belong to the nested grocery_list_pk.
+        """
+        grocery_list_id = self.kwargs.get('grocery_list_pk')
+        return GroceryItem.objects.filter(grocery_list_id=grocery_list_id)
 
+    # --- CREATE -------------------------------------------------------------
     def perform_create(self, serializer):
-        household_id = self.kwargs.get('household_pk')
-        household = get_object_or_404(Household, pk=household_id)
-        serializer.save(household=household)
+        """
+        Attach the item to the correct GroceryList (and by extension its household).
+        """
+        grocery_list = get_object_or_404(
+            GroceryList,
+            pk=self.kwargs.get('grocery_list_pk')
+        )
+        serializer.save(grocery_list=grocery_list)

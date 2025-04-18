@@ -7,47 +7,50 @@ class MealService {
   final Dio _dio;
   MealService(this._dio);
 
-  Future<List<MealPlan>> getMealPlans({
-    required int userPk,
-    required int userProfilePk,
-    required int homelifeProfilePk,
-    required int? householdPk
-  }) async {
-    try {
-      final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
-          '$homelifeProfilePk/households/$householdPk/meal_plans/';
-      final response = await _dio.get(url);
-      if (response.statusCode == 200) {
-        final map = response.data as Map<String, dynamic>;
-        final results = map['results'] as List;
-        return results.map((e) => MealPlan.fromJson(e)).toList();
-      }
-      return [];
-    } catch (e) {
-      rethrow;
-    }
-  }
+  // ------------------------------------------------------------------ helpers
+  String _householdBase(
+      int userPk, int profilePk, int hlPk, int? hhPk) =>
+      '/api/users/$userPk/profile/$profilePk/homelife_profile/'
+          '$hlPk/households/$hhPk';
 
-  Future<bool> createMealPlan({
-    ///Needs to be completed
+  // ---------------------------------------------------------------- meal plan
+  Future<List<MealPlan>> getMealPlans({
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
     required int? householdPk,
   }) async {
-    try {
-      final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
-          '$homelifeProfilePk/households/$householdPk/meal_plans/';
-      final body = {
-        'homelife_profile': homelifeProfilePk,
-      };
-      final response = await _dio.post(url, data: body);
-      return response.statusCode == 201 || response.statusCode == 200;
-    } catch (e) {
-      rethrow;
+    final url =
+        '${_householdBase(userPk, userProfilePk, homelifeProfilePk, householdPk)}/meal_plans/';
+    final res = await _dio.get(url);
+    if (res.statusCode == 200) {
+      final results = (res.data['results'] as List);
+      return results.map((e) => MealPlan.fromJson(e)).toList();
     }
+    return [];
+  }
+
+  Future<bool> createMealPlan({
+    required int userPk,
+    required int userProfilePk,
+    required int homelifeProfilePk,
+    required int? householdPk,
+    required String date,            // yyyy‑MM‑dd
+    required String mealType,        // BREAKFAST / LUNCH / DINNER …
+    required String recipeName,
+    String? notes,
+  }) async {
+    final url =
+        '${_householdBase(userPk, userProfilePk, homelifeProfilePk, householdPk)}/meal_plans/';
+    final body = {
+      'household': householdPk,
+      'date': date,
+      'meal_type': mealType,
+      'recipe_name': recipeName,
+      if (notes != null) 'notes': notes,
+    };
+    final res = await _dio.post(url, data: body);
+    return res.statusCode == 201 || res.statusCode == 200;
   }
 
   Future<bool> deleteMealPlan({
@@ -57,58 +60,46 @@ class MealService {
     required int? householdPk,
     required int mealPlanId,
   }) async {
-    try {
-      final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
-          '$homelifeProfilePk/households/$householdPk/meal_plans/$mealPlanId';
-      final response = await _dio.delete(url);
-      return response.statusCode == 204 || response.statusCode == 200;
-    } catch (e) {
-      rethrow;
-    }
+    final url =
+        '${_householdBase(userPk, userProfilePk, homelifeProfilePk, householdPk)}/meal_plans/$mealPlanId';
+    final res = await _dio.delete(url);
+    return res.statusCode == 204 || res.statusCode == 200;
   }
 
+  // ----------------------------------------------------------- grocery lists
   Future<List<GroceryList>> getGroceryLists({
-    required int userPk,
-    required int userProfilePk,
-    required int homelifeProfilePk,
-    required int? householdPk
-  }) async {
-    try {
-      final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
-          '$homelifeProfilePk/households/$householdPk/grocery_lists/';
-      final response = await _dio.get(url);
-      if (response.statusCode == 200) {
-        final map = response.data as Map<String, dynamic>;
-        final results = map['results'] as List;
-        return results.map((e) => GroceryList.fromJson(e)).toList();
-      }
-      return [];
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<bool> createGroceryList({
-    ///Needs to be completed
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
     required int? householdPk,
   }) async {
-    try {
-      final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
-          '$homelifeProfilePk/households/$householdPk/grocery_lists/';
-      final body = {
-        'homelife_profile': homelifeProfilePk,
-      };
-      final response = await _dio.post(url, data: body);
-      return response.statusCode == 201 || response.statusCode == 200;
-    } catch (e) {
-      rethrow;
+    final url =
+        '${_householdBase(userPk, userProfilePk, homelifeProfilePk, householdPk)}/grocery_lists/';
+    final res = await _dio.get(url);
+    if (res.statusCode == 200) {
+      final results = (res.data['results'] as List);
+      return results.map((e) => GroceryList.fromJson(e)).toList();
     }
+    return [];
+  }
+
+  Future<bool> createGroceryList({
+    required int userPk,
+    required int userProfilePk,
+    required int homelifeProfilePk,
+    required int? householdPk,
+    required String name,
+    String? description,
+  }) async {
+    final url =
+        '${_householdBase(userPk, userProfilePk, homelifeProfilePk, householdPk)}/grocery_lists/';
+    final body = {
+      'household': householdPk,
+      'name': name,
+      if (description != null) 'description': description,
+    };
+    final res = await _dio.post(url, data: body);
+    return res.statusCode == 201 || res.statusCode == 200;
   }
 
   Future<bool> deleteGroceryList({
@@ -118,17 +109,13 @@ class MealService {
     required int? householdPk,
     required int groceryListId,
   }) async {
-    try {
-      final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
-          '$homelifeProfilePk/households/$householdPk/grocery_lists/$groceryListId';
-      final response = await _dio.delete(url);
-      return response.statusCode == 204 || response.statusCode == 200;
-    } catch (e) {
-      rethrow;
-    }
+    final url =
+        '${_householdBase(userPk, userProfilePk, homelifeProfilePk, householdPk)}/grocery_lists/$groceryListId';
+    final res = await _dio.delete(url);
+    return res.statusCode == 204 || res.statusCode == 200;
   }
 
+  // ----------------------------------------------------------- grocery items
   Future<List<GroceryItem>> getGroceryItems({
     required int userPk,
     required int userProfilePk,
@@ -136,45 +123,37 @@ class MealService {
     required int? householdPk,
     required int groceryListPk,
   }) async {
-    try {
-      final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
-          '$homelifeProfilePk/households/$householdPk/grocery_lists/'
-          '$groceryListPk/grocery_items/';
-
-      final response = await _dio.get(url);
-      if (response.statusCode == 200) {
-        final map = response.data as Map<String, dynamic>;
-        final results = map['results'] as List;
-        return results.map((e) => GroceryItem.fromJson(e)).toList();
-      }
-      return [];
-    } catch (e) {
-      rethrow;
+    final url =
+        '${_householdBase(userPk, userProfilePk, homelifeProfilePk, householdPk)}/grocery_lists/$groceryListPk/grocery_items/';
+    final res = await _dio.get(url);
+    if (res.statusCode == 200) {
+      final results = (res.data['results'] as List);
+      return results.map((e) => GroceryItem.fromJson(e)).toList();
     }
+    return [];
   }
 
   Future<bool> createGroceryItem({
-    ///Needs to be completed
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
     required int? householdPk,
     required int groceryListPk,
+    required String name,
+    String? quantity,
+    required bool purchased,
   }) async {
-    try {
-      final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
-          '$homelifeProfilePk/households/$householdPk/grocery_lists/'
-          '$groceryListPk/grocery_items/';
-      final body = {
-        'homelife_profile': homelifeProfilePk,
-      };
-      final response = await _dio.post(url, data: body);
-      return response.statusCode == 201 || response.statusCode == 200;
-    } catch (e) {
-      rethrow;
-    }
+    final url =
+        '${_householdBase(userPk, userProfilePk, homelifeProfilePk, householdPk)}/grocery_lists/$groceryListPk/grocery_items/';
+    final body = {
+      'household': householdPk,
+      'grocery_list': groceryListPk,
+      'name': name,
+      if (quantity != null) 'quantity': quantity,
+      'purchased': purchased,
+    };
+    final res = await _dio.post(url, data: body);
+    return res.statusCode == 201 || res.statusCode == 200;
   }
 
   Future<bool> deleteGroceryItem({
@@ -183,17 +162,11 @@ class MealService {
     required int homelifeProfilePk,
     required int? householdPk,
     required int groceryListPk,
-    required int groceryItemId
+    required int groceryItemId,
   }) async {
-    try {
-      final url =
-          '/api/users/$userPk/profile/$userProfilePk/finance_profile/'
-          '$homelifeProfilePk/households/$householdPk/grocery_lists/'
-          '$groceryListPk/grocery_items/$groceryItemId';
-      final response = await _dio.delete(url);
-      return response.statusCode == 204 || response.statusCode == 200;
-    } catch (e) {
-      rethrow;
-    }
+    final url =
+        '${_householdBase(userPk, userProfilePk, homelifeProfilePk, householdPk)}/grocery_lists/$groceryListPk/grocery_items/$groceryItemId';
+    final res = await _dio.delete(url);
+    return res.statusCode == 204 || res.statusCode == 200;
   }
 }

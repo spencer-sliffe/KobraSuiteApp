@@ -2,9 +2,8 @@ import 'grocery_item.dart';
 
 class GroceryList {
   final int id;
-  final int household; // ID of the household this list belongs to
-  final String title;
-  final String description;
+  final int household;
+  final String name;            // <── NEW  (comes from the API)
   final List<GroceryItem> items;
   final String createdAt;
   final String updatedAt;
@@ -12,8 +11,7 @@ class GroceryList {
   GroceryList({
     required this.id,
     required this.household,
-    required this.title,
-    this.description = '',
+    required this.name,
     required this.items,
     required this.createdAt,
     required this.updatedAt,
@@ -21,28 +19,25 @@ class GroceryList {
 
   factory GroceryList.fromJson(Map<String, dynamic> json) {
     return GroceryList(
-      id: json['id'],
-      household: json['household'],
-      title: json['title'] ?? '',
-      description: json['description'] ?? '',
+      id:         json['id'],
+      household:  json['household'],
+      name:       json['name'] ?? json['title'] ?? '',   // title fallback just in case
       items: json['items'] != null
           ? (json['items'] as List)
-          .map((item) => GroceryItem.fromJson(item))
+          .map((e) => GroceryItem.fromJson(e))
           .toList()
           : [],
-      createdAt: json['created_at'],
-      updatedAt: json['updated_at'],
+      createdAt:  json['created_at'],
+      updatedAt:  json['updated_at'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'household': household,
-      'title': title,
-      'description': description,
-      // Serializes each GroceryItem back to JSON.
-      'items': items.map((item) => item.toJson()).toList(),
+      'id'        : id,
+      'household' : household,
+      'name'      : name,
+      'items'     : items.map((e) => e.toJson()).toList(),
       'created_at': createdAt,
       'updated_at': updatedAt,
     };

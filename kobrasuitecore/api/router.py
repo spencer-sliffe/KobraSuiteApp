@@ -130,4 +130,5 @@ urlpatterns = [
     *household_router.urls,
     *chore_router.urls,
     *budget_router.urls,
+    *grocery_router.urls,
 ]

@@ -1,11 +1,7 @@
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
-from homelife.models import GroceryItem, Household
-from homelife.serializers.grocery_item_serializer import GroceryItemSerializer
-
-
-class GroceryListSerializer:
-    pass
+from homelife.models import GroceryItem, Household, GroceryList
+from homelife.serializers.grocery_list_serializer import GroceryListSerializer
 
 
 class GroceryListViewSet(viewsets.ModelViewSet):
@@ -17,7 +13,7 @@ class GroceryListViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         household_id = self.kwargs.get('household_pk')
-        return GroceryItem.objects.filter(household_id=household_id)
+        return GroceryList.objects.filter(household=household_id)
 
     def perform_create(self, serializer):
         household_id = self.kwargs.get('household_pk')
