@@ -36,18 +36,22 @@ class _AddStockPortfolioBottomSheetState
     await Future.delayed(const Duration(seconds: 1));
     final success = true; // Replace with actual service result.
 
-    if (success) {
-      setState(() {
-        _state = AddStockPortfolioState.added;
-      });
-    } else {
-      setState(() {
-        _errorFeedback = 'Failed to create portfolio.';
-        _state = AddStockPortfolioState.initial;
-      });
-    }
-  }
+   try {
 
+    final result = await PortfolioService().createPortfolio(
+      title: _portfolioTitleController.text.trim(),
+    );
+    
+    setState(() {
+      _state = AddStockPortfolioState.added;
+    });
+    
+  } catch (e) {
+    setState(() {
+      _errorFeedback = 'Failed to create portfolio: ${e.toString()}';
+      _state = AddStockPortfolioState.initial;
+    });
+  }
   Widget _buildContent() {
     if (_state == AddStockPortfolioState.adding) {
       return Center(
