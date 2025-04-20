@@ -9,7 +9,7 @@ version: 1.0.0+1
 
 # Dart and Flutter environment setup
 environment:
-  sdk: ">=3.6.0 <4.0.0"
+  sdk: ">=3.5.0 <4.0.0"
 
 # Application dependencies
 dependencies:
@@ -40,7 +40,7 @@ dependencies:
   go_router: ^14.6.2
 
   # Form validation
-  flutter_form_builder: ^9.6.0
+  flutter_form_builder: ^7.0.0-alpha.3
 
   # Responsive UI
   flutter_screenutil: ^5.9.3
@@ -63,6 +63,8 @@ dependencies:
   web_socket_channel: any
 
   flutter_svg: ^2.1.0
+
+  table_calendar: ^3.0.9
 
 dev_dependencies:
   flutter_test:
