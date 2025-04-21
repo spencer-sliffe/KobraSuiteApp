@@ -131,3 +131,11 @@ class MiscInvestViewSet(viewsets.ViewSet):
             pg = 1
         articles = get_news_articles(key, q, pg)
         return Response(articles, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'])
+    def stock_analysis(self, request):
+        ticker = request.query_params.get('ticker')
+        if not ticker:
+            return Response({'error': 'ticker required'}, status=400)
+        txt = get_stock_results_data(ticker)
+        return Response({'analysis': str(txt)}, status=200)

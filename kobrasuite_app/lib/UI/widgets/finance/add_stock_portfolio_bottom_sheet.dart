@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../providers/finance/stock_portfolio_provider.dart';
 import '../../nav/providers/navigation_store.dart';
 
 enum AddStockPortfolioState { initial, adding, added }
@@ -15,34 +16,27 @@ class AddStockPortfolioBottomSheet extends StatefulWidget {
 
 class _AddStockPortfolioBottomSheetState
     extends State<AddStockPortfolioBottomSheet> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _portfolioTitleController = TextEditingController();
-
   AddStockPortfolioState _state = AddStockPortfolioState.initial;
-  String _errorFeedback = "";
-
-  @override
-  void dispose() {
-    _portfolioTitleController.dispose();
-    super.dispose();
-  }
+  String _errorFeedback = '';
 
   Future<void> _createPortfolio() async {
-    if (!_formKey.currentState!.validate()) return;
-
     setState(() {
       _state = AddStockPortfolioState.adding;
-      _errorFeedback = "";
+      _errorFeedback = '';
     });
 
-    // Simulate an asynchronous service call. Replace this with your actual API call.
-    await Future.delayed(const Duration(seconds: 1));
-    final success = true; // Replace with actual service result.
+    final success =
+    await context.read<StockPortfolioProvider>().createPortfolio();
 
     if (success) {
-      setState(() {
-        _state = AddStockPortfolioState.added;
-      });
+      setState(() => _state = AddStockPortfolioState.added);
+
+      // Close the bottom‑sheet after a brief toast‑time,
+      // then hide the “Add Portfolio” button forever.
+      await Future.delayed(const Duration(seconds: 1));
+      if (mounted) {
+        context.read<NavigationStore>().setAddStockPortfolioActive();
+      }
     } else {
       setState(() {
         _errorFeedback = 'Failed to create portfolio.';
@@ -51,117 +45,64 @@ class _AddStockPortfolioBottomSheetState
     }
   }
 
-  Widget _buildContent() {
-    if (_state == AddStockPortfolioState.adding) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              CircularProgressIndicator(),
-              SizedBox(width: 16),
-              Text('Creating portfolio...'),
-            ],
-          ),
-        ),
-      );
-    }
-    if (_state == AddStockPortfolioState.added) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            'Portfolio created successfully.',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-        ),
-      );
-    }
-    // Build the form.
-    return Form(
-      key: _formKey,
-      child: SingleChildScrollView(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 16,
-          right: 16,
-          top: 16,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Portfolio Title Field
-            TextFormField(
-              controller: _portfolioTitleController,
-              decoration: const InputDecoration(labelText: 'Portfolio Title'),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Enter a portfolio title';
-                }
-                return null;
-              },
-            ),
-            if (_errorFeedback.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Text(
-                  _errorFeedback,
-                  style:
-                  Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.red),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  List<Widget> _buildActions() {
-    if (_state == AddStockPortfolioState.added) {
-      return [
-        TextButton(
-          onPressed: ()
-          => context.read<NavigationStore>().setAddStockPortfolioActive(),
-          child: const Text('Close'),
-        ),
-      ];
-    }
-    if (_state == AddStockPortfolioState.initial) {
-      return [
-        TextButton(
-          onPressed: ()
-          => context.read<NavigationStore>().setAddStockPortfolioActive(),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: _createPortfolio,
-          child: const Text('Create Portfolio'),
-        ),
-      ];
-    }
-    return [];
-  }
-
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-        child: Column(
+    Widget body;
+
+    switch (_state) {
+      case AddStockPortfolioState.initial:
+        body = Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Add New Stock Portfolio',
-                style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 16),
-            _buildContent(),
+            Text(
+              'Create your one‑time stock portfolio?',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            if (_errorFeedback.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(_errorFeedback,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: Colors.red)),
+            ],
             const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: _buildActions(),
-            )
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                onPressed: _createPortfolio,
+                child: const Text('Create Portfolio'),
+              ),
+            ),
           ],
-        ),
+        );
+        break;
+
+      case AddStockPortfolioState.adding:
+        body = const Padding(
+          padding: EdgeInsets.symmetric(vertical: 32),
+          child: Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+        break;
+
+      case AddStockPortfolioState.added:
+        body = Padding(
+          padding: const EdgeInsets.symmetric(vertical: 32),
+          child: Text(
+            'Portfolio created 🎉',
+            style: Theme.of(context).textTheme.titleLarge,
+            textAlign: TextAlign.center,
+          ),
+        );
+        break;
+    }
+
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: body,
       ),
     );
   }

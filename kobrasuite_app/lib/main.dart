@@ -310,28 +310,32 @@ void main() async {
         ChangeNotifierProvider<NavigationStore>(create: (_) => NavigationStore()),
         ChangeNotifierProvider<ThemeNotifier>(create: (_) => ThemeNotifier()),
         ChangeNotifierProvider<RealtimeService>(create: (_) => serviceLocator<RealtimeService>()),
-        ChangeNotifierProxyProvider2<AuthProvider, FinanceProfileProvider, StockPortfolioProvider>(
-          create: (_) => StockPortfolioProvider(userPk: 0, userProfilePk:0, financeProfilePk: 0, stockPortfolioPk: 0),
-          update: (_, auth, finance, sp) {
-            sp!.update(
-              newUserPk: auth.userPk,
-              newUserProfilePk: auth.userProfilePk,
-              newFinanceProfilePk: finance.financeProfile?.id ?? 0,
-              newStockPortfolioPk: sp.stockPortfolioPk,
+        ChangeNotifierProxyProvider<FinanceProfileProvider, StockPortfolioProvider>(
+          create: (context) => StockPortfolioProvider(
+            financeProfileProvider: context.read<FinanceProfileProvider>(),
+            stockPortfolioPk: 0,
+          ),
+          update: (context, finance, spp) {
+            spp!.update(
+              newFinanceProfileProvider: finance,
+              newStockPortfolioPk: spp.stockPortfolioPk,
             );
-            return sp;
+            return spp;
           },
         ),
-        ChangeNotifierProxyProvider3<AuthProvider, FinanceProfileProvider, StockPortfolioProvider, StockProvider>(
-          create: (_) => StockProvider(userPk: 0, userProfilePk: 0, financeProfilePk: 0, stockPortfolioPk: 0),
-          update: (_, auth, finance, spPortfolio, s) {
-            s!.update(
-              newUserPk: auth.userPk,
-              newUserProfilePk: auth.userProfilePk,
-              newFinanceProfilePk: finance.financeProfile?.id ?? 0,
-              newStockPortfolioPk: spPortfolio.stockPortfolioPk,
+
+        ChangeNotifierProxyProvider2<FinanceProfileProvider, StockPortfolioProvider,
+            StockProvider>(
+          create: (context) => StockProvider(
+            financeProfileProvider: context.read<FinanceProfileProvider>(),
+            portfolioProvider: context.read<StockPortfolioProvider>(),
+          ),
+          update: (context, finance, portfolio, sp) {
+            sp!.update(
+              newFinanceProfileProvider: finance,
+              newPortfolioProvider: portfolio,
             );
-            return s;
+            return sp;
           },
         ),
         ChangeNotifierProvider<StockNewsProvider>(create: (_) => StockNewsProvider()),

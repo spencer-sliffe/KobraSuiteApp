@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../../providers/finance/stock_portfolio_provider.dart';
 import '../../nav/providers/navigation_store.dart';
 
-// Enum for the form state.
-enum AddPortfolioStockState { initial, adding, added }
+/// Internal UI state
+enum _SheetState { initial, adding, added }
 
 class AddPortfolioStockBottomSheet extends StatefulWidget {
   const AddPortfolioStockBottomSheet({Key? key}) : super(key: key);
@@ -16,172 +18,184 @@ class AddPortfolioStockBottomSheet extends StatefulWidget {
 
 class _AddPortfolioStockBottomSheetState
     extends State<AddPortfolioStockBottomSheet> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
-  // Controllers for form fields.
-  final TextEditingController _tickerController = TextEditingController();
-  final TextEditingController _numberOfSharesController = TextEditingController();
-  final TextEditingController _ppsAtPurchaseController = TextEditingController();
+  final _tickerCtrl  = TextEditingController();
+  final _sharesCtrl  = TextEditingController();
 
-  AddPortfolioStockState _state = AddPortfolioStockState.initial;
-  String _errorFeedback = "";
+  DateTime? _purchaseDate;
+  _SheetState _state = _SheetState.initial;
+  String _err = '';
 
   @override
   void dispose() {
-    _tickerController.dispose();
-    _numberOfSharesController.dispose();
-    _ppsAtPurchaseController.dispose();
+    _tickerCtrl.dispose();
+    _sharesCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _addPortfolioStock() async {
+  /* ─────────────────────────────────────────────────────────── */
+  Future<void> _chooseDateTime() async {
+    final d = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate : DateTime(2000),
+      lastDate  : DateTime.now(),
+    );
+    if (d == null) return;
+    final t = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (t == null) return;
+    setState(() {
+      _purchaseDate = DateTime(d.year, d.month, d.day, t.hour, t.minute);
+    });
+  }
+
+  /* ─────────────────────────────────────────────────────────── */
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
-      _state = AddPortfolioStockState.adding;
-      _errorFeedback = "";
+      _state = _SheetState.adding;
+      _err   = '';
     });
 
-    // Simulate an async service call.
-    await Future.delayed(const Duration(seconds: 1));
-    final success = true; // Replace with your actual API/service call.
+    final prov   = context.read<StockPortfolioProvider>();
+    final ticker = _tickerCtrl.text.trim().toUpperCase();
+    final shares = double.parse(_sharesCtrl.text.trim());
 
-    if (success) {
-      setState(() {
-        _state = AddPortfolioStockState.added;
-      });
+    final ok = await prov.addStock(
+      ticker,
+      shares,
+      purchaseDateIso: _purchaseDate?.toIso8601String(),
+    );
+
+    if (ok) {
+      setState(() => _state = _SheetState.added);
     } else {
       setState(() {
-        _errorFeedback = 'Failed to add portfolio stock.';
-        _state = AddPortfolioStockState.initial;
+        _state = _SheetState.initial;
+        _err   = 'Failed to add stock – please try again.';
       });
     }
   }
 
-  Widget _buildContent() {
-    if (_state == AddPortfolioStockState.adding) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              CircularProgressIndicator(),
-              SizedBox(width: 16),
-              Text('Adding portfolio stock...'),
-            ],
-          ),
-        ),
-      );
-    }
-    if (_state == AddPortfolioStockState.added) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
+  /* ─────────────────────────────────────────────────────────── */
+  Widget _buildBody() {
+    switch (_state) {
+      case _SheetState.adding:
+        return const Padding(
+          padding: EdgeInsets.all(24),
+          child: CircularProgressIndicator(),
+        );
+
+      case _SheetState.added:
+        return Padding(
+          padding: const EdgeInsets.all(24),
           child: Text(
-            'Portfolio stock added successfully.',
+            'Stock added to portfolio!',
             style: Theme.of(context).textTheme.titleLarge,
+            textAlign: TextAlign.center,
           ),
-        ),
-      );
-    }
-    // Build the form.
-    return Form(
-      key: _formKey,
-      child: SingleChildScrollView(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 16,
-          right: 16,
-          top: 16,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Ticker Field.
-            TextFormField(
-              controller: _tickerController,
-              decoration: const InputDecoration(labelText: 'Ticker'),
-              validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Enter ticker' : null,
+        );
+
+      default:
+        final fmt = DateFormat.yMd().add_jm();
+        return Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              left : 12,
+              right: 12,
+              top  : 12,
             ),
-            const SizedBox(height: 12),
-            // Number of Shares.
-            TextFormField(
-              controller: _numberOfSharesController,
-              decoration:
-              const InputDecoration(labelText: 'Number of Shares'),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Enter number of shares';
-                }
-                if (int.tryParse(value.trim()) == null) {
-                  return 'Enter a valid integer';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 12),
-            // Price per Share at Purchase.
-            TextFormField(
-              controller: _ppsAtPurchaseController,
-              decoration:
-              const InputDecoration(labelText: 'Price per Share at Purchase'),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Enter price per share';
-                }
-                if (double.tryParse(value.trim()) == null) {
-                  return 'Enter a valid number';
-                }
-                return null;
-              },
-            ),
-            if (_errorFeedback.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Text(
-                  _errorFeedback,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: Colors.red),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: _tickerCtrl,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: const InputDecoration(labelText: 'Ticker'),
+                  validator: (v) =>
+                  v == null || v.trim().isEmpty ? 'Enter a ticker' : null,
                 ),
-              ),
-          ],
-        ),
-      ),
-    );
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _sharesCtrl,
+                  decoration: const InputDecoration(labelText: 'Number of shares'),
+                  keyboardType: TextInputType.number,
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return 'Enter shares';
+                    final d = double.tryParse(v.trim());
+                    if (d == null || d <= 0) return 'Enter a valid number';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                InkWell(
+                  onTap: _chooseDateTime,
+                  child: InputDecorator(
+                    decoration: const InputDecoration(
+                      labelText: 'Purchase date & time (optional)',
+                    ),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        _purchaseDate == null
+                            ? 'Tap to select'
+                            : fmt.format(_purchaseDate!),
+                      ),
+                    ),
+                  ),
+                ),
+                if (_err.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Text(_err,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(color: Colors.red)),
+                ],
+              ],
+            ),
+          ),
+        );
+    }
   }
 
   List<Widget> _buildActions() {
-    if (_state == AddPortfolioStockState.added) {
-      return [
-        TextButton(
-          onPressed: ()
-          => context.read<NavigationStore>().setAddStockActive(),
-          child: const Text('Close'),
-        ),
-      ];
+    switch (_state) {
+      case _SheetState.added:
+        return [
+          TextButton(
+            onPressed: () =>
+                context.read<NavigationStore>().setAddStockActive(),
+            child: const Text('Close'),
+          ),
+        ];
+
+      case _SheetState.initial:
+        return [
+          TextButton(
+            onPressed: () =>
+                context.read<NavigationStore>().setAddStockActive(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: _submit,
+            child: const Text('Add'),
+          ),
+        ];
+
+      default:
+        return [];
     }
-    if (_state == AddPortfolioStockState.initial) {
-      return [
-        TextButton(
-          onPressed: ()
-          => context.read<NavigationStore>().setAddStockActive(),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: _addPortfolioStock,
-          child: const Text('Add Stock'),
-        ),
-      ];
-    }
-    return [];
   }
 
+  /* ─────────────────────────────────────────────────────────── */
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -190,15 +204,15 @@ class _AddPortfolioStockBottomSheetState
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Add New Portfolio Stock',
+            Text('Add Stock to Portfolio',
                 style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 16),
-            _buildContent(),
+            _buildBody(),
             const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: _buildActions(),
-            )
+            ),
           ],
         ),
       ),

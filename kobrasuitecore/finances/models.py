@@ -23,14 +23,15 @@ from django.db.models import Sum
 
 
 class StockPortfolio(models.Model):
-    finance_profile = models.ForeignKey(
+    finance_profile = models.OneToOneField(
         FinanceProfile,
         on_delete=models.CASCADE,
-        related_name='stock_portfolios'
+        related_name='stock_portfolio',
+        unique=True,  # ← **only** uniqueness is required
+        # NO `primary_key=True` here
     )
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
-
 
 class PortfolioStock(models.Model):
     portfolio = models.ForeignKey(

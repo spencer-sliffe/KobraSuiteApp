@@ -1,146 +1,168 @@
 import 'package:flutter/foundation.dart';
-import '../../../services/finance/stock_service.dart';
-import '../../../services/service_locator.dart';
-import '../../../models/finance/stock_portfolio.dart';
-import '../../../models/finance/portfolio_stock.dart';
+import '../../models/finance/portfolio_stock.dart';
+import '../../services/finance/stock_portfolio_service.dart';
+import '../../services/service_locator.dart';
+import '../general/finance_profile_provider.dart';
 
+/// Keeps the *one‑per‑FinanceProfile* stock portfolio in sync with the backend
+/// and exposes derived analytics (metrics, chat, value series, etc.).
 class StockPortfolioProvider extends ChangeNotifier {
-  final StockService _service;
-  int _userPk;
-  int _userProfilePk;
-  int _financeProfilePk;
+  /* ────────────────────────────────────────────────────────── */
+  final StockPortfolioService _svc = serviceLocator<StockPortfolioService>();
+
+  /// The injected “parent” provider; all user / profile IDs come from here.
+  FinanceProfileProvider _financeProfileProvider;
+
+  /// Primary‑key of the portfolio *table row*.  Equal to the `financeProfilePk`
+  /// once a portfolio has been created.
   int _stockPortfolioPk;
 
-  bool _isLoading = false;
-  String _errorMessage = '';
-  StockPortfolio? _stockPortfolio;
-  List<PortfolioStock> _portfolioStocks = [];
-
   StockPortfolioProvider({
-    required int userPk,
-    required int userProfilePk,
-    required int financeProfilePk,
+    required FinanceProfileProvider financeProfileProvider,
     required int stockPortfolioPk,
-  })  : _userPk = userPk,
-        _userProfilePk = userProfilePk,
-        _financeProfilePk = financeProfilePk,
-        _stockPortfolioPk = stockPortfolioPk,
-        _service = serviceLocator<StockService>();
+  })  : _financeProfileProvider = financeProfileProvider,
+        _stockPortfolioPk = stockPortfolioPk == 0
+            ? financeProfileProvider.financeProfilePk
+            : stockPortfolioPk;
 
-  bool get isLoading => _isLoading;
-  String get errorMessage => _errorMessage;
-  StockPortfolio? get stockPortfolio => _stockPortfolio;
-  List<PortfolioStock> get portfolioStocks => _portfolioStocks;
-
-  int get userPk => _userPk;
-  int get userProfilePk => _userProfilePk;
-  int get financeProfilePk => _financeProfilePk;
+  /* ────────── convenience getters pulled from the parent ────────── */
+  int get userPk           => _financeProfileProvider.userPk;
+  int get userProfilePk    => _financeProfileProvider.userProfilePk;
+  int get financeProfilePk => _financeProfileProvider.financeProfilePk;
   int get stockPortfolioPk => _stockPortfolioPk;
 
+  /* ───────────────────────── state exposed to UI ────────────────── */
+  bool  _loading       = false;
+  bool  _loadingExtras = false;
+  String _error        = '';
+
+  List<PortfolioStock>        _stocks       = [];
+  Map<String, double>         _metrics      = {};
+  List<String>                _chat         = [];
+  List<Map<String, dynamic>>  _series       = [];
+  String                       _analysis    = '';
+
+  bool get isLoading      => _loading;
+  bool get loadingExtras  => _loadingExtras;
+  String get error        => _error;
+  List<PortfolioStock>       get stocks   => _stocks;
+  Map<String, double>        get metrics  => _metrics;
+  List<String>               get chat     => _chat;
+  List<Map<String, dynamic>> get series   => _series;
+  String                      get stockAnalysis => _analysis;
+
+  /* ───────────────── injected updates (ProxyProvider.update) ─────── */
   void update({
-    required int newUserPk,
-    required int newUserProfilePk,
-    required int newFinanceProfilePk,
+    required FinanceProfileProvider newFinanceProfileProvider,
     required int newStockPortfolioPk,
   }) {
-    _userPk = newUserPk;
-    _userProfilePk = newUserProfilePk;
-    _financeProfilePk = newFinanceProfilePk;
-    _stockPortfolioPk = newStockPortfolioPk;
-    notifyListeners();
+    _financeProfileProvider = newFinanceProfileProvider;
+    _stockPortfolioPk = newStockPortfolioPk == 0
+        ? newFinanceProfileProvider.financeProfilePk
+        : newStockPortfolioPk;
   }
 
-  Future<void> loadStockPortfolio() async {
-    _isLoading = true;
-    _errorMessage = '';
-    notifyListeners();
-    try {
-      final portfolio = await _service.getStockPortfolio(
-        userPk: _userPk,
-        userProfilePk: _userProfilePk,
-        financeProfilePk: _financeProfilePk,
-        stockPortfolioPk: _stockPortfolioPk,
-      );
-      _stockPortfolio = portfolio;
-    } catch (e) {
-      _errorMessage = 'Error loading stock portfolio: $e';
+  /* ───────────────────────── portfolio life‑cycle ────────────────── */
+  Future<bool> createPortfolio() async {
+    _loading = true; notifyListeners();
+
+    final ok = await _svc.createStockPortfolio(
+      userPk:           userPk,
+      userProfilePk:    userProfilePk,
+      financeProfilePk: financeProfilePk,
+    );
+
+    if (ok) {
+      _stockPortfolioPk = financeProfilePk;   // pk == finance_profile_id
+      await load();
     }
-    _isLoading = false;
-    notifyListeners();
+
+    _loading = false; notifyListeners();
+    return ok;
   }
 
-  Future<void> loadPortfolioStocks() async {
-    _isLoading = true;
-    _errorMessage = '';
-    notifyListeners();
-    try {
-      final stocks = await _service.getPortfolioStocks(
-        userPk: _userPk,
-        userProfilePk: _userProfilePk,
-        financeProfilePk: _financeProfilePk,
-        stockPortfolioPk: _stockPortfolioPk,
-      );
-      _portfolioStocks = stocks;
-    } catch (e) {
-      _errorMessage = 'Error loading portfolio stocks: $e';
-    }
-    _isLoading = false;
-    notifyListeners();
+  Future<void> load() async {
+    _loading = true; _error = ''; notifyListeners();
+
+    _stocks = await _svc.getPortfolioStocks(
+      userPk:           userPk,
+      userProfilePk:    userProfilePk,
+      financeProfilePk: financeProfilePk,
+    );
+
+    _loading = false; notifyListeners();
+
+    if (_stocks.isNotEmpty) await _loadExtras();
   }
 
-  Future<bool> addStock({
-    required String ticker,
-    required double shares,
-    String? purchaseDateIso,
-  }) async {
-    _isLoading = true;
-    _errorMessage = '';
-    notifyListeners();
-    try {
-      final success = await _service.addStock(
-        userPk: _userPk,
-        userProfilePk: _userProfilePk,
-        financeProfilePk: _financeProfilePk,
-        stockPortfolioPk: _stockPortfolioPk,
-        ticker: ticker,
-        numShares: shares,
-        purchaseDateIso: purchaseDateIso,
-      );
-      if (success) {
-        await loadPortfolioStocks();
-      }
-      return success;
-    } catch (e) {
-      _errorMessage = 'Error adding stock: $e';
-      return false;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+  Future<void> _loadExtras() async {
+    _loadingExtras = true; notifyListeners();
+
+    _metrics = await _svc.getPortfolioMetrics(
+      userPk:           userPk,
+      userProfilePk:    userProfilePk,
+      financeProfilePk: financeProfilePk,
+    );
+
+    _chat = await _svc.getPortfolioChat(
+      userPk:           userPk,
+      userProfilePk:    userProfilePk,
+      financeProfilePk: financeProfilePk,
+    );
+
+    _series = await _svc.getPortfolioValueSeries(
+      userPk:           userPk,
+      userProfilePk:    userProfilePk,
+      financeProfilePk: financeProfilePk,
+    );
+
+    _loadingExtras = false; notifyListeners();
+  }
+
+  /* ───────────────────────── stock mutations ─────────────────────── */
+  Future<bool> addStock(String ticker, double shares,
+      {String? purchaseDateIso}) async {
+    _loading = true; notifyListeners();
+
+    final ok = await _svc.addStock(
+      userPk:           userPk,
+      userProfilePk:    userProfilePk,
+      financeProfilePk: financeProfilePk,
+      ticker:           ticker,
+      numShares:        shares,
+      purchaseDateIso:  purchaseDateIso,
+    );
+
+    if (ok) await load();
+
+    _loading = false; notifyListeners();
+    return ok;
   }
 
   Future<bool> removeStock(String ticker) async {
-    _isLoading = true;
-    _errorMessage = '';
+    _loading = true; notifyListeners();
+
+    final ok = await _svc.removeStock(
+      userPk:           userPk,
+      userProfilePk:    userProfilePk,
+      financeProfilePk: financeProfilePk,
+      ticker:           ticker,
+    );
+
+    if (ok) await load();
+
+    _loading = false; notifyListeners();
+    return ok;
+  }
+
+  /* ────────────────────────── analysis helpers ───────────────────── */
+  Future<void> fetchStockAnalysis(String ticker) async {
+    _analysis = ''; notifyListeners();
+    _analysis = await _svc.getStockAnalysis(ticker);
     notifyListeners();
-    try {
-      final success = await _service.removeStock(
-        userPk: _userPk,
-        userProfilePk: _userProfilePk,
-        financeProfilePk: _financeProfilePk,
-        stockPortfolioPk: _stockPortfolioPk,
-        ticker: ticker,
-      );
-      if (success) {
-        _portfolioStocks.removeWhere((s) => s.ticker == ticker);
-      }
-      return success;
-    } catch (e) {
-      _errorMessage = 'Error removing stock: $e';
-      return false;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+  }
+
+  void clearStockAnalysis() {
+    _analysis = ''; notifyListeners();
   }
 }

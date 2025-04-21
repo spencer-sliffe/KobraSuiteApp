@@ -1,117 +1,107 @@
 import 'package:flutter/foundation.dart';
+import '../../../models/finance/watchlist_stock.dart';
 import '../../../services/finance/stock_service.dart';
 import '../../../services/service_locator.dart';
-import '../../models/finance/watchlist_stock.dart';
+import '../general/finance_profile_provider.dart';
+import 'stock_portfolio_provider.dart';
 
-class StockProvider extends ChangeNotifier {
-  final StockService _service;
-  int _userPk;
-  int _userProfilePk;
-  int _financeProfilePk;
-  int _stockPortfolioPk;
+class StockProvider with ChangeNotifier {
+  final StockService _svc = serviceLocator<StockService>();
 
-  bool _isLoading = false;
-  String _errorMessage = '';
-  List<WatchlistStock> _watchlistStocks = [];
+  FinanceProfileProvider _fp;
+  StockPortfolioProvider _pp;
 
   StockProvider({
-    required int userPk,
-    required int userProfilePk,
-    required int financeProfilePk,
-    required int stockPortfolioPk,
-  })  : _userPk = userPk,
-        _userProfilePk = userProfilePk,
-        _financeProfilePk = financeProfilePk,
-        _stockPortfolioPk = stockPortfolioPk,
-        _service = serviceLocator<StockService>();
+    required FinanceProfileProvider financeProfileProvider,
+    required StockPortfolioProvider portfolioProvider,
+  })  : _fp = financeProfileProvider,
+        _pp = portfolioProvider;
 
-  bool get isLoading => _isLoading;
-  String get errorMessage => _errorMessage;
-  List<WatchlistStock> get watchlistStocks => _watchlistStocks;
+  /* ---------------- state ------------------- */
+  bool _loading = false;
+  String _error = '';
+  List<WatchlistStock> _watchlist = [];
 
-  int get userPk => _userPk;
-  int get userProfilePk => _userProfilePk;
-  int get financeProfilePk => _financeProfilePk;
-  int get stockPortfolioPk => _stockPortfolioPk;
+  bool get isLoading => _loading;
+  String get errorMessage => _error;
+  List<WatchlistStock> get watchlistStocks => _watchlist;
 
+  /*  ids pulled from injected providers */
+  int get _userPk => _fp.userPk;
+  int get _userProfilePk => _fp.userProfilePk;
+  int get _financeProfilePk => _fp.financeProfilePk;
+
+  /* ---------------- updates ----------------- */
   void update({
-    required int newUserPk,
-    required int newUserProfilePk,
-    required int newFinanceProfilePk,
-    required int newStockPortfolioPk,
+    required FinanceProfileProvider newFinanceProfileProvider,
+    required StockPortfolioProvider newPortfolioProvider,
   }) {
-    _userPk = newUserPk;
-    _userProfilePk = newUserProfilePk;
-    _financeProfilePk = newFinanceProfilePk;
-    _stockPortfolioPk = newStockPortfolioPk;
-    notifyListeners();
+    _fp = newFinanceProfileProvider;
+    _pp = newPortfolioProvider;
   }
 
+  /* ---------------- CRUD -------------------- */
   Future<void> loadWatchlistStocks() async {
-    _isLoading = true;
-    _errorMessage = '';
+    _loading = true;
+    _error = '';
     notifyListeners();
+
     try {
-      final list = await _service.getWatchlistStocks(
+      _watchlist = await _svc.getWatchlistStocks(
         userPk: _userPk,
         userProfilePk: _userProfilePk,
         financeProfilePk: _financeProfilePk,
-        stockPortfolioPk: _stockPortfolioPk,
       );
-      _watchlistStocks = list;
     } catch (e) {
-      _errorMessage = 'Error loading watchlist stocks: $e';
+      _error = 'Error loading watchlist: $e';
     }
-    _isLoading = false;
+
+    _loading = false;
     notifyListeners();
   }
 
   Future<bool> addWatchlistStock(String ticker) async {
-    _isLoading = true;
-    _errorMessage = '';
+    _loading = true;
+    _error = '';
     notifyListeners();
+
     try {
-      final success = await _service.addWatchlistStock(
+      final ok = await _svc.addWatchlistStock(
         userPk: _userPk,
         userProfilePk: _userProfilePk,
         financeProfilePk: _financeProfilePk,
-        stockPortfolioPk: _stockPortfolioPk,
         ticker: ticker,
       );
-      if (success) {
-        await loadWatchlistStocks();
-      }
-      return success;
+      if (ok) await loadWatchlistStocks();
+      return ok;
     } catch (e) {
-      _errorMessage = 'Error adding watchlist stock: $e';
+      _error = 'Error adding stock: $e';
       return false;
     } finally {
-      _isLoading = false;
+      _loading = false;
       notifyListeners();
     }
   }
 
-  Future<bool> removeWatchlistStock(int watchlistStockId) async {
-    _isLoading = true;
-    _errorMessage = '';
+  Future<bool> removeWatchlistStock(int id) async {
+    _loading = true;
+    _error = '';
     notifyListeners();
+
     try {
-      final success = await _service.removeWatchlistStock(
+      final ok = await _svc.removeWatchlistStock(
         userPk: _userPk,
         userProfilePk: _userProfilePk,
         financeProfilePk: _financeProfilePk,
-        stockPortfolioPk: _stockPortfolioPk,
-        watchlistStockId: watchlistStockId,
+        watchlistStockId: id,
       );
-      if (success) {
-        _watchlistStocks.removeWhere((w) => w.id == watchlistStockId);
-      }
-      return success;
+      if (ok) _watchlist.removeWhere((w) => w.id == id);
+      return ok;
     } catch (e) {
-      _errorMessage = 'Error removing watchlist stock: $e';
+      _error = 'Error removing stock: $e';
       return false;
     } finally {
-      _isLoading = false;
+      _loading = false;
       notifyListeners();
     }
   }

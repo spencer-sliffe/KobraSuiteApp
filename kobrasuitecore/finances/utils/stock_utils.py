@@ -20,17 +20,20 @@ import yfinance as yf
 import pandas as pd
 
 def get_current_stock_price(ticker):
-    """
-    Retrieves the latest closing price for a given ticker using yfinance.
-    Returns None if the data is unavailable.
-    """
     try:
-        df = yf.Ticker(ticker).history(period='1d')
-        if df.empty:
-            return None
-        return float(df['Close'].iloc[-1])
-    except:
-        return None
+        t = yf.Ticker(ticker)
+        fi = getattr(t, "fast_info", None) or {}
+        price = fi.get("lastPrice")
+        if price is not None:
+            return float(price)
+
+        # fallback to .history()
+        df = t.history(period="1d")
+        if not df.empty:
+            return float(df["Close"].iloc[-1])
+    except Exception:
+        pass
+    return None
 
 def get_stock_price_at_date(ticker, date):
     """
@@ -52,15 +55,33 @@ def get_stock_price_at_date(ticker, date):
     except:
         return None
 
-def check_stock_validity(ticker):
+def check_stock_validity(ticker: str) -> bool:
     """
-    Checks whether the given ticker can be retrieved from yfinance.
-    Returns True if valid, otherwise False.
+    Returns True if Yahoo Finance can supply *any* price data
+    for the given ticker. Works for AAPL, GOOGL, BRK.B, RDS‑A, etc.
     """
     try:
-        info = yf.Ticker(ticker).info
-        return info.get('regularMarketOpen') is not None
-    except:
+        tkr = ticker.strip().upper()
+        yt  = yf.Ticker(tkr)
+
+        # 1️⃣ fast_info is the quickest / cheapest
+        fi = getattr(yt, "fast_info", None) or {}
+        if fi.get("lastPrice") is not None:
+            return True
+
+        # 2️⃣ fall back to .info dict
+        info = yt.info or {}
+        if (
+            info.get("regularMarketPrice") is not None
+            or info.get("currentPrice") is not None
+        ):
+            return True
+
+        # 3️⃣ pull a tiny bit of history as last resort
+        hist = yt.history(period="1d", interval="1d")
+        return not hist.empty
+
+    except Exception:
         return False
 
 def get_stock_results_data(ticker):
@@ -157,3 +178,11 @@ def get_news_articles(api_key, query='stock market', page=1):
         return {}
     except:
         return {}
+
+def get_name_and_change(ticker):
+    info=yf.Ticker(ticker).info
+    name=info.get('shortName') or info.get('longName') or ticker.upper()
+    prev=info.get('previousClose') or 0
+    price=info.get('regularMarketPrice') or prev
+    pct=((price-prev)/prev*100) if prev else 0
+    return name,float(pct)
