@@ -90,6 +90,7 @@ class MealService {
     required int? householdPk,
     required String name,
     String? description,
+    required String runDatetimeIso,
   }) async {
     final url =
         '${_householdBase(userPk, userProfilePk, homelifeProfilePk, householdPk)}/grocery_lists/';
@@ -97,6 +98,7 @@ class MealService {
       'household': householdPk,
       'name': name,
       if (description != null) 'description': description,
+      'run_datetime': runDatetimeIso,
     };
     final res = await _dio.post(url, data: body);
     return res.statusCode == 201 || res.statusCode == 200;

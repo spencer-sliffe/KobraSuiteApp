@@ -19,6 +19,7 @@ class _AddGroceryListBottomSheetState
   final _formKey = GlobalKey<FormState>();
   final _nameCtrl = TextEditingController();
   final _descCtrl = TextEditingController();
+  DateTime? _runDatetime;
 
   AddGroceryListState _state = AddGroceryListState.initial;
   String _error = '';
@@ -28,6 +29,26 @@ class _AddGroceryListBottomSheetState
     _nameCtrl.dispose();
     _descCtrl.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickDateTime() async {
+    /// Replace this body with your own custom picker if desired.
+    final now  = DateTime.now();
+    final date = await showDatePicker(
+      context: context,
+      initialDate: _runDatetime ?? now,
+      firstDate: now.subtract(const Duration(days: 365 * 2)),
+      lastDate : now.add(const Duration(days: 365 * 5)),
+    );
+    if (date == null) return;
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(_runDatetime ?? now),
+    );
+    if (time == null) return;
+    setState(() {
+      _runDatetime = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+    });
   }
 
   Future<void> _submit() async {
@@ -41,6 +62,7 @@ class _AddGroceryListBottomSheetState
     final ok = await context.read<GroceryListProvider>().createGroceryList(
       name: _nameCtrl.text.trim(),
       description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
+      runDatetimeIso : _runDatetime!.toIso8601String(),
     );
 
     setState(() {
@@ -95,6 +117,33 @@ class _AddGroceryListBottomSheetState
                         decoration: const InputDecoration(
                             labelText: 'Description (optional)'),
                         maxLines: 2,
+                      ),
+                      InkWell(
+                        onTap: _pickDateTime,
+                        borderRadius: BorderRadius.circular(12),
+                        child: InputDecorator(
+                          decoration: const InputDecoration(
+                            labelText: 'Grocery Run Date & time',
+                            border : OutlineInputBorder(),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.calendar_today,
+                                  size: 20,
+                                  color: Theme.of(context).colorScheme.secondary),
+                              const SizedBox(width: 8),
+                              Text(
+                                _runDatetime == null
+                                    ? 'Choose…'
+                                    : MaterialLocalizations.of(context)
+                                    .formatMediumDate(_runDatetime!) +
+                                    '  ' +
+                                    MaterialLocalizations.of(context)
+                                        .formatTimeOfDay(TimeOfDay.fromDateTime(_runDatetime!)),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                       if (_error.isNotEmpty)
                         Padding(

@@ -50,6 +50,7 @@ class GroceryListProvider extends ChangeNotifier {
   Future<bool> createGroceryList({
     required String name,
     String? description,
+    required String runDatetimeIso,
   }) async {
     _loading = true; _error = null; notifyListeners();
     try {
@@ -60,6 +61,7 @@ class GroceryListProvider extends ChangeNotifier {
         householdPk: _hhPk,
         name: name,
         description: description,
+        runDatetimeIso: runDatetimeIso,
       );
       if (ok) await loadGroceryLists();
       return ok;
