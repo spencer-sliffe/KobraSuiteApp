@@ -22,9 +22,12 @@ class _AddPetBottomSheetState extends State<AddPetBottomSheet> {
   final TextEditingController _medicationsController = TextEditingController();
   final TextEditingController _foodInstructionsController = TextEditingController();
   final TextEditingController _waterInstructionsController = TextEditingController();
+  String? _frequencyType;
 
   AddPetState _state = AddPetState.initial;
   String _errorFeedback = "";
+  final _frequencyTypes = const ['MORNINGANDNIGHT', 'ONCE', 'DAILY', 'WEEKLY'];
+
 
   @override
   void dispose() {
@@ -52,6 +55,7 @@ class _AddPetBottomSheetState extends State<AddPetBottomSheet> {
       medications: _medicationsController.text.trim(),
       foodInstructions: _foodInstructionsController.text.trim(),
       waterInstructions: _waterInstructionsController.text.trim(),
+      careFrequency: _frequencyType!,
     );
 
     if (success) {
@@ -148,6 +152,21 @@ class _AddPetBottomSheetState extends State<AddPetBottomSheet> {
               decoration: const InputDecoration(labelText: 'Water Instructions'),
               maxLines: 2,
             ),
+            DropdownButtonFormField<String>(
+              value: _frequencyType,
+              items: _frequencyTypes
+                  .map((t) => DropdownMenuItem(
+                value: t,
+                child: Text(t),
+              ))
+                  .toList(),
+              decoration:
+              const InputDecoration(labelText: 'Care Frequency'),
+              onChanged: (v) => setState(() => _frequencyType = v),
+              validator: (v) =>
+              v == null ? 'Choose care frequency' : null,
+            ),
+            const SizedBox(height: 12),
             if (_errorFeedback.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 16),

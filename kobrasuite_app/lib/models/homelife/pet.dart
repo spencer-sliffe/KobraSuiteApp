@@ -8,6 +8,7 @@
     final String medications;
     final String foodInstructions;
     final String waterInstructions;
+    final String careFrequency;
     final String createdAt;
     final String updatedAt;
 
@@ -20,6 +21,7 @@
       this.medications = '',
       this.foodInstructions = '',
       this.waterInstructions = '',
+      required this.careFrequency,
       required this.createdAt,
       required this.updatedAt,
     });
@@ -34,6 +36,7 @@
         medications: json['medications'] ?? '',
         foodInstructions: json['food_instructions'] ?? '',
         waterInstructions: json['water_instructions'] ?? '',
+        careFrequency: json['care_frequency'],
         createdAt: json['created_at'],
         updatedAt: json['updated_at'],
       );
@@ -49,6 +52,7 @@
         'medications': medications,
         'food_instructions': foodInstructions,
         'water_instructions': waterInstructions,
+        'care_frequency': careFrequency,
         'created_at': createdAt,
         'updated_at': updatedAt,
       };

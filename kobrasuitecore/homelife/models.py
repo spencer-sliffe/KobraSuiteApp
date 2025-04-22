@@ -17,10 +17,14 @@ home-life features.
 Collaborators: SPENCER SLIFFE
 ---------------------------------------------
 """
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.forms import JSONField
 from django.utils import timezone
-from homelife.types import HouseholdType, ChoreFrequency, MealType
+from homelife.types import HouseholdType, ChoreFrequency, MealType, DaysOfTheWeek
 
 
 class Household(models.Model): # Creates household model
@@ -30,28 +34,57 @@ class Household(models.Model): # Creates household model
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name # creates string format
-#stores household meta data
+        return self.name
     class Meta:
         ordering = ['name']
 
 
-class Pet(models.Model): # creates pet model
-    household = models.ForeignKey(Household, on_delete=models.CASCADE, related_name='pets')
+class Pet(models.Model):
+    CARE_FREQUENCY_CHOICES = [
+        ("ONCE", "Once"),
+        ("MORNINGANDNIGHT", "Morning and Night"),
+        ("DAILY", "Daily"),
+        ("WEEKLY", "Weekly"),
+    ]
+    household = models.ForeignKey(Household, on_delete=models.CASCADE, related_name="pets")
     name = models.CharField(max_length=100)
     pet_type = models.CharField(max_length=50)
     special_instructions = models.TextField(blank=True)
     medications = models.TextField(blank=True)
     food_instructions = models.TextField(blank=True)
     water_instructions = models.TextField(blank=True)
+    care_frequency = models.CharField(max_length=16, choices=CARE_FREQUENCY_CHOICES, default="DAILY")
+    care_time = models.TimeField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.name} ({self.pet_type})" # makes string representation of 
-# stores meta data for pet
+        return f"{self.name} ({self.pet_type})"
+
     class Meta:
-        ordering = ['name']
+        ordering = ["name"]
+
+
+class SharedCalendarEvent(models.Model):
+    household = models.ForeignKey(Household, on_delete=models.CASCADE, related_name="calendar_events")
+    title = models.CharField(max_length=100)
+    start_datetime = models.DateTimeField()
+    end_datetime = models.DateTimeField()
+    description = models.TextField(blank=True)
+    location = models.CharField(max_length=200, blank=True)
+    source_content_type = models.ForeignKey(ContentType, null=True, blank=True, on_delete=models.SET_NULL)
+    source_object_id = models.PositiveIntegerField(null=True, blank=True)
+    source = GenericForeignKey("source_content_type", "source_object_id")
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["start_datetime"]
+        indexes = [
+            models.Index(fields=["household", "start_datetime"]),
+        ]
+
+    def __str__(self):
+        return f"{self.title} ({self.household.name})"
 
 
 class Chore(models.Model): # creates chore model
@@ -105,22 +138,6 @@ class ChoreCompletion(models.Model): # model for completed chores
         ordering = ['-completed_at']
 
 
-class SharedCalendarEvent(models.Model): # creates Calendar event model
-    household = models.ForeignKey(Household, on_delete=models.CASCADE, related_name='calendar_events')
-    title = models.CharField(max_length=100)
-    start_datetime = models.DateTimeField()
-    end_datetime = models.DateTimeField()
-    description = models.TextField(blank=True)
-    location = models.CharField(max_length=200, blank=True)
-    created_at = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return f"{self.title} ({self.household.name})" # string Representation of event
-# stores meta data
-    class Meta:
-        ordering = ['start_datetime']
-
-
 class MealPlan(models.Model): # creates meal plan Model
     household = models.ForeignKey(Household, on_delete=models.CASCADE, related_name='meal_plans')
     date = models.DateField()
@@ -140,11 +157,12 @@ class MealPlan(models.Model): # creates meal plan Model
 class GroceryList(models.Model):
     household = models.ForeignKey(Household, on_delete=models.CASCADE, related_name='grocery_lists')
     name = models.CharField(max_length=100)
+    run_datetime = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['created_at', 'updated_at']
+        ordering = ['run_datetime', 'created_at']
 
 
 class GroceryItem(models.Model): # Creates Grocery Model
@@ -198,7 +216,7 @@ class WorkoutRoutine(models.Model): # creates workout model
     household = models.ForeignKey(Household, on_delete=models.CASCADE, related_name='workout_routines')
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
-    schedule = models.CharField(max_length=100)
+    schedule = models.JSONField(default=list, blank=True)
     exercises = models.TextField(blank=True)
     created_at = models.DateTimeField(default=timezone.now)
 

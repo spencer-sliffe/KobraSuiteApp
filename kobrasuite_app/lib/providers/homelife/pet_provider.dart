@@ -55,7 +55,8 @@ class PetProvider extends ChangeNotifier {
     required String specialInstructions,
     required String medications,
     required String foodInstructions,
-    required String waterInstructions
+    required String waterInstructions,
+    required String careFrequency,
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -72,6 +73,7 @@ class PetProvider extends ChangeNotifier {
           medications: medications,
           foodInstructions: foodInstructions,
           waterInstructions: waterInstructions,
+          careFrequency: careFrequency,
       );
       if (success) {
         await loadPets();

@@ -4,7 +4,7 @@ class WorkoutRoutine {
   final int household; // Household ID
   final String title;
   final String description;
-  final String schedule;
+  final List<String> schedule;
   final String exercises;
   final String createdAt;
 
@@ -24,7 +24,7 @@ class WorkoutRoutine {
       household: json['household'],
       title: json['title'] ?? '',
       description: json['description'] ?? '',
-      schedule: json['schedule'] ?? '',
+      schedule: List<String>.from(json['schedule'] as List<dynamic>),
       exercises: json['exercises'] ?? '',
       createdAt: json['created_at'],
     );

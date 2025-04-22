@@ -119,7 +119,7 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
           .map((w) => _simpleCard(
         icon: Icons.fitness_center,
         title: w.title,
-        subtitle: w.schedule,
+        subtitle: w.description,
       ))
           .toList(growable: false),
     ));

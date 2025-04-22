@@ -38,3 +38,13 @@ class MealType(models.TextChoices):
     LUNCH = 'LUNCH', 'Lunch'
     DINNER = 'DINNER', 'Dinner'
     SNACK = 'SNACK', 'Snack'
+
+
+class DaysOfTheWeek(models.TextChoices):
+    MONDAY = 'MONDAY', 'Monday'
+    TUESDAY = 'TUESDAY', 'Tuesday'
+    WEDNESDAY = 'WEDNESDAY', 'Wednesday'
+    THURSDAY = 'THURSDAY', 'Thursday'
+    FRIDAY = 'FRIDAY', 'Friday'
+    SATURDAY = 'SATURDAY', 'Saturday'
+    SUNDAY = 'SUNDAY', 'Sunday'

@@ -35,7 +35,7 @@ class PersonalHomelifeService {
     required int? householdPk,
     required String title,
     required String description,
-    required String schedule,
+    required List<String> schedule,
     required String exercises
   }) async {
     try {

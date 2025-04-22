@@ -25,8 +25,7 @@ class _AddWorkoutRoutineBottomSheetState
   AddWorkoutRoutineState _state = AddWorkoutRoutineState.initial;
   String _errorFeedback = "";
 
-  // --- Schedule state ---
-  static const _days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  static const _days = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
   final List<bool> _selectedDays = List<bool>.filled(_days.length, false);
 
   // --- Exercises state ---
@@ -35,7 +34,6 @@ class _AddWorkoutRoutineBottomSheetState
   @override
   void initState() {
     super.initState();
-    // start with one exercise field
     _addExerciseField();
   }
 
@@ -92,7 +90,7 @@ class _AddWorkoutRoutineBottomSheetState
     final success = await workoutRoutineProvider.createWorkoutRoutine(
       title: _titleController.text.trim(),
       description: _descriptionController.text.trim(),
-      schedule: selectedDaysList.join(', '),
+      schedule: selectedDaysList,
       exercises: exercises.join(', '),
     );
 
@@ -146,7 +144,6 @@ class _AddWorkoutRoutineBottomSheetState
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Title
             TextFormField(
               controller: _titleController,
               decoration: const InputDecoration(labelText: 'Routine Title'),
@@ -222,7 +219,6 @@ class _AddWorkoutRoutineBottomSheetState
               icon: const Icon(Icons.add),
               label: const Text('Add Exercise'),
             ),
-
             if (_errorFeedback.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 16),

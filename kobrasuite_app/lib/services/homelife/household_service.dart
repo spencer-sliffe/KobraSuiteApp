@@ -173,6 +173,7 @@ class HouseholdService {
     required String medications,
     required String foodInstructions,
     required String waterInstructions,
+    required String careFrequency,
   }) async {
     try {
       final url =
@@ -186,6 +187,7 @@ class HouseholdService {
         'medications': medications,
         'food_instructions': foodInstructions,
         'water_instructions': waterInstructions,
+        'care_frequency': careFrequency,
       };
       final response = await _dio.post(url, data: body);
       return response.statusCode == 201 || response.statusCode == 200;

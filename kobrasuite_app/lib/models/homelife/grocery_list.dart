@@ -5,6 +5,7 @@ class GroceryList {
   final int household;
   final String name;            // <── NEW  (comes from the API)
   final List<GroceryItem> items;
+  final String runDatetime;
   final String createdAt;
   final String updatedAt;
 
@@ -12,6 +13,7 @@ class GroceryList {
     required this.id,
     required this.household,
     required this.name,
+    required this.runDatetime,
     required this.items,
     required this.createdAt,
     required this.updatedAt,
@@ -22,6 +24,8 @@ class GroceryList {
       id:         json['id'],
       household:  json['household'],
       name:       json['name'] ?? json['title'] ?? '',   // title fallback just in case
+      runDatetime:
+                  json['run_datetime'],
       items: json['items'] != null
           ? (json['items'] as List)
           .map((e) => GroceryItem.fromJson(e))
@@ -37,6 +41,8 @@ class GroceryList {
       'id'        : id,
       'household' : household,
       'name'      : name,
+      'run_datetime':
+                    runDatetime,
       'items'     : items.map((e) => e.toJson()).toList(),
       'created_at': createdAt,
       'updated_at': updatedAt,
