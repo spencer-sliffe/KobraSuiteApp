@@ -1,7 +1,10 @@
+/// lib/widgets/tabs/homelife_personal_tab.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
+import '../../../../../providers/general/homelife_profile_provider.dart';
 import '../../../../../providers/homelife/workout_routine_provider.dart';
 import '../../../../../providers/homelife/calendar_provider.dart';
 import '../../../../../providers/homelife/child_profile_provider.dart';
@@ -21,11 +24,29 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
 
   /* ── bootstrap & refresh ─────────────────────────────────────────── */
   @override
-  void didChangeDependencies() {
+  Future<void> didChangeDependencies() async {
+    await Future.delayed(const Duration(milliseconds: 400));
     super.didChangeDependencies();
     if (_boot) return;
-    _boot = true;
 
+    final profile = context.read<HomeLifeProfileProvider>();
+    if (profile.householdPk == null) {
+      profile.addListener(_retryWhenReady);
+      return;
+    }
+    _startLoads();
+  }
+
+  void _retryWhenReady() {
+    final profile = context.read<HomeLifeProfileProvider>();
+    if (profile.householdPk != null) {
+      profile.removeListener(_retryWhenReady);
+      _startLoads();
+    }
+  }
+
+  void _startLoads() {
+    _boot = true;
     final wr = context.read<WorkoutRoutineProvider>();
     final ca = context.read<CalendarProvider>();
     final cp = context.read<ChildProfileProvider>();
@@ -62,10 +83,11 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
     ),
   );
 
-  Widget _simpleCard(
-      {required IconData icon,
-        required String title,
-        required String subtitle}) =>
+  Widget _simpleCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) =>
       Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Padding(
@@ -102,7 +124,7 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
 
     /* filter events for selected day */
     final todayEvents = ca.calendarEvents.where((e) {
-      final start = DateTime.parse(e.startDatetime);
+      final start = e.start;
       return start.year == _selectedDay.year &&
           start.month == _selectedDay.month &&
           start.day == _selectedDay.day;
@@ -127,15 +149,14 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
     Widget eventsSection() => ca.isLoading
         ? const Center(child: CircularProgressIndicator())
         : (todayEvents.isEmpty
-        ? _empty('assets/images/empty_calendar.svg',
-        'No events for today.')
+        ? _empty('assets/images/empty_calendar.svg', 'No events for today.')
         : Column(
       children: todayEvents
           .map((e) => _simpleCard(
         icon: Icons.event,
         title: e.title,
         subtitle:
-        '${_dateFmt.format(DateTime.parse(e.startDatetime))} · ${_timeFmt.format(DateTime.parse(e.startDatetime))}',
+        '${_dateFmt.format(e.start)} · ${_timeFmt.format(e.start)}',
       ))
           .toList(growable: false),
     ));
@@ -150,8 +171,7 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
         String subtitle = 'Date of birth not provided';
         if (c.dateOfBirth != null && c.dateOfBirth!.isNotEmpty) {
           final dob = DateTime.parse(c.dateOfBirth!);
-          final age =
-              DateTime.now().difference(dob).inDays ~/ 365;
+          final age = DateTime.now().difference(dob).inDays ~/ 365;
           subtitle = 'Age $age';
         }
         return _simpleCard(
@@ -215,7 +235,8 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
                         icon: Icons.fitness_center,
                         content: workoutsSection()),
                     _GridSection(
-                        header: 'Events • ${DateFormat('MMM d').format(_selectedDay)}',
+                        header:
+                        'Events • ${DateFormat('MMM d').format(_selectedDay)}',
                         icon: Icons.calendar_today,
                         content: eventsSection()),
                     _GridSection(
@@ -258,7 +279,8 @@ class _GridSection extends StatelessWidget {
     clipBehavior: Clip.antiAlias,
     child: Container(
       padding: const EdgeInsets.all(16),
-      color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(.4),
+      color:
+      Theme.of(context).colorScheme.surfaceVariant.withOpacity(.4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

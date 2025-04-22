@@ -29,6 +29,34 @@ class CalendarService {
     }
   }
 
+  Future<List<SharedCalendarEvent>> getCalendarEventsRange({
+    required int userPk,
+    required int userProfilePk,
+    required int homelifeProfilePk,
+    required int? householdPk,
+    required String startDateTime,
+    required String endDateTime,
+  }) async {
+    try {
+      final url =
+          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
+          '$homelifeProfilePk/households/$householdPk/calendar_events/';
+      final query = {
+        'start_datetime': startDateTime,
+        'end_datetime': endDateTime,
+      };
+      final response = await _dio.get(url, queryParameters: query);
+      if (response.statusCode == 200) {
+        final data = response.data as Map<String, dynamic>;
+        final results = data['results'] as List;
+        return results.map((e) => SharedCalendarEvent.fromJson(e)).toList();
+      }
+      return [];
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<bool> createCalendarEvent({
     ///Needs to be completed
     required int userPk,

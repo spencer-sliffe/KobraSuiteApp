@@ -1,20 +1,19 @@
-// Front-end model for SharedCalendarEvent
 class SharedCalendarEvent {
   final int id;
-  final int household; // Household ID
+  final int household;
   final String title;
-  final String startDatetime;
-  final String endDatetime;
+  final DateTime start;
+  final DateTime end;
   final String description;
   final String location;
-  final String createdAt;
+  final DateTime createdAt;
 
   SharedCalendarEvent({
     required this.id,
     required this.household,
     required this.title,
-    required this.startDatetime,
-    required this.endDatetime,
+    required this.start,
+    required this.end,
     this.description = '',
     this.location = '',
     required this.createdAt,
@@ -22,14 +21,16 @@ class SharedCalendarEvent {
 
   factory SharedCalendarEvent.fromJson(Map<String, dynamic> json) {
     return SharedCalendarEvent(
-      id: json['id'],
-      household: json['household'],
+      id: json['id'] as int,
+      household: json['household'] as int,
       title: json['title'] ?? '',
-      startDatetime: json['start_datetime'],
-      endDatetime: json['end_datetime'],
+      start: DateTime.parse(json['start_datetime']).toLocal(),
+      end: DateTime.parse(json['end_datetime']).toLocal(),
       description: json['description'] ?? '',
       location: json['location'] ?? '',
-      createdAt: json['created_at'],
+      createdAt: json.containsKey('created_at')
+          ? DateTime.parse(json['created_at']).toLocal()
+          : DateTime.now(),
     );
   }
 
@@ -38,11 +39,11 @@ class SharedCalendarEvent {
       'id': id,
       'household': household,
       'title': title,
-      'start_datetime': startDatetime,
-      'end_datetime': endDatetime,
+      'start_datetime': start.toUtc().toIso8601String(),
+      'end_datetime': end.toUtc().toIso8601String(),
       'description': description,
       'location': location,
-      'created_at': createdAt,
+      'created_at': createdAt.toUtc().toIso8601String(),
     };
   }
 }
