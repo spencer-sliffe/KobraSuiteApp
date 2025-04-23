@@ -1,4 +1,3 @@
-/// lib/widgets/tabs/homelife_personal_tab.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
@@ -11,6 +10,10 @@ import '../../../../../providers/homelife/child_profile_provider.dart';
 import '../../../../nav/providers/navigation_store.dart';
 import '../../../../widgets/calendar/personal_week_calendar.dart';
 
+/// Personal tab – fills the available viewport regardless of device size.
+/// The grid's `childAspectRatio` is calculated at runtime so one row of
+/// sections always stretches to the full height.  Below each breakpoint the
+/// grid collapses to fewer columns and scrolls naturally.
 class HomelifePersonalTab extends StatefulWidget {
   const HomelifePersonalTab({Key? key}) : super(key: key);
 
@@ -67,12 +70,13 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
   }
 
   /* ── helpers ─────────────────────────────────────────────────────── */
-  final _dateFmt = DateFormat('MMM d, yyyy');
-  final _timeFmt = DateFormat('h:mm a');
+  final _dateFmt = DateFormat('MMM d, yyyy');
+  final _timeFmt = DateFormat('h:mm a');
 
   Widget _empty(String asset, String msg) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 24),
     child: Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         SvgPicture.asset(asset, height: 100),
         const SizedBox(height: 12),
@@ -94,8 +98,7 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(
             children: [
-              Icon(icon,
-                  size: 28, color: Theme.of(context).colorScheme.primary),
+              Icon(icon, size: 28, color: Theme.of(context).colorScheme.primary),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -106,7 +109,8 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
                         overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 2),
                     Text(subtitle,
-                        style: Theme.of(context).textTheme.bodySmall),
+                        style: Theme.of(context).textTheme.bodySmall,
+                        overflow: TextOverflow.ellipsis),
                   ],
                 ),
               ),
@@ -130,13 +134,14 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
           start.day == _selectedDay.day;
     }).toList();
 
-    /* sections ------------------------------------------------------- */
+    /* sections – each wrapped in a ListView so its content can scroll if needed */
     Widget workoutsSection() => wr.isLoading
         ? const Center(child: CircularProgressIndicator())
-        : (wr.workoutRoutines.isEmpty
+        : wr.workoutRoutines.isEmpty
         ? _empty('assets/images/empty_workout.svg',
         'No workout routines today.')
-        : Column(
+        : ListView(
+      padding: EdgeInsets.zero,
       children: wr.workoutRoutines
           .map((w) => _simpleCard(
         icon: Icons.fitness_center,
@@ -144,13 +149,14 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
         subtitle: w.description,
       ))
           .toList(growable: false),
-    ));
+    );
 
     Widget eventsSection() => ca.isLoading
         ? const Center(child: CircularProgressIndicator())
-        : (todayEvents.isEmpty
+        : todayEvents.isEmpty
         ? _empty('assets/images/empty_calendar.svg', 'No events for today.')
-        : Column(
+        : ListView(
+      padding: EdgeInsets.zero,
       children: todayEvents
           .map((e) => _simpleCard(
         icon: Icons.event,
@@ -159,27 +165,28 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
         '${_dateFmt.format(e.start)} · ${_timeFmt.format(e.start)}',
       ))
           .toList(growable: false),
-    ));
+    );
 
     Widget childrenSection() => cp.isLoading
         ? const Center(child: CircularProgressIndicator())
-        : (cp.childProfiles.isEmpty
+        : cp.childProfiles.isEmpty
         ? _empty('assets/images/empty_family.svg',
-        'No child profiles.\nTap ＋ to add one.')
-        : Column(
+        'No child profiles.\nTap ＋ to add one.')
+        : ListView(
+      padding: EdgeInsets.zero,
       children: cp.childProfiles.map((c) {
-        String subtitle = 'Date of birth not provided';
+        String subtitle = 'Date of birth not provided';
         if (c.dateOfBirth != null && c.dateOfBirth!.isNotEmpty) {
           final dob = DateTime.parse(c.dateOfBirth!);
           final age = DateTime.now().difference(dob).inDays ~/ 365;
-          subtitle = 'Age $age';
+          subtitle = 'Age $age';
         }
         return _simpleCard(
             icon: Icons.child_care,
             title: c.name,
             subtitle: subtitle);
       }).toList(growable: false),
-    ));
+    );
 
     /* responsive grid ------------------------------------------------ */
     return RefreshIndicator(
@@ -193,6 +200,7 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final width = constraints.maxWidth;
+          final height = constraints.maxHeight;
           final cols = width >= 1200
               ? 4
               : width >= 900
@@ -200,6 +208,9 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
               : width >= 600
               ? 2
               : 1;
+
+          // dynamic ratio so that a single grid row = full height
+          final double aspectRatio = (width / cols) / height;
 
           return CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -236,7 +247,7 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
                         content: workoutsSection()),
                     _GridSection(
                         header:
-                        'Events • ${DateFormat('MMM d').format(_selectedDay)}',
+                        'Events • ${DateFormat('MMM d').format(_selectedDay)}',
                         icon: Icons.calendar_today,
                         content: eventsSection()),
                     _GridSection(
@@ -248,7 +259,7 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
                     crossAxisCount: cols,
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
-                    childAspectRatio: 0.9,
+                    childAspectRatio: aspectRatio,
                   ),
                 ),
               ),

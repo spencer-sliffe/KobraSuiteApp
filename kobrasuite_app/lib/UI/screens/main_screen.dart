@@ -21,8 +21,7 @@ import 'package:kobrasuite_app/UI/screens/modules/finances/tabs/budget_categorie
 import 'package:kobrasuite_app/UI/screens/modules/finances/tabs/analysis_tab.dart';
 import 'package:kobrasuite_app/UI/screens/modules/finances/tabs/news_tab.dart';
 import 'package:kobrasuite_app/UI/screens/modules/finances/tabs/watchlist_tab.dart';
-import '../../providers/finance/bank_account_provider.dart';
-import '../../providers/finance/budget_provider.dart';
+import '../../providers/homelife/household_provider.dart';
 import '../nav/overlays/universal_overlay.dart';
 import '../nav/providers/control_bar_registrar.dart';
 import 'modules/homelife/tabs/homelife_chores_tab.dart';
@@ -287,23 +286,35 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     } else if (module == Module.HomeLife) {
       switch (tab) {
         case 'Household':
+          final householdPk =
+          context.select<HouseholdProvider, int?>((hp) => hp.householdPk);
+          final showAddHousehold = householdPk == null || householdPk == 0;
           return ControlBarRegistrar(
             homelifeTabIndex: 0,
             buttons: [
-              ControlBarButtonModel(
-                id: 'homelife_household_add',
-                icon: Icons.add,
-                label: 'Household',
-                onPressed: () {
-                  context.read<NavigationStore>().setAddHouseholdActive();
-                },
-              ),
+              if (showAddHousehold)                                   // <- conditional!
+                ControlBarButtonModel(
+                  id: 'homelife_household_add',
+                  icon: Icons.add,
+                  label: 'Household',
+                  onPressed: () {
+                    context.read<NavigationStore>().setAddHouseholdActive();
+                  },
+                ),
               ControlBarButtonModel(
                 id: 'homelife_pet_add',
                 icon: Icons.add,
                 label: 'Pet',
                 onPressed: () {
                   context.read<NavigationStore>().setAddPetActive();
+                },
+              ),
+              ControlBarButtonModel(
+                id: 'homelife_calendar_add',
+                icon: Icons.add,
+                label: 'Calendar Event',
+                onPressed: () {
+                  context.read<NavigationStore>().setAddCalendarEventActive();
                 },
               ),
               ControlBarButtonModel(
@@ -321,14 +332,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           return ControlBarRegistrar(
             homelifeTabIndex: 1,
             buttons: [
-              ControlBarButtonModel(
-                id: 'homelife_calendar_add',
-                icon: Icons.add,
-                label: 'Calendar Event',
-                onPressed: () {
-                  context.read<NavigationStore>().setAddCalendarEventActive();
-                },
-              ),
               ControlBarButtonModel(
                 id: 'homelife_workout_routine_add',
                 icon: Icons.add,
