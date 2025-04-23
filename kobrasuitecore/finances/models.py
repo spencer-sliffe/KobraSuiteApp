@@ -27,11 +27,11 @@ class StockPortfolio(models.Model):
         FinanceProfile,
         on_delete=models.CASCADE,
         related_name='stock_portfolio',
-        unique=True,  # ← **only** uniqueness is required
-        # NO `primary_key=True` here
+        unique=True,
     )
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
+
 
 class PortfolioStock(models.Model):
     portfolio = models.ForeignKey(
