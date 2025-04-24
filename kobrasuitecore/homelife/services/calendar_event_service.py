@@ -161,41 +161,63 @@ class CalendarEventService:
         )
 
     @staticmethod
-    def _sync_pet(pet):
-        if not pet.care_time:
+    def _sync_pet_care(pet, label_prefix, instructions, frequency, times):
+        # skip if block disabled
+        if not frequency or not times:
             return
 
-        base = timezone.make_aware(datetime.combine(timezone.localdate(), pet.care_time))
-        until = base + timedelta(days=30)
+        base_date = timezone.localdate()
+        until = base_date + timedelta(days=30)
 
-        if pet.care_frequency == 'MORNINGANDNIGHT':
-            for dt in CalendarEventService._generate_recurrences(base, 'DAILY', until):
-                CalendarEventService._create_event(
-                    pet.household,
-                    f'Pet Care: {pet.name}',
-                    dt,
-                    dt + timedelta(minutes=30),
-                    pet.special_instructions,
-                    pet,
-                )
-                CalendarEventService._create_event(
-                    pet.household,
-                    f'Pet Care: {pet.name}',
-                    dt + timedelta(hours=12),
-                    dt + timedelta(hours=12, minutes=30),
-                    pet.special_instructions,
-                    pet,
-                )
-        else:
-            for dt in CalendarEventService._generate_recurrences(base, pet.care_frequency, until):
-                CalendarEventService._create_event(
-                    pet.household,
-                    f'Pet Care: {pet.name}',
-                    dt,
-                    dt + timedelta(minutes=30),
-                    pet.special_instructions,
-                    pet,
-                )
+        def _emit(dt):
+            CalendarEventService._create_event(
+                pet.household,
+                f"{label_prefix}: {pet.name}",
+                dt,
+                dt + timedelta(minutes=30),
+                instructions,
+                pet,
+            )
+
+        for per_day_time in times:
+            base = timezone.make_aware(datetime.combine(base_date, per_day_time))
+
+            # ONCE  → one event right away
+            if frequency == "ONCE":
+                _emit(base)
+                continue
+
+            # DAILY / WEEKLY
+            rec_freq = "DAILY" if frequency == "DAILY" else "WEEKLY"
+            end = timezone.make_aware(datetime.combine(until, per_day_time))
+
+            for dt in CalendarEventService._generate_recurrences(base, rec_freq, end):
+                _emit(dt)
+
+    # main entry for pets
+    @staticmethod
+    def _sync_pet(pet: Pet):
+        CalendarEventService._sync_pet_care(
+            pet,
+            label_prefix="Feed",
+            instructions=pet.food_instructions,
+            frequency=pet.food_frequency,
+            times=pet.food_time_objs,  # ← changed
+        )
+        CalendarEventService._sync_pet_care(
+            pet,
+            label_prefix="Water",
+            instructions=pet.water_instructions,
+            frequency=pet.water_frequency,
+            times=pet.water_time_objs,  # ← changed
+        )
+        CalendarEventService._sync_pet_care(
+            pet,
+            label_prefix="Medication",
+            instructions=pet.medication_instructions,
+            frequency=pet.medication_frequency,
+            times=pet.medication_time_objs,  # ← changed
+        )
 
     @staticmethod
     def _sync_meal_plan(meal_plan):

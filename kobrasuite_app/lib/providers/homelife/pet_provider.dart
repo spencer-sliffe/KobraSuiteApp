@@ -52,32 +52,38 @@ class PetProvider extends ChangeNotifier {
   Future<bool> createPet({
     required String petName,
     required String petType,
-    required String specialInstructions,
-    required String medications,
-    required String foodInstructions,
-    required String waterInstructions,
-    required String careFrequency,
+    String foodInstructions = '',
+    String waterInstructions = '',
+    String medicationInstructions = '',
+    required String foodFrequency,
+    required String waterFrequency,
+    required String medicationFrequency,
+    List<String>? foodTimes,
+    List<String>? waterTimes,
+    List<String>? medicationTimes,
   }) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
     try {
       final success = await _petService.createPet(
-          userPk: userPk,
-          userProfilePk: userProfilePk,
-          homelifeProfilePk: homelifeProfilePk,
-          householdPk: householdPk,
-          petName: petName,
-          petType: petType,
-          specialInstructions: specialInstructions,
-          medications: medications,
-          foodInstructions: foodInstructions,
-          waterInstructions: waterInstructions,
-          careFrequency: careFrequency,
+        userPk: userPk,
+        userProfilePk: userProfilePk,
+        homelifeProfilePk: homelifeProfilePk,
+        householdPk: householdPk,
+        petName: petName,
+        petType: petType,
+        foodInstructions: foodInstructions,
+        waterInstructions: waterInstructions,
+        medicationInstructions: medicationInstructions,
+        foodFrequency: foodFrequency,
+        waterFrequency: waterFrequency,
+        medicationFrequency: medicationFrequency,
+        foodTimes: foodTimes,
+        waterTimes: waterTimes,
+        medicationTimes: medicationTimes,
       );
-      if (success) {
-        await loadPets();
-      }
+      if (success) await loadPets();
       return success;
     } catch (e) {
       _errorMessage = 'Error creating pet: $e';
