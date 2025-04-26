@@ -290,19 +290,20 @@ class ChildProfile(models.Model): # creates child profile model
         ordering = ['name']
 
 
-class HouseholdInvite(models.Model): # model for Invitation
-    #inviter = models.ForeignKey('hq.HomeLifeProfile', on_delete=models.CASCADE, related_name='sent_invites')
-    household = models.ForeignKey(Household, on_delete=models.CASCADE, related_name='invites')
-    code = models.CharField(max_length=20, unique=True)
-    created_at = models.DateTimeField(default=timezone.now)
-    #redeemed_at = models.DateTimeField(null=True, blank=True)
-    #redeemed_by = models.ForeignKey('hq.HomeLifeProfile', null=True, blank=True, on_delete=models.SET_NULL, related_name='received_invites')
+class HouseholdInvite(models.Model):
+    """
+    One-time join code tied to a household.
+    """
+    household   = models.ForeignKey(
+        Household,
+        on_delete=models.CASCADE,
+        related_name='invites'
+    )
+    code        = models.CharField(max_length=20, unique=True)
+    created_at  = models.DateTimeField(default=timezone.now)
 
-    '''
     def __str__(self):
-        return f"Invite {self.code} by {self.inviter.profile.user.username}" # string representation of invite
-    '''
+        return f"{self.code} → {self.household.name}"
 
-# stores creation date
     class Meta:
         ordering = ['-created_at']
