@@ -26,7 +26,6 @@ import '../nav/overlays/universal_overlay.dart';
 import '../nav/providers/control_bar_registrar.dart';
 import 'modules/homelife/tabs/homelife_chores_tab.dart';
 import 'modules/homelife/tabs/homelife_household_tab.dart';
-import 'modules/homelife/tabs/homelife_medical_tab.dart';
 import 'modules/homelife/tabs/homelife_personal_tab.dart';
 import 'modules/work/tabs/work_teams_tabs.dart';
 
@@ -182,7 +181,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           'News',
         ];
       case Module.HomeLife:
-        return ['Household', 'Personal', 'Chores', 'Meals', 'Health'];
+        return ['Household', 'Personal', 'Chores', 'Meals'];
     }
   }
 
@@ -348,6 +347,24 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                   context.read<NavigationStore>().setAddChildProfileActive();
                 },
               ),
+              ControlBarButtonModel(
+                id: 'homelife_medication_add',
+                icon: Icons.add,
+                label: 'Medication',
+                onPressed: () {
+                  context.read<NavigationStore>().setAddMedicationActive();
+                },
+              ),
+              ControlBarButtonModel(
+                id: 'homelife_medical_appointment_add',
+                icon: Icons.add,
+                label: 'Medical Appointment',
+                onPressed: () {
+                  context
+                      .read<NavigationStore>()
+                      .setAddMedicalAppointmentActive();
+                },
+              ),
             ],
             child: const HomelifePersonalTab(),
           );
@@ -396,31 +413,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               ),
             ],
             child: const HomelifeMealsTab(),
-          );
-        case 'Health':
-          return ControlBarRegistrar(
-            homelifeTabIndex: 4,
-            buttons: [
-              ControlBarButtonModel(
-                id: 'homelife_medication_add',
-                icon: Icons.add,
-                label: 'Medication',
-                onPressed: () {
-                  context.read<NavigationStore>().setAddMedicationActive();
-                },
-              ),
-              ControlBarButtonModel(
-                id: 'homelife_medical_appointment_add',
-                icon: Icons.add,
-                label: 'Medical Appointment',
-                onPressed: () {
-                  context
-                      .read<NavigationStore>()
-                      .setAddMedicalAppointmentActive();
-                },
-              ),
-            ],
-            child: const HomelifeMedicalTab(),
           );
         default:
           return Container();

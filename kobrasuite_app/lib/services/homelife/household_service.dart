@@ -169,11 +169,15 @@ class HouseholdService {
     required int? householdPk,
     required String petName,
     required String petType,
-    required String specialInstructions,
-    required String medications,
+    required String medicationInstructions,
     required String foodInstructions,
     required String waterInstructions,
-    required String careFrequency,
+    required String foodFrequency,
+    required String waterFrequency,
+    required String medicationFrequency,
+    List<String>? foodTimes,
+    List<String>? waterTimes,
+    List<String>? medicationTimes,
   }) async {
     try {
       final url =
@@ -183,12 +187,20 @@ class HouseholdService {
         'household': householdPk,
         'name': petName,
         'pet_type': petType,
-        'special_instructions': specialInstructions,
-        'medications': medications,
+        'medication_instructions': medicationInstructions,
+        'medication_frequency': medicationFrequency,
+        'medication_times': medicationTimes,
         'food_instructions': foodInstructions,
+        'food_frequency': foodFrequency,
+        'food_times': foodTimes,
         'water_instructions': waterInstructions,
-        'care_frequency': careFrequency,
+        'water_frequency': waterFrequency,
+        'water_times': waterTimes,
       };
+      body.removeWhere((_, v) =>
+      v == null ||
+          (v is String && v.trim().isEmpty) ||
+          (v is List   && v.isEmpty));
       final response = await _dio.post(url, data: body);
       return response.statusCode == 201 || response.statusCode == 200;
     } catch (e) {
@@ -331,6 +343,7 @@ class HouseholdService {
           '$homelifeProfilePk/households/$householdPk/chores/$chorePk/completions/';
       final body = {
         'homelife_profile': homelifeProfilePk,
+        'chore': chorePk,
       };
       final response = await _dio.post(url, data: body);
       return response.statusCode == 201 || response.statusCode == 200;

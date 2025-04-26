@@ -5,7 +5,7 @@ import 'package:kobrasuite_app/providers/homelife/calendar_provider.dart';
 import '../../../../widgets/calendar/homelife_full_calendar.dart';
 
 class HomelifeHouseholdTab extends StatefulWidget {
-  const HomelifeHouseholdTab({Key? key}) : super(key: key);
+  const HomelifeHouseholdTab({super.key});
 
   @override
   State<HomelifeHouseholdTab> createState() => _HomelifeHouseholdTabState();
@@ -30,9 +30,11 @@ class _HomelifeHouseholdTabState extends State<HomelifeHouseholdTab> {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(8),
-      child: HomelifeFullCalendar(),
+    return const SafeArea(
+      child: Padding(
+        padding: EdgeInsets.all(12),
+        child: HomelifeFullCalendar(),
+      ),
     );
   }
 }

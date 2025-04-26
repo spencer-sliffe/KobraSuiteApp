@@ -6,26 +6,26 @@ import '../general/homelife_profile_provider.dart';
 
 class ChoreProvider extends ChangeNotifier {
   final HouseholdService _choreService;
-  HomeLifeProfileProvider _homelifeProfileProvider;
+  HomeLifeProfileProvider _profile;
   bool _isLoading = false;
   String? _errorMessage;
   List<Chore> _chores = [];
 
   ChoreProvider({required HomeLifeProfileProvider homelifeProfileProvider})
-      : _homelifeProfileProvider = homelifeProfileProvider,
+      : _profile = homelifeProfileProvider,
         _choreService = serviceLocator<HouseholdService>();
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
-  List<Chore> get chores => _chores;
+  List<Chore> get chores => List.unmodifiable(_chores);
 
-  int get userPk => _homelifeProfileProvider.userPk;
-  int get userProfilePk => _homelifeProfileProvider.userProfilePk;
-  int get homelifeProfilePk => _homelifeProfileProvider.homeLifeProfilePk;
-  int? get householdPk => _homelifeProfileProvider.householdPk;
+  int get _userPk => _profile.userPk;
+  int get _userProfilePk => _profile.userProfilePk;
+  int get _homeLifeProfilePk => _profile.homeLifeProfilePk;
+  int? get _householdPk => _profile.householdPk;
 
-  void update(HomeLifeProfileProvider newHomelifeProfileProvider) {
-    _homelifeProfileProvider = newHomelifeProfileProvider;
+  void update(HomeLifeProfileProvider newProfile) {
+    _profile = newProfile;
     notifyListeners();
   }
 
@@ -34,13 +34,12 @@ class ChoreProvider extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     try {
-      final chores = await _choreService.getChores(
-        userPk: userPk,
-        userProfilePk: userProfilePk,
-        homelifeProfilePk: homelifeProfilePk,
-        householdPk: householdPk,
+      _chores = await _choreService.getChores(
+        userPk: _userPk,
+        userProfilePk: _userProfilePk,
+        homelifeProfilePk: _homeLifeProfilePk,
+        householdPk: _householdPk,
       );
-      _chores = chores;
     } catch (e) {
       _errorMessage = 'Error loading chores: $e';
     }
@@ -55,19 +54,18 @@ class ChoreProvider extends ChangeNotifier {
     required int priority,
     String? availableFrom,
     String? availableUntil,
-    int? assignedTo,            // adult PK
-    int? childAssignedTo,       // child PK
+    int? assignedTo,
+    int? childAssignedTo,
   }) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
-
     try {
-      final success = await _choreService.createChore(
-        userPk: userPk,
-        userProfilePk: userProfilePk,
-        homelifeProfilePk: homelifeProfilePk,
-        householdPk: householdPk,
+      final ok = await _choreService.createChore(
+        userPk: _userPk,
+        userProfilePk: _userProfilePk,
+        homelifeProfilePk: _homeLifeProfilePk,
+        householdPk: _householdPk,
         title: title,
         description: description,
         frequency: frequency,
@@ -77,8 +75,8 @@ class ChoreProvider extends ChangeNotifier {
         assignedTo: assignedTo,
         childAssignedTo: childAssignedTo,
       );
-      if (success) await loadChores();
-      return success;
+      if (ok) await loadChores();
+      return ok;
     } catch (e) {
       _errorMessage = 'Error creating chore: $e';
       return false;
@@ -93,17 +91,15 @@ class ChoreProvider extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     try {
-      final success = await _choreService.deleteChore(
-        userPk: userPk,
-        userProfilePk: userProfilePk,
-        homelifeProfilePk: homelifeProfilePk,
-        householdPk: householdPk,
+      final ok = await _choreService.deleteChore(
+        userPk: _userPk,
+        userProfilePk: _userProfilePk,
+        homelifeProfilePk: _homeLifeProfilePk,
+        householdPk: _householdPk,
         choreId: choreId,
       );
-      if (success) {
-        _chores.removeWhere((a) => a.id == choreId);
-      }
-      return success;
+      if (ok) _chores.removeWhere((c) => c.id == choreId);
+      return ok;
     } catch (e) {
       _errorMessage = 'Error deleting chore: $e';
       return false;

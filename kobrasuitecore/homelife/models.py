@@ -19,11 +19,11 @@ Collaborators: SPENCER SLIFFE
 """
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.forms import JSONField
+from django.db.models import JSONField
 from django.utils import timezone
+from datetime import time, datetime
 from homelife.types import HouseholdType, ChoreFrequency, MealType, DaysOfTheWeek
 
 
@@ -41,25 +41,74 @@ class Household(models.Model): # Creates household model
 
 class Pet(models.Model):
     CARE_FREQUENCY_CHOICES = [
+        ("", "—"),  # ← NEW “blank” choice
         ("ONCE", "Once"),
-        ("MORNINGANDNIGHT", "Morning and Night"),
         ("DAILY", "Daily"),
         ("WEEKLY", "Weekly"),
     ]
-    household = models.ForeignKey(Household, on_delete=models.CASCADE, related_name="pets")
-    name = models.CharField(max_length=100)
-    pet_type = models.CharField(max_length=50)
-    special_instructions = models.TextField(blank=True)
-    medications = models.TextField(blank=True)
-    food_instructions = models.TextField(blank=True)
-    water_instructions = models.TextField(blank=True)
-    care_frequency = models.CharField(max_length=16, choices=CARE_FREQUENCY_CHOICES, default="DAILY")
-    care_time = models.TimeField(null=True, blank=True)
+
+    household   = models.ForeignKey(Household, on_delete=models.CASCADE,
+                                    related_name="pets")
+    name        = models.CharField(max_length=100)
+    pet_type    = models.CharField(max_length=50)
+
+    #  —— instructions ——
+    food_instructions        = models.TextField(blank=True)
+    water_instructions       = models.TextField(blank=True)
+    medication_instructions  = models.TextField(blank=True)
+
+    #  —— schedules ——
+    food_frequency = models.CharField(max_length=6, choices=CARE_FREQUENCY_CHOICES,
+                                      default="", blank=True)
+    food_times = models.JSONField(default=list, blank=True)  # unchanged
+
+    water_frequency = models.CharField(max_length=6, choices=CARE_FREQUENCY_CHOICES,
+                                       default="", blank=True)
+    water_times = models.JSONField(default=list, blank=True)
+
+    medication_frequency = models.CharField(max_length=6, choices=CARE_FREQUENCY_CHOICES,
+                                            default="", blank=True)
+    medication_times = models.JSONField(default=list, blank=True)
+
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        return f"{self.name} ({self.pet_type})"
+    # helper – always return `time` objects
+    def _as_times(self, lst):
+        out = []
+        for x in lst or []:
+            if isinstance(x, time):
+                out.append(x)
+            else:  # string "HH:MM[:SS]"
+                out.append(datetime.strptime(x, "%H:%M:%S").time())
+        return out
+
+    @property
+    def food_time_objs(self):  # used by the calendar service
+        return self._as_times(self.food_times)
+
+    @property
+    def water_time_objs(self):
+        return self._as_times(self.water_times)
+
+    @property
+    def medication_time_objs(self):
+        return self._as_times(self.medication_times)
+
+    def clean(self):
+        for freq, times, label in [
+            (self.food_frequency, self.food_times, "food"),
+            (self.water_frequency, self.water_times, "water"),
+            (self.medication_frequency, self.medication_times, "medication"),
+        ]:
+            if not freq:  # block disabled
+                continue
+            if not times:
+                raise ValidationError(f"{label}: at least one time required")
+            if freq in ("ONCE", "WEEKLY") and len(times) > 1:
+                raise ValidationError(
+                    f"{label}: only one time allowed for {freq}"
+                )
 
     class Meta:
         ordering = ["name"]
