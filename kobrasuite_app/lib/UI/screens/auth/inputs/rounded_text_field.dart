@@ -1,6 +1,7 @@
 // lib/widgets/inputs/rounded_text_field.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class RoundedTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -8,6 +9,7 @@ class RoundedTextField extends StatelessWidget {
   final bool obscureText;
   final TextInputType keyboardType;
   final Widget? prefixIcon;
+  final List<TextInputFormatter>? inputFormatters;
 
   const RoundedTextField({
     super.key,
@@ -16,6 +18,7 @@ class RoundedTextField extends StatelessWidget {
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
     this.prefixIcon,
+    this.inputFormatters,
   });
 
   @override
@@ -24,6 +27,7 @@ class RoundedTextField extends StatelessWidget {
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
       style: const TextStyle(fontSize: 16),
       decoration: InputDecoration(
         hintText: hintText,

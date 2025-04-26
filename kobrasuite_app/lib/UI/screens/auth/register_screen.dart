@@ -4,6 +4,8 @@ import '../../../providers/general/auth_provider.dart';
 import 'buttons/primary_button.dart';
 import 'inputs/rounded_text_field.dart';
 import 'login_screen.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -20,13 +22,18 @@ class RegisterScreenState extends State<RegisterScreen> {
   final _passwordCtrl = TextEditingController();
   final _confirmPasswordCtrl = TextEditingController();
 
+  final _phoneMask = MaskTextInputFormatter(
+  mask: '(###) ###-####',                  // (123) 456-7890
+  filter: { '#': RegExp(r'\d') },          // accept only digits for “#”
+  );
+
   Future<void> _onRegister() async {
     final authProvider = context.read<AuthProvider>();
     authProvider.clearError();
     final success = await authProvider.register(
       _usernameCtrl.text.trim(),
       _emailCtrl.text.trim(),
-      _phoneCtrl.text.trim(),
+      _phoneMask.getUnmaskedText(),
       _passwordCtrl.text.trim(),
       _confirmPasswordCtrl.text.trim(),
     );
@@ -109,6 +116,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                               hintText: 'Phone',
                               keyboardType: TextInputType.phone,
                               prefixIcon: const Icon(Icons.phone),
+                              inputFormatters: [_phoneMask]
                             ),
                             const SizedBox(height: 16),
                             RoundedTextField(
