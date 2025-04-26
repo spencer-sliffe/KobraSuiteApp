@@ -56,7 +56,7 @@ node_modules/
 lib/config.dart
 
 pubspec.lock
-macos/Runner.xcodeproj/xcschemes/Runner.xcscheme
+macos/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme
 
 #pubsec.lock
 #macos/Runner.xcodeproj/xcschemes/Runner.xcsheme
