@@ -5,27 +5,29 @@ import '../../services/service_locator.dart';
 import '../general/homelife_profile_provider.dart';
 
 class ChoreCompletionProvider extends ChangeNotifier {
-  final HouseholdService _choreCompletionService;
-  HomeLifeProfileProvider _homelifeProfileProvider;
+  final HouseholdService _service;
+  HomeLifeProfileProvider _profile;
   bool _isLoading = false;
   String? _errorMessage;
-  List<ChoreCompletion> _choreCompletions = [];
+  final Map<int, List<ChoreCompletion>> _cache = {};
 
   ChoreCompletionProvider({required HomeLifeProfileProvider homelifeProfileProvider})
-      : _homelifeProfileProvider = homelifeProfileProvider,
-        _choreCompletionService = serviceLocator<HouseholdService>();
+      : _profile = homelifeProfileProvider,
+        _service = serviceLocator<HouseholdService>();
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
-  List<ChoreCompletion> get choreCompletions => _choreCompletions;
 
-  int get userPk => _homelifeProfileProvider.userPk;
-  int get userProfilePk => _homelifeProfileProvider.userProfilePk;
-  int get homelifeProfilePk => _homelifeProfileProvider.homeLifeProfilePk;
-  int? get householdPk => _homelifeProfileProvider.householdPk;
+  int get _userPk => _profile.userPk;
+  int get _userProfilePk => _profile.userProfilePk;
+  int get _homeLifeProfilePk => _profile.homeLifeProfilePk;
+  int? get _householdPk => _profile.householdPk;
 
-  void update(HomeLifeProfileProvider newHomelifeProfileProvider) {
-    _homelifeProfileProvider = newHomelifeProfileProvider;
+  List<ChoreCompletion> completionsForChore(int chorePk) =>
+      List.unmodifiable(_cache[chorePk] ?? const []);
+
+  void update(HomeLifeProfileProvider newProfile) {
+    _profile = newProfile;
     notifyListeners();
   }
 
@@ -34,14 +36,14 @@ class ChoreCompletionProvider extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     try {
-      final choreCompletions = await _choreCompletionService.getChoreCompletions(
-        userPk: userPk,
-        userProfilePk: userProfilePk,
-        homelifeProfilePk: homelifeProfilePk,
-        householdPk: householdPk,
+      final fetched = await _service.getChoreCompletions(
+        userPk: _userPk,
+        userProfilePk: _userProfilePk,
+        homelifeProfilePk: _homeLifeProfilePk,
+        householdPk: _householdPk,
         chorePk: chorePk,
       );
-      _choreCompletions = choreCompletions;
+      _cache[chorePk] = fetched;
     } catch (e) {
       _errorMessage = 'Error loading chore completions: $e';
     }
@@ -49,24 +51,19 @@ class ChoreCompletionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> createChoreCompletion(
-    ///Needs Completed
-    int chorePk
-  ) async {
+  Future<bool> createChoreCompletion(int chorePk) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
     try {
-      final success = await _choreCompletionService.createChoreCompletion(
-          userPk: userPk,
-          userProfilePk: userProfilePk,
-          homelifeProfilePk: homelifeProfilePk,
-          householdPk: householdPk,
-          chorePk: chorePk,
+      final success = await _service.createChoreCompletion(
+        userPk: _userPk,
+        userProfilePk: _userProfilePk,
+        homelifeProfilePk: _homeLifeProfilePk,
+        householdPk: _householdPk,
+        chorePk: chorePk,
       );
-      if (success) {
-        await loadChoreCompletions(chorePk);
-      }
+      if (success) await loadChoreCompletions(chorePk);
       return success;
     } catch (e) {
       _errorMessage = 'Error creating chore completion: $e';
@@ -77,21 +74,21 @@ class ChoreCompletionProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> deleteChore(int chorePk, int choreCompletionId) async {
+  Future<bool> deleteChore(int chorePk, int completionId) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
     try {
-      final success = await _choreCompletionService.deleteChoreCompletion(
-        userPk: userPk,
-        userProfilePk: userProfilePk,
-        homelifeProfilePk: homelifeProfilePk,
-        householdPk: householdPk,
+      final success = await _service.deleteChoreCompletion(
+        userPk: _userPk,
+        userProfilePk: _userProfilePk,
+        homelifeProfilePk: _homeLifeProfilePk,
+        householdPk: _householdPk,
         chorePk: chorePk,
-        choreCompletionId: choreCompletionId,
+        choreCompletionId: completionId,
       );
       if (success) {
-        _choreCompletions.removeWhere((a) => a.id == choreCompletionId);
+        _cache[chorePk]?.removeWhere((c) => c.id == completionId);
       }
       return success;
     } catch (e) {

@@ -343,6 +343,7 @@ class HouseholdService {
           '$homelifeProfilePk/households/$householdPk/chores/$chorePk/completions/';
       final body = {
         'homelife_profile': homelifeProfilePk,
+        'chore': chorePk,
       };
       final response = await _dio.post(url, data: body);
       return response.statusCode == 201 || response.statusCode == 200;

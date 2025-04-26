@@ -3,19 +3,21 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+/* ── providers & models ───────────────────────────────────────────── */
 import '../../../../../providers/general/homelife_profile_provider.dart';
 import '../../../../../providers/homelife/workout_routine_provider.dart';
 import '../../../../../providers/homelife/calendar_provider.dart';
 import '../../../../../providers/homelife/child_profile_provider.dart';
+import '../../../../../providers/homelife/medication_provider.dart';
+import '../../../../../providers/homelife/medical_appointment_provider.dart';
+import '../../../../../models/homelife/medical_appointment.dart';
 import '../../../../nav/providers/navigation_store.dart';
 import '../../../../widgets/calendar/personal_week_calendar.dart';
 
-/// Personal tab – fills the available viewport regardless of device size.
-/// The grid's `childAspectRatio` is calculated at runtime so one row of
-/// sections always stretches to the full height.  Below each breakpoint the
-/// grid collapses to fewer columns and scrolls naturally.
+/// Personal tab – shows workouts, meds, appointments & children,
+/// filtered to the day the user selects in the header calendar.
 class HomelifePersonalTab extends StatefulWidget {
-  const HomelifePersonalTab({Key? key}) : super(key: key);
+  const HomelifePersonalTab({super.key});
 
   @override
   State<HomelifePersonalTab> createState() => _HomelifePersonalTabState();
@@ -28,7 +30,7 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
   /* ── bootstrap & refresh ─────────────────────────────────────────── */
   @override
   Future<void> didChangeDependencies() async {
-    await Future.delayed(const Duration(milliseconds: 400));
+    await Future.delayed(const Duration(milliseconds: 400)); // avoid double-loads
     super.didChangeDependencies();
     if (_boot) return;
 
@@ -50,14 +52,18 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
 
   void _startLoads() {
     _boot = true;
-    final wr = context.read<WorkoutRoutineProvider>();
-    final ca = context.read<CalendarProvider>();
-    final cp = context.read<ChildProfileProvider>();
+    final wr   = context.read<WorkoutRoutineProvider>();
+    final ca   = context.read<CalendarProvider>();
+    final cp   = context.read<ChildProfileProvider>();
+    final meds = context.read<MedicationProvider>();
+    final appt = context.read<MedicalAppointmentProvider>();
 
     Future.wait([
       wr.loadWorkoutRoutines(),
       ca.loadCalendarEvents(),
       cp.loadChildProfiles(),
+      meds.loadMedications(),
+      appt.loadMedicalAppointments(),
     ]);
 
     context.read<NavigationStore>().setRefreshCallback(() async {
@@ -65,13 +71,16 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
         wr.loadWorkoutRoutines(),
         ca.loadCalendarEvents(),
         cp.loadChildProfiles(),
+        meds.loadMedications(),
+        appt.loadMedicalAppointments(),
       ]);
     });
   }
 
   /* ── helpers ─────────────────────────────────────────────────────── */
-  final _dateFmt = DateFormat('MMM d, yyyy');
-  final _timeFmt = DateFormat('h:mm a');
+  final _dateFmt  = DateFormat('MMM d, yyyy');
+  final _timeFmt  = DateFormat('h:mm a');
+  final _monthFmt = DateFormat('MMMM yyyy');
 
   Widget _empty(String asset, String msg) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 24),
@@ -98,7 +107,8 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(
             children: [
-              Icon(icon, size: 28, color: Theme.of(context).colorScheme.primary),
+              Icon(icon,
+                  size: 28, color: Theme.of(context).colorScheme.primary),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -122,27 +132,35 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
   /* ── build ────────────────────────────────────────────────────────── */
   @override
   Widget build(BuildContext context) {
-    final wr = context.watch<WorkoutRoutineProvider>();
-    final ca = context.watch<CalendarProvider>();
-    final cp = context.watch<ChildProfileProvider>();
+    final wr   = context.watch<WorkoutRoutineProvider>();
+    final cp   = context.watch<ChildProfileProvider>();
+    final meds = context.watch<MedicationProvider>();
+    final appt = context.watch<MedicalAppointmentProvider>();
 
-    /* filter events for selected day */
-    final todayEvents = ca.calendarEvents.where((e) {
-      final start = e.start;
-      return start.year == _selectedDay.year &&
-          start.month == _selectedDay.month &&
-          start.day == _selectedDay.day;
+    /* filters for the chosen calendar day */
+    bool _sameDay(DateTime a, DateTime b) =>
+        a.year == b.year && a.month == b.month && a.day == b.day;
+
+    /* workout routines – filter by weekday name ---------------------- */
+    final String _weekdayName =
+    DateFormat('EEEE').format(_selectedDay).toUpperCase(); // e.g. MONDAY
+
+    final workoutsToday = wr.workoutRoutines.where((r) {
+      // r.schedule is a List<String> of weekday names
+      return r.schedule.map((d) => d.toUpperCase()).contains(_weekdayName);
     }).toList();
 
-    /* sections – each wrapped in a ListView so its content can scroll if needed */
+    /* sections ------------------------------------------------------- */
+
+    // workouts
     Widget workoutsSection() => wr.isLoading
         ? const Center(child: CircularProgressIndicator())
-        : wr.workoutRoutines.isEmpty
+        : workoutsToday.isEmpty
         ? _empty('assets/images/empty_workout.svg',
-        'No workout routines today.')
+        'No workout routines for the selected day.')
         : ListView(
       padding: EdgeInsets.zero,
-      children: wr.workoutRoutines
+      children: workoutsToday
           .map((w) => _simpleCard(
         icon: Icons.fitness_center,
         title: w.title,
@@ -151,22 +169,102 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
           .toList(growable: false),
     );
 
-    Widget eventsSection() => ca.isLoading
+    // medications (filtered to doses today)
+    final medsToday = meds.medications.where((m) {
+      if (m.nextDose == null) return false;
+      final next = DateTime.parse(m.nextDose!);
+      return _sameDay(next, _selectedDay);
+    }).toList();
+
+    Widget medicationsSection() => meds.isLoading
         ? const Center(child: CircularProgressIndicator())
-        : todayEvents.isEmpty
-        ? _empty('assets/images/empty_calendar.svg', 'No events for today.')
-        : ListView(
+        : medsToday.isEmpty
+        ? _empty('assets/images/empty_pills.svg',
+        'No medications for the selected day.')
+        : ListView.separated(
       padding: EdgeInsets.zero,
-      children: todayEvents
-          .map((e) => _simpleCard(
-        icon: Icons.event,
-        title: e.title,
-        subtitle:
-        '${_dateFmt.format(e.start)} · ${_timeFmt.format(e.start)}',
-      ))
-          .toList(growable: false),
+      itemCount: medsToday.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      itemBuilder: (_, i) {
+        final m = medsToday[i];
+        final next = DateTime.parse(m.nextDose!);
+        return Card(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16)),
+          child: ListTile(
+            leading: const Icon(Icons.medication, size: 32),
+            title: Text(m.name,
+                style: Theme.of(context).textTheme.titleMedium),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('${m.dosage} • ${m.frequency}'),
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.schedule, size: 14),
+                      const SizedBox(width: 4),
+                      Text(
+                          '${_dateFmt.format(next)} • ${_timeFmt.format(next)}'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            trailing: Checkbox(
+              value: false,
+              onChanged: (_) {
+                // TODO: hit “log-dose” endpoint when backend available
+              },
+              shape: const CircleBorder(),
+            ),
+          ),
+        );
+      },
     );
 
+    // appointments (filtered to today)
+    final apptsToday = appt.medicalAppointments.where((ap) {
+      final dt = DateTime.parse(ap.appointmentDatetime);
+      return _sameDay(dt, _selectedDay);
+    }).toList();
+
+    Widget appointmentsSection() => appt.isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : apptsToday.isEmpty
+        ? _empty('assets/images/empty_calendar.svg',
+        'No appointments for the selected day.')
+        : ListView.separated(
+      padding: EdgeInsets.zero,
+      itemCount: apptsToday.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      itemBuilder: (_, i) {
+        final ap = apptsToday[i];
+        final dt = DateTime.parse(ap.appointmentDatetime);
+        return Card(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16)),
+          child: ListTile(
+            leading:
+            const Icon(Icons.local_hospital, size: 30),
+            title: Text(ap.title),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                    '${_dateFmt.format(dt)} • ${_timeFmt.format(dt)}'),
+                if (ap.location.isNotEmpty) Text(ap.location),
+                if (ap.doctorName.isNotEmpty)
+                  Text('Dr. ${ap.doctorName}'),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    // children
     Widget childrenSection() => cp.isLoading
         ? const Center(child: CircularProgressIndicator())
         : cp.childProfiles.isEmpty
@@ -178,7 +276,8 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
         String subtitle = 'Date of birth not provided';
         if (c.dateOfBirth != null && c.dateOfBirth!.isNotEmpty) {
           final dob = DateTime.parse(c.dateOfBirth!);
-          final age = DateTime.now().difference(dob).inDays ~/ 365;
+          final age =
+              DateTime.now().difference(dob).inDays ~/ 365;
           subtitle = 'Age $age';
         }
         return _simpleCard(
@@ -193,13 +292,15 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
       onRefresh: () async {
         await Future.wait([
           wr.loadWorkoutRoutines(),
-          ca.loadCalendarEvents(),
+          context.read<CalendarProvider>().loadCalendarEvents(),
           cp.loadChildProfiles(),
+          meds.loadMedications(),
+          appt.loadMedicalAppointments(),
         ]);
       },
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final width = constraints.maxWidth;
+          final width  = constraints.maxWidth;
           final height = constraints.maxHeight;
           final cols = width >= 1200
               ? 4
@@ -209,12 +310,12 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
               ? 2
               : 1;
 
-          // dynamic ratio so that a single grid row = full height
-          final double aspectRatio = (width / cols) / height;
+          final aspectRatio = (width / cols) / height; // row = full height
 
           return CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
+              /* week-calendar header */
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -237,19 +338,26 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
                   ),
                 ),
               ),
+              /* grid of sections */
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                 sliver: SliverGrid(
                   delegate: SliverChildListDelegate.fixed([
                     _GridSection(
-                        header: 'Workout routines',
+                        header:
+                        'Workout routines • ${DateFormat('MMM d').format(_selectedDay)}',
                         icon: Icons.fitness_center,
                         content: workoutsSection()),
                     _GridSection(
                         header:
-                        'Events • ${DateFormat('MMM d').format(_selectedDay)}',
-                        icon: Icons.calendar_today,
-                        content: eventsSection()),
+                        'Medications • ${DateFormat('MMM d').format(_selectedDay)}',
+                        icon: Icons.medication_liquid,
+                        content: medicationsSection()),
+                    _GridSection(
+                        header:
+                        'Appointments • ${DateFormat('MMM d').format(_selectedDay)}',
+                        icon: Icons.event,
+                        content: appointmentsSection()),
                     _GridSection(
                         header: 'Child profiles',
                         icon: Icons.family_restroom,
@@ -298,7 +406,8 @@ class _GridSection extends StatelessWidget {
           Row(
             children: [
               Icon(icon,
-                  color: Theme.of(context).colorScheme.secondary, size: 22),
+                  color: Theme.of(context).colorScheme.secondary,
+                  size: 22),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(header,
