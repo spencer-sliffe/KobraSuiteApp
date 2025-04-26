@@ -50,6 +50,7 @@ coverage.xml
 .pytest_cache/
 cover/
 
+
 # Translations
 *.mo
 *.pot
@@ -180,3 +181,4 @@ staticfiles/
 /assignment_answers
 /study_documents
 /db.sqlite3
+
