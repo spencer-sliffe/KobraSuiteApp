@@ -24,7 +24,6 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_datetime
-from customer.permissions import IsOwnerOrAdmin
 from hq.models import FinanceProfile
 from finances.models import StockPortfolio, PortfolioStock, WatchlistStock
 from finances.serializers.stock_serializers import (
@@ -51,7 +50,7 @@ class StockPortfolioViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'delete', 'patch']
     queryset = StockPortfolio.objects.all()
     serializer_class = StockPortfolioSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         """
@@ -186,7 +185,7 @@ class PortfolioStockViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = PortfolioStock.objects.all()
     serializer_class = PortfolioStockSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
+    permission_classes = [IsAuthenticated]
 
 
 class WatchlistStockViewSet(viewsets.ModelViewSet):
@@ -196,7 +195,7 @@ class WatchlistStockViewSet(viewsets.ModelViewSet):
     """
     queryset = WatchlistStock.objects.all()
     serializer_class = WatchlistStockSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         """

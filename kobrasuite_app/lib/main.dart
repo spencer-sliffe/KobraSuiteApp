@@ -64,41 +64,37 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeNotifier()),
+
+        /* ─── foundational profile providers (proxied from Auth) ─── */
         ChangeNotifierProxyProvider<AuthProvider, UserProfileProvider>(
           create: (_) => UserProfileProvider(userPk: 0, userProfilePk: 0),
-          update: (_, auth, userProfile) {
-            userProfile!.update(auth.userPk, auth.userProfilePk);
-            return userProfile;
-          },
+          update: (_, auth, p) => p!..update(auth.userPk, auth.userProfilePk),
         ),
         ChangeNotifierProxyProvider<AuthProvider, SchoolProfileProvider>(
-          create: (_) => SchoolProfileProvider(userPk: 0, userProfilePk: 0, schoolProfilePk: 0),
-          update: (_, auth, schoolProfile) {
-            schoolProfile!.update(auth.userPk, auth.userProfilePk, auth.schoolProfilePk);
-            return schoolProfile;
-          },
+          create: (_) => SchoolProfileProvider(
+              userPk: 0, userProfilePk: 0, schoolProfilePk: 0),
+          update: (_, auth, p) =>
+          p!..update(auth.userPk, auth.userProfilePk, auth.schoolProfilePk),
         ),
         ChangeNotifierProxyProvider<AuthProvider, WorkProfileProvider>(
-          create: (_) => WorkProfileProvider(userPk: 0, userProfilePk: 0, workProfilePk: 0),
-          update: (_, auth, workProfile) {
-            workProfile!.update(auth.userPk, auth.userProfilePk, auth.workProfilePk);
-            return workProfile;
-          },
+          create: (_) =>
+              WorkProfileProvider(userPk: 0, userProfilePk: 0, workProfilePk: 0),
+          update: (_, auth, p) =>
+          p!..update(auth.userPk, auth.userProfilePk, auth.workProfilePk),
         ),
         ChangeNotifierProxyProvider<AuthProvider, FinanceProfileProvider>(
-          create: (_) => FinanceProfileProvider(userPk: 0, userProfilePk: 0, financeProfilePk: 0),
-          update: (_, auth, financeProfile) {
-            financeProfile!.update(auth.userPk, auth.userProfilePk, auth.financeProfilePk);
-            return financeProfile;
-          },
+          create: (_) => FinanceProfileProvider(
+              userPk: 0, userProfilePk: 0, financeProfilePk: 0),
+          update: (_, auth, p) =>
+          p!..update(auth.userPk, auth.userProfilePk, auth.financeProfilePk),
         ),
         ChangeNotifierProxyProvider<AuthProvider, HomeLifeProfileProvider>(
-          create: (_) => HomeLifeProfileProvider(userPk: 0, userProfilePk: 0, homeLifeProfilePk: 0),
-          update: (_, auth, homeLifeProfile) {
-            homeLifeProfile!.update(auth.userPk, auth.userProfilePk, auth.homeLifeProfilePk);
-            return homeLifeProfile;
-          },
+          create: (_) => HomeLifeProfileProvider(
+              userPk: 0, userProfilePk: 0, homeLifeProfilePk: 0),
+          update: (_, auth, p) =>
+          p!..update(auth.userPk, auth.userProfilePk, auth.homeLifeProfilePk),
         ),
         ChangeNotifierProxyProvider<HomeLifeProfileProvider, HouseholdProvider>(
           create: (context) => HouseholdProvider(
@@ -349,69 +345,55 @@ void main() async {
       ],
       child: ScreenUtilInit(
         designSize: const Size(360, 690),
-        builder: (context, child) {
-          return const KobraSuiteApp();
-        },
+        builder: (_, __) => const _KobraSuiteApp(),
       ),
     ),
   );
 }
 
-class KobraSuiteApp extends StatelessWidget {
-  const KobraSuiteApp({super.key});
+class _KobraSuiteApp extends StatelessWidget {
+  const _KobraSuiteApp({super.key});
 
-  ThemeMode _getThemeMode(ThemeNotifier themeNotifier) {
-    switch (themeNotifier.currentTheme) {
-      case AppTheme.LightGreen:
-      case AppTheme.LightBlue:
-      case AppTheme.Psychedelic:
-      case AppTheme.UltraModern:
-        return ThemeMode.light;
-      case AppTheme.DarkGreen:
-      case AppTheme.DarkBlue:
-        return ThemeMode.dark;
-      default:
-        return ThemeMode.light;
-    }
-  }
+  ThemeMode _mode(ThemeNotifier t) => switch (t.currentTheme) {
+    AppTheme.LightGreen ||
+    AppTheme.LightBlue ||
+    AppTheme.Psychedelic ||
+    AppTheme.UltraModern =>
+    ThemeMode.light,
+    _ => ThemeMode.dark,
+  };
 
-  ThemeData _getThemeData(ThemeNotifier themeNotifier) {
-    switch (themeNotifier.currentTheme) {
-      case AppTheme.LightGreen:
-        return greenLightTheme;
-      case AppTheme.DarkGreen:
-        return greenDarkTheme;
-      case AppTheme.LightBlue:
-        return blueLightTheme;
-      case AppTheme.DarkBlue:
-        return blueDarkTheme;
-      case AppTheme.Psychedelic:
-        return psychedelicTheme;
-      case AppTheme.UltraModern:
-        return ultraModernTheme;
-      default:
-        return greenLightTheme;
-    }
-  }
+  ThemeData _data(ThemeNotifier t) => switch (t.currentTheme) {
+    AppTheme.LightGreen => greenLightTheme,
+    AppTheme.DarkGreen => greenDarkTheme,
+    AppTheme.LightBlue => blueLightTheme,
+    AppTheme.DarkBlue => blueDarkTheme,
+    AppTheme.Psychedelic => psychedelicTheme,
+    AppTheme.UltraModern => ultraModernTheme,
+    _ => greenLightTheme,
+  };
 
   @override
   Widget build(BuildContext context) {
-    final themeNotifier = context.watch<ThemeNotifier>();
+    final tn = context.watch<ThemeNotifier>();
     return MaterialApp(
       title: 'KobraSuite',
       darkTheme: greenDarkTheme,
-      themeMode: _getThemeMode(themeNotifier),
-      theme: _getThemeData(themeNotifier),
+      theme: _data(tn),
+      themeMode: _mode(tn),
       navigatorObservers: [routeObserver],
+
+      /*  AuthWrapper decides between LoginScreen and MainScreen.     */
       home: const AuthWrapper(),
+
+      /*  NOTE: `/home` removed intentionally — do NOT push it.       */
       routes: {
-        '/login': (context) => const LoginScreen(),
-        '/register': (context) => const RegisterScreen(),
-        '/home': (context) => const MainScreen(),
-        '/settings': (context) => const SettingsScreen(),
-        '/account': (context) => const AccountScreen(),
-        '/forgot-password': (context) => const ForgotPasswordScreen(),
-        '/reset-confirm': (context) => const PasswordResetConfirmScreen(),
+        '/login': (_) => const AuthWrapper(),
+        '/register': (_) => const RegisterScreen(),
+        '/settings': (_) => const SettingsScreen(),
+        '/account': (_) => const AccountScreen(),
+        '/forgot-password': (_) => const ForgotPasswordScreen(),
+        '/reset-confirm': (_) => const PasswordResetConfirmScreen(),
       },
     );
   }

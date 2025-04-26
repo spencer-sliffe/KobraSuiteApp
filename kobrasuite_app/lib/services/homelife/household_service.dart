@@ -99,7 +99,7 @@ class HouseholdService {
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int? householdPk,
+    required int householdPk,
     required String code,
   }) async {
     final url =

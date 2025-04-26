@@ -2,7 +2,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-from customer.permissions import IsOwnerOrAdmin
 from hq.models import HomeLifeProfile, UserProfile  # Assuming UserProfile is defined in hq.models
 from hq.serializers.homelife_profile_serializers import HomeLifeProfileSerializer
 
@@ -10,7 +9,7 @@ from hq.serializers.homelife_profile_serializers import HomeLifeProfileSerialize
 class HomeLifeProfileViewSet(viewsets.ModelViewSet):
     queryset = HomeLifeProfile.objects.select_related('profile__user', 'household')
     serializer_class = HomeLifeProfileSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         """

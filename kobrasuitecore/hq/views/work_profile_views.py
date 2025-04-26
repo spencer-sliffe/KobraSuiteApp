@@ -2,14 +2,13 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-from customer.permissions import IsOwnerOrAdmin
 from hq.models import UserProfile, WorkProfile
 from hq.serializers.work_profile_serializers import WorkProfileSerializer
 
 class WorkProfileViewSet(viewsets.ModelViewSet):
     queryset = WorkProfile.objects.select_related('profile__user').all()
     serializer_class = WorkProfileSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         """

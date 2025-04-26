@@ -9,7 +9,7 @@ enum _Mode { create, join }
 enum _State { idle, working, done }
 
 class AddHouseholdBottomSheet extends StatefulWidget {
-  const AddHouseholdBottomSheet({super.key});
+  const AddHouseholdBottomSheet({Key? key}) : super(key: key);
 
   @override
   State<AddHouseholdBottomSheet> createState() =>
@@ -40,8 +40,8 @@ class _AddHouseholdBottomSheetState extends State<AddHouseholdBottomSheet> {
     if (!_form.currentState!.validate()) return;
     setState(() { _state = _State.working; _error = ''; });
 
-    final householdProv  = context.read<HouseholdProvider>();
-    final inviteProv     = context.read<HouseholdInviteProvider>();
+    final householdProv = context.read<HouseholdProvider>();
+    final inviteProv    = context.read<HouseholdInviteProvider>();
 
     bool ok = false;
 
@@ -51,22 +51,30 @@ class _AddHouseholdBottomSheetState extends State<AddHouseholdBottomSheet> {
         householdName: _nameCtrl.text.trim(),
         householdType: _type,
       );
-      // 2. set invite code
-      if (ok) {
-        ok = await inviteProv.create(_codeCtrl.text.trim());
+
+      // 2. grab the freshly-created id
+      final hhId = householdProv.household?.id;
+
+      // 3. create invite with that id
+      if (ok && hhId != null) {
+        ok = await inviteProv.create(
+          householdPk: hhId,
+          code: _codeCtrl.text.trim(),
+        );
+      } else {
+        ok = false;
       }
     } else {
-      // join by code
+      // join
       ok = await inviteProv.redeem(_codeCtrl.text.trim());
       if (ok) await householdProv.loadHousehold();
     }
 
     setState(() => _state = ok ? _State.done : _State.idle);
-
     if (!ok) {
-      _error = (householdProv.errorMessage ?? inviteProv.errorMessage) ??
+      _error = inviteProv.errorMsg ??
+          householdProv.errorMessage ??
           'Operation failed';
-      setState(() {});
     }
   }
 

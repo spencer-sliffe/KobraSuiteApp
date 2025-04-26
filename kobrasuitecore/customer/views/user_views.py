@@ -20,9 +20,7 @@ Collaborators: SPENCER SLIFFE
 from django.contrib.auth import get_user_model
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-from customer.permissions import IsOwnerOrAdmin
 from customer.serializers.user_serializers import UserSerializer
-from customer.models import Role
 
 User = get_user_model()
 
@@ -32,7 +30,7 @@ class UserViewSet(viewsets.ModelViewSet):
         'profile'
     ).all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user

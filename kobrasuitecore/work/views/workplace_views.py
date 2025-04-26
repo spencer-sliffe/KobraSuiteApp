@@ -26,7 +26,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from work.models import WorkPlace
 from work.serializers.workplace_serializers import WorkPlaceSerializer
-from customer.permissions import IsOwnerOrAdmin
 from work.filters import WorkplaceMemberFilter
 from hq.models import WorkProfile
 from customer.models import User
@@ -38,7 +37,7 @@ from customer.models import User
 class WorkPlaceViewSet(viewsets.ModelViewSet):
     queryset = WorkPlace.objects.all()
     serializer_class = WorkPlaceSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)

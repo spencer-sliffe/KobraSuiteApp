@@ -91,6 +91,7 @@ budget_router.register('categories', BudgetCategoryViewSet, basename='budget_cat
 # HOMELIFE
 homelife_profile_router = routers.NestedDefaultRouter(profile_router, 'homelife_profile', lookup='homelife_profile')
 homelife_profile_router.register('households', HouseholdViewSet, basename='households')
+homelife_profile_router.register('household_invites', HouseholdInviteViewSet, basename='household_invites')
 
 household_router = routers.NestedDefaultRouter(homelife_profile_router, 'households', lookup='household')
 household_router.register('child_profiles', ChildProfileViewSet, basename='child_profiles')
@@ -102,7 +103,6 @@ household_router.register('grocery_lists', GroceryListViewSet, basename='grocery
 household_router.register('medications', MedicationViewSet, basename='medications')
 household_router.register('medical_appointments', MedicalAppointmentViewSet, basename='medical_appointments')
 household_router.register('workout_routines', WorkoutRoutineViewSet, basename='workout_routines')
-household_router.register('household_invites', HouseholdInviteViewSet, basename='household_invites')
 household_router.register('household_members', HouseholdMemberViewSet, basename='household_members')
 
 chore_router = routers.NestedDefaultRouter(household_router, 'chores', lookup='chore')

@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import '../../models/homelife/homelife_profile.dart';
 import '../../models/homelife/household_invite.dart';
 import '../../services/homelife/household_service.dart';
 import '../../services/service_locator.dart';
@@ -13,18 +12,17 @@ class HouseholdInviteProvider extends ChangeNotifier {
       : _profile = homelifeProfileProvider,
         _svc     = serviceLocator<HouseholdService>();
 
-  bool   _busy = false;
+  bool  _busy = false;
   String? _err;
   List<HouseholdInvite> _invites = [];
 
-  bool get isLoading => _busy;
-  String? get errorMessage => _err;
+  bool get isLoading   => _busy;
+  String? get errorMsg => _err;
   List<HouseholdInvite> get invites => _invites;
 
   int  get _u  => _profile.userPk;
   int  get _up => _profile.userProfilePk;
   int  get _hp => _profile.homeLifeProfilePk;
-  int? get _hh => _profile.householdPk;
 
   void update(HomeLifeProfileProvider p) => _profile = p;
 
@@ -37,12 +35,16 @@ class HouseholdInviteProvider extends ChangeNotifier {
     _busy = false; notifyListeners();
   }
 
-  Future<bool> create(String code) async {
+  Future<bool> create({required int householdPk, required String code}) async {
     _busy = true; _err = null; notifyListeners();
     try {
       final ok = await _svc.createHouseholdInvite(
-          userPk: _u, userProfilePk: _up, homelifeProfilePk: _hp,
-          householdPk: _hh, code: code);
+        userPk: _u,
+        userProfilePk: _up,
+        homelifeProfilePk: _hp,
+        householdPk: householdPk,
+        code: code,
+      );
       if (ok) await refresh();
       return ok;
     } catch (e) { _err = '$e'; return false; }
