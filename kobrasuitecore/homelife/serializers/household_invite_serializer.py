@@ -4,5 +4,6 @@ from homelife.models import HouseholdInvite
 
 class HouseholdInviteSerializer(serializers.ModelSerializer):
     class Meta:
-        model = HouseholdInvite
-        fields = '__all__'
+        model  = HouseholdInvite
+        fields = ('id', 'household', 'code', 'created_at')
+        read_only_fields = ('id', 'created_at')

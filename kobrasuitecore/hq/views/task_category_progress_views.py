@@ -28,7 +28,6 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
-from customer.permissions import IsOwnerOrAdmin
 from hq.models import TaskCategoryProgress
 from hq.serializers.task_category_progress_serializers import TaskCategoryProgressSerializer
 from hq.utils.task_utils import apply_task_rewards
@@ -40,7 +39,7 @@ class TaskCategoryProgressViewSet(viewsets.ModelViewSet):
     # (TEMP) Serializer for task category progress data
     serializer_class = TaskCategoryProgressSerializer
     # (TEMP) Permission requiring authentication or read-only access, with owner/admin checks
-    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrAdmin)
+    permission_classes = (IsAuthenticatedOrReadOnly)
 
     @action(methods=['post'], detail=True)
     def complete(self, request, module, task_category_num, task_slot_id=-1, data=None):

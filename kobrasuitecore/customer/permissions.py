@@ -24,9 +24,9 @@ class IsOwner(permissions.BasePermission):
         return obj == request.user
 
 
-class IsOwnerOrAdmin(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        return request.user.is_superuser or request.user.is_staff or obj == request.user or obj.profile.user == request.user
+# class IsOwnerOrAdmin(permissions.BasePermission):
+#     def has_object_permission(self, request, view, obj):
+#         return request.user.is_superuser or request.user.is_staff or obj == request.user or obj.profile.user == request.user
 #
 #
 # class IsObjOwner(permissions.BasePermission):

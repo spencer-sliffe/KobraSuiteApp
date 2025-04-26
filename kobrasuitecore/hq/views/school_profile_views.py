@@ -4,7 +4,6 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from customer.permissions import IsOwnerOrAdmin
 from hq.models import UserProfile, SchoolProfile
 from hq.serializers.school_profile_serializers import SchoolProfileSerializer
 from school.models import University
@@ -15,7 +14,7 @@ from school.services.university_service import add_university_to_db
 class SchoolProfileViewSet(viewsets.ModelViewSet):
     queryset = SchoolProfile.objects.select_related('profile__user', 'university').prefetch_related('courses')
     serializer_class = SchoolProfileSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         """

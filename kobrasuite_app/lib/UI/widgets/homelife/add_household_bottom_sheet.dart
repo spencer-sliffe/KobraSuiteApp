@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../../providers/homelife/household_provider.dart';
+import '../../../providers/homelife/household_invite_provider.dart';
 import '../../nav/providers/navigation_store.dart';
 
-enum AddHouseholdState { initial, adding, added }
+enum _Mode { create, join }
+enum _State { idle, working, done }
 
 class AddHouseholdBottomSheet extends StatefulWidget {
   const AddHouseholdBottomSheet({Key? key}) : super(key: key);
@@ -14,171 +17,177 @@ class AddHouseholdBottomSheet extends StatefulWidget {
 }
 
 class _AddHouseholdBottomSheetState extends State<AddHouseholdBottomSheet> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final _form = GlobalKey<FormState>();
 
-  final TextEditingController _householdNameController = TextEditingController();
+  final _nameCtrl   = TextEditingController();
+  final _codeCtrl   = TextEditingController();
 
-  String _householdType = 'FAMILY';
-  AddHouseholdState _state = AddHouseholdState.initial;
-  String _errorFeedback = "";
+  String _type      = 'FAMILY';
+  _Mode   _mode     = _Mode.create;
+  _State  _state    = _State.idle;
+  String  _error    = '';
 
   @override
   void dispose() {
-    _householdNameController.dispose();
+    _nameCtrl.dispose();
+    _codeCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _addHousehold() async {
-    if (!_formKey.currentState!.validate()) return;
-    setState(() {
-      _state = AddHouseholdState.adding;
-      _errorFeedback = "";
-    });
+  // --------------------- actions ---------------------------------
 
-    final householdProvider = context.read<HouseholdProvider>();
-    final success = await householdProvider.createHousehold(
-      householdName: _householdNameController.text.trim(),
-      householdType: _householdType,
-    );
+  Future<void> _submit() async {
+    if (!_form.currentState!.validate()) return;
+    setState(() { _state = _State.working; _error = ''; });
 
-    if (success) {
-      setState(() => _state = AddHouseholdState.added);
+    final householdProv = context.read<HouseholdProvider>();
+    final inviteProv    = context.read<HouseholdInviteProvider>();
+
+    bool ok = false;
+
+    if (_mode == _Mode.create) {
+      // 1. create household
+      ok = await householdProv.createHousehold(
+        householdName: _nameCtrl.text.trim(),
+        householdType: _type,
+      );
+
+      // 2. grab the freshly-created id
+      final hhId = householdProv.household?.id;
+
+      // 3. create invite with that id
+      if (ok && hhId != null) {
+        ok = await inviteProv.create(
+          householdPk: hhId,
+          code: _codeCtrl.text.trim(),
+        );
+      } else {
+        ok = false;
+      }
     } else {
-      setState(() {
-        _errorFeedback = ((householdProvider.errorMessage ?? '').isNotEmpty)
-            ? householdProvider.errorMessage!
-            : 'Failed to add household.';
-        _state = AddHouseholdState.initial;
-      });
+      // join
+      ok = await inviteProv.redeem(_codeCtrl.text.trim());
+      if (ok) await householdProv.loadHousehold();
+    }
+
+    setState(() => _state = ok ? _State.done : _State.idle);
+    if (!ok) {
+      _error = inviteProv.errorMsg ??
+          householdProv.errorMessage ??
+          'Operation failed';
     }
   }
 
-  Widget _buildContent() {
-    if (_state == AddHouseholdState.adding) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              CircularProgressIndicator(),
-              SizedBox(width: 16),
-              Text('Adding household...'),
-            ],
-          ),
-        ),
-      );
-    }
-    if (_state == AddHouseholdState.added) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            'Household added successfully.',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-        ),
-      );
-    }
+  // --------------------- UI helpers ------------------------------
 
-    // Normal form
-    return Form(
-      key: _formKey,
-      child: SingleChildScrollView(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 16,
-          right: 16,
-          top: 16,
+  InputDecoration _dec(String label) => InputDecoration(labelText: label);
+
+  Widget _modeSelector() => SegmentedButton<_Mode>(
+    segments: const [
+      ButtonSegment(value: _Mode.create, label: Text('Create')),
+      ButtonSegment(value: _Mode.join,   label: Text('Join')),
+    ],
+    selected: {_mode},
+    onSelectionChanged: (s) => setState(() => _mode = s.first),
+  );
+
+  List<Widget> _buildFormFields() {
+    if (_mode == _Mode.create) {
+      return [
+        TextFormField(
+          controller: _nameCtrl,
+          decoration: _dec('Household name'),
+          validator: (v) =>
+          (v == null || v.trim().isEmpty) ? 'Required' : null,
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Household Name
-            TextFormField(
-              controller: _householdNameController,
-              decoration: const InputDecoration(labelText: 'Household Name'),
-              validator: (value) =>
-              (value == null || value.trim().isEmpty)
-                  ? 'Enter household name'
-                  : null,
-            ),
-            const SizedBox(height: 12),
-            // Type dropdown
-            DropdownButtonFormField<String>(
-              value: _householdType,
-              items: const [
-                DropdownMenuItem(value: 'FAMILY', child: Text('Family')),
-                DropdownMenuItem(value: 'ROOMMATES', child: Text('Roommates')),
-                DropdownMenuItem(value: 'COUPLE', child: Text('Couple')),
-              ],
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() => _householdType = value);
-                }
-              },
-              decoration: const InputDecoration(labelText: 'Household Type'),
-            ),
-            if (_errorFeedback.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Text(
-                  _errorFeedback,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: Colors.red),
-                ),
-              ),
+        const SizedBox(height: 12),
+        DropdownButtonFormField<String>(
+          value: _type,
+          decoration: _dec('Household type'),
+          items: const [
+            DropdownMenuItem(value: 'FAMILY',    child: Text('Family')),
+            DropdownMenuItem(value: 'ROOMMATES', child: Text('Roommates')),
+            DropdownMenuItem(value: 'COUPLE',    child: Text('Couple')),
           ],
+          onChanged: (v) => setState(() => _type = v ?? 'FAMILY'),
         ),
+        const SizedBox(height: 12),
+        TextFormField(
+          controller: _codeCtrl,
+          decoration: _dec('Invite code (shareable)'),
+          validator: (v) =>
+          (v == null || v.trim().isEmpty) ? 'Required' : null,
+        ),
+      ];
+    }
+    // join
+    return [
+      TextFormField(
+        controller: _codeCtrl,
+        decoration: _dec('Household invite code'),
+        validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
       ),
-    );
+    ];
   }
 
-  List<Widget> _buildActions() {
-    if (_state == AddHouseholdState.added) {
-      return [
-        TextButton(
-          onPressed: () => context.read<NavigationStore>().setAddHouseholdActive(),
-          child: const Text('Close'),
-        ),
-      ];
-    }
-    if (_state == AddHouseholdState.initial) {
-      return [
-        TextButton(
-          onPressed: () =>
-              context.read<NavigationStore>().setAddHouseholdActive(),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: _addHousehold,
-          child: const Text('Add Household'),
-        ),
-      ];
-    }
-    return [];
-  }
+  // --------------------- build -----------------------------------
 
   @override
   Widget build(BuildContext context) {
+    final nav = context.read<NavigationStore>();
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              'Add New Household',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
+            Text('Join or Create a Household',
+                style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 16),
-            _buildContent(),
+            _modeSelector(),
+            const SizedBox(height: 16),
+
+            if (_state == _State.working)
+              const Padding(
+                padding: EdgeInsets.all(24),
+                child: CircularProgressIndicator(),
+              )
+            else if (_state == _State.done)
+              const Padding(
+                padding: EdgeInsets.all(24),
+                child: Icon(Icons.check_circle, size: 48),
+              )
+            else
+              Form(
+                key: _form,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: _buildFormFields(),
+                ),
+              ),
+
+            if (_error.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Text(_error,
+                    style: TextStyle(color: Colors.red.shade700)),
+              ),
+
             const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
-              children: _buildActions(),
+              children: [
+                TextButton(
+                  onPressed: nav.setAddHouseholdActive,
+                  child: const Text('Close'),
+                ),
+                if (_state == _State.idle)
+                  ElevatedButton(
+                    onPressed: _submit,
+                    child: Text(_mode == _Mode.create ? 'Create' : 'Join'),
+                  ),
+              ],
             ),
           ],
         ),

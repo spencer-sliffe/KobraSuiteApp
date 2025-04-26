@@ -1,104 +1,62 @@
 import 'package:flutter/foundation.dart';
-import '../../models/homelife/homelife_profile.dart';
 import '../../models/homelife/household_invite.dart';
 import '../../services/homelife/household_service.dart';
 import '../../services/service_locator.dart';
 import '../general/homelife_profile_provider.dart';
 
 class HouseholdInviteProvider extends ChangeNotifier {
-  final HouseholdService _householdInviteService;
-  HomeLifeProfileProvider _homelifeProfileProvider;
-  bool _isLoading = false;
-  String? _errorMessage;
-  List<HouseholdInvite> _householdInvites = [];
+  final HouseholdService _svc;
+  HomeLifeProfileProvider _profile;
 
   HouseholdInviteProvider({required HomeLifeProfileProvider homelifeProfileProvider})
-      : _homelifeProfileProvider = homelifeProfileProvider,
-        _householdInviteService = serviceLocator<HouseholdService>();
+      : _profile = homelifeProfileProvider,
+        _svc     = serviceLocator<HouseholdService>();
 
-  bool get isLoading => _isLoading;
-  String? get errorMessage => _errorMessage;
-  List<HouseholdInvite> get householdInvites => _householdInvites;
+  bool  _busy = false;
+  String? _err;
+  List<HouseholdInvite> _invites = [];
 
-  int get userPk => _homelifeProfileProvider.userPk;
-  int get userProfilePk => _homelifeProfileProvider.userProfilePk;
-  int get homelifeProfilePk => _homelifeProfileProvider.homeLifeProfilePk;
-  int? get householdPk => _homelifeProfileProvider.householdPk;
+  bool get isLoading   => _busy;
+  String? get errorMsg => _err;
+  List<HouseholdInvite> get invites => _invites;
 
-  void update(HomeLifeProfileProvider newHomelifeProfileProvider) {
-    _homelifeProfileProvider = newHomelifeProfileProvider;
-    notifyListeners();
+  int  get _u  => _profile.userPk;
+  int  get _up => _profile.userProfilePk;
+  int  get _hp => _profile.homeLifeProfilePk;
+
+  void update(HomeLifeProfileProvider p) => _profile = p;
+
+  Future<void> refresh() async {
+    _busy = true; _err = null; notifyListeners();
+    try {
+      _invites = await _svc.getHouseholdInvites(
+          userPk: _u, userProfilePk: _up, homelifeProfilePk: _hp);
+    } catch (e) { _err = '$e'; }
+    _busy = false; notifyListeners();
   }
 
-  Future<void> loadHouseholdInvites() async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
+  Future<bool> create({required int householdPk, required String code}) async {
+    _busy = true; _err = null; notifyListeners();
     try {
-      final householdInvites = await _householdInviteService.getHouseholdInvites(
-        userPk: userPk,
-        userProfilePk: userProfilePk,
-        homelifeProfilePk: homelifeProfilePk,
-      );
-      _householdInvites = householdInvites;
-    } catch (e) {
-      _errorMessage = 'Error loading invites: $e';
-    }
-    _isLoading = false;
-    notifyListeners();
-  }
-
-  Future<bool> createHouseholdInvite({
-    ///Needs Completed
-    required String code,
-  }) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-    try {
-      final success = await _householdInviteService.createHouseholdInvite(
-          userPk: userPk,
-          userProfilePk: userProfilePk,
-          homelifeProfilePk: homelifeProfilePk,
-          householdPk: householdPk,
-          code: code,
-          inviter: homelifeProfilePk,
-      );
-      if (success) {
-        await loadHouseholdInvites();
-      }
-      return success;
-    } catch (e) {
-      _errorMessage = 'Error creating household invites: $e';
-      return false;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  Future<bool> deleteHouseholdInvite(int householdInviteId) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-    try {
-      final success = await _householdInviteService.deleteHouseholdInvite(
-        userPk: userPk,
-        userProfilePk: userProfilePk,
-        homelifeProfilePk: homelifeProfilePk,
+      final ok = await _svc.createHouseholdInvite(
+        userPk: _u,
+        userProfilePk: _up,
+        homelifeProfilePk: _hp,
         householdPk: householdPk,
-        householdInviteId: householdInviteId,
+        code: code,
       );
-      if (success) {
-        _householdInvites.removeWhere((a) => a.id == householdInviteId);
-      }
-      return success;
-    } catch (e) {
-      _errorMessage = 'Error deleting household invite: $e';
-      return false;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+      if (ok) await refresh();
+      return ok;
+    } catch (e) { _err = '$e'; return false; }
+    finally { _busy = false; notifyListeners(); }
+  }
+
+  Future<bool> redeem(String code) async {
+    _busy = true; _err = null; notifyListeners();
+    try {
+      return await _svc.redeemHouseholdInvite(
+          userPk: _u, userProfilePk: _up, homelifeProfilePk: _hp, code: code);
+    } catch (e) { _err = '$e'; return false; }
+    finally { _busy = false; notifyListeners(); }
   }
 }

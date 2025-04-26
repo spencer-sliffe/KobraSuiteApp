@@ -54,3 +54,9 @@ node_modules/
 .fvm/
 
 lib/config.dart
+
+pubspec.lock
+macos/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme
+
+#pubsec.lock
+#macos/Runner.xcodeproj/xcschemes/Runner.xcsheme

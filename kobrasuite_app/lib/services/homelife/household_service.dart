@@ -96,28 +96,34 @@ class HouseholdService {
   }
 
   Future<bool> createHouseholdInvite({
-    ///Needs to be completed
     required int userPk,
     required int userProfilePk,
     required int homelifeProfilePk,
-    required int? householdPk,
+    required int householdPk,
     required String code,
-    required int inviter,
   }) async {
-    try {
-      final url =
-          '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
-          '$homelifeProfilePk/households/$householdPk/household_invites/';
-      final body = {
-        'code': code,
-        'inviter': inviter,
-        'household': householdPk,
-      };
-      final response = await _dio.post(url, data: body);
-      return response.statusCode == 201 || response.statusCode == 200;
-    } catch (e) {
-      rethrow;
-    }
+    final url =
+        '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
+        '$homelifeProfilePk/households/$householdPk/household_invites/';
+    final body = {
+      'code': code,
+      'household': householdPk,
+    };
+    final response = await _dio.post(url, data: body);
+    return response.statusCode == 201 || response.statusCode == 200;
+  }
+
+  Future<bool> redeemHouseholdInvite({
+    required int userPk,
+    required int userProfilePk,
+    required int homelifeProfilePk,
+    required String code,
+  }) async {
+    final url =
+        '/api/users/$userPk/profile/$userProfilePk/homelife_profile/'
+        '$homelifeProfilePk/household_invites/redeem/';
+    final response = await _dio.post(url, data: {'code': code});
+    return response.statusCode == 200;
   }
 
   Future<bool> deleteHouseholdInvite({
