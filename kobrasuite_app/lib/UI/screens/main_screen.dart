@@ -498,14 +498,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                   context.read<NavigationStore>().setAddStockActive();
                 },
               ),
-              ControlBarButtonModel(
-                id: 'finances_stock_portfolio_add',
-                icon: Icons.add,
-                label: 'Portfolio',
-                onPressed: () {
-                  context.read<NavigationStore>().setAddStockPortfolioActive();
-                },
-              ),
             ],
             child: const StocksTab(),
           );
