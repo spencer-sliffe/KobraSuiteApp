@@ -167,15 +167,20 @@ class _AddWorkoutRoutineBottomSheetState
               child: Text('Schedule', style: Theme.of(context).textTheme.labelLarge),
             ),
             const SizedBox(height: 8),
-            ToggleButtons(
-              isSelected: _selectedDays,
-              onPressed: (i) {
-                setState(() => _selectedDays[i] = !_selectedDays[i]);
-              },
-              children: _days.map((d) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Text(d),
-              )).toList(),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: ToggleButtons(
+                isSelected: _selectedDays,
+                onPressed: (i) =>
+                    setState(() => _selectedDays[i] = !_selectedDays[i]),
+                children: _days
+                    .map((d) => Padding(
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(d),
+                        ))
+                    .toList(),
+              ),
             ),
             const SizedBox(height: 16),
 
