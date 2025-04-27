@@ -17,6 +17,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+
+  flutter_svg_provider: ^1.0.3   # ← add this
   # For iOS-style icons
   cupertino_icons: ^1.0.8
 
@@ -93,6 +95,11 @@ flutter:
     - assets/images/house2.svg
     - assets/images/KS_SHORT.png
     - assets/images/kobra_logo.svg
+    - assets/letters/
+    - assets/numbers/
+    - assets/special/
+    - assets/template_svgs/
+    - assets/buildings/
 
   # Fonts configuration (example)
   fonts:
