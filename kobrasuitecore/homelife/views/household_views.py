@@ -20,8 +20,8 @@ class HouseholdViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         homelife_profile_id = self.kwargs.get('homelife_profile_pk')
         homelife_profile = get_object_or_404(HomeLifeProfile, pk=homelife_profile_id)
-        # hard-fail if the code is already taken
         household = serializer.save()
+        # link it back to the HomeLifeProfile
         homelife_profile.household = household
         homelife_profile.save()
 
