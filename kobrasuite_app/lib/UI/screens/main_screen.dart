@@ -577,6 +577,11 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final store = context.watch<NavigationStore>();
+
+    if (store.hqActive) {
+      return GlobalGestureDetector(child: const HQNavigationOverlay());
+    }
+
     final isLargeScreen = MediaQuery.of(context).size.width >= 800;
     final activeModule = store.activeModule;
     final modules = store.moduleOrder;
@@ -591,17 +596,14 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               const SizedBox(width: 12),
               SvgPicture.asset(
                 'assets/images/kobra_logo.svg',
-                height: 28,               // keeps the original 28‑px visual height
+                height: 28,
                 fit: BoxFit.contain,
               ),
               const SizedBox(width: 8),
               const Text('KobraSuite'),
               if (_tabs.isNotEmpty) ...[
                 const SizedBox(width: 8),
-                // ↙ NEW
-                Expanded(
-                    child: _inlineTabBar(theme),
-                ),
+                Expanded(child: _inlineTabBar(theme)),
               ],
               IconButton(
                 icon: const Icon(Icons.account_circle),
@@ -625,9 +627,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                   NavigationRail(
                     selectedIndex: modules.indexOf(activeModule),
                     onDestinationSelected: (index) {
-                      context
-                          .read<ControlBarProvider>()
-                          .clearEphemeralButtons();
+                      context.read<ControlBarProvider>().clearEphemeralButtons();
                       store.setActiveModule(modules[index]);
                     },
                     labelType: NavigationRailLabelType.all,
@@ -641,27 +641,25 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 Expanded(
                   child: _tabController != null
                       ? AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 200),
-                          switchInCurve: Curves.easeInOut,
-                          switchOutCurve: Curves.easeInOut,
-                          child: TabBarView(
-                            key: ValueKey(_currentModule),
-                            controller: _tabController,
-                            children: _tabs
-                                .map((t) => _buildTabContent(t, activeModule))
-                                .toList(),
-                          ),
-                        )
+                    duration: const Duration(milliseconds: 200),
+                    switchInCurve: Curves.easeInOut,
+                    switchOutCurve: Curves.easeInOut,
+                    child: TabBarView(
+                      key: ValueKey(_currentModule),
+                      controller: _tabController,
+                      children: _tabs
+                          .map((t) => _buildTabContent(t, activeModule))
+                          .toList(),
+                    ),
+                  )
                       : Container(),
                 ),
               ],
             ),
-            // Insert the GlobalModalsLauncher here.
             const UniversalOverlay(),
-            if (store.hqActive) const HQNavigationOverlay(),
           ],
         ),
-        bottomNavigationBar: store.hqActive ? null : const PageControlBar(),
+        bottomNavigationBar: const PageControlBar(),
       ),
     );
   }
