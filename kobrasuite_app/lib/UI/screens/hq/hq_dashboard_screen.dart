@@ -1,607 +1,300 @@
-import 'dart:math';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../nav/providers/navigation_store.dart';
-import '../../widgets/cards/module_card.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-class HQDashboardScreen extends StatefulWidget {
-  const HQDashboardScreen({Key? key}) : super(key: key);
+/* ───────────── asset helpers ────────────────────────────────────── */
 
-  @override
-  State<HQDashboardScreen> createState() => _HQDashboardScreenState();
+const _svgPrefix = 'assets/';
+
+String _glyphPath(String ch) {
+  if (RegExp(r'[0-9]').hasMatch(ch)) {
+    return '${_svgPrefix}numbers/HQ_font_$ch.svg';
+  }
+  if (ch == '.') return '${_svgPrefix}numbers/HQ_font_period.svg';
+  return '${_svgPrefix}letters/HQ_font_${ch.toUpperCase()}.svg';
 }
 
-class _HQDashboardScreenState extends State<HQDashboardScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController controller;
-  late Animation<double> animation;
-  double bubbleSize = 80;
-
-  final modulesData = [
-    {
-      'name': 'Homelife',
-      'level': 1,
-      'population': 25,
-      'streak': 3,
-      'experience': 120,
-      'currency': 100
-    },
-    {
-      'name': 'Finance',
-      'level': 2,
-      'population': 200,
-      'streak': 7,
-      'experience': 840,
-      'currency': 220
-    },
-    {
-      'name': 'Work',
-      'level': 3,
-      'population': 380,
-      'streak': 15,
-      'experience': 1800,
-      'currency': 450
-    },
-    {
-      'name': 'School',
-      'level': 2,
-      'population': 180,
-      'streak': 7,
-      'experience': 1800,
-      'currency': 450
-    },
-  ];
-
+class _Glyph extends StatelessWidget {
+  final String ch;
+  final double size;
+  const _Glyph(this.ch, {required this.size});
   @override
-  void initState() {
-    super.initState();
-    controller =
-    AnimationController(vsync: this, duration: const Duration(seconds: 10))
-      ..repeat();
-    animation = Tween<double>(begin: 0, end: 1).animate(controller);
-  }
+  Widget build(BuildContext ctx) =>
+      SvgPicture.asset(_glyphPath(ch), width: size, height: size);
+}
 
+/// Render any string with the custom SVG font.
+class _FontString extends StatelessWidget {
+  final String text;
+  final double big, small, spacing;
+  const _FontString(
+      this.text, {
+        this.big = 64,
+        this.small = 16,
+        this.spacing = 2,
+      });
   @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  Widget bubble(Color color, double radius, double factor) {
-    return AnimatedBuilder(
-      animation: animation,
-      builder: (context, child) {
-        return Positioned(
-          top: MediaQuery.of(context).size.height * factor -
-              animation.value * 90,
-          right: animation.value * 100 * factor,
-          child: Transform.rotate(
-            angle: animation.value * pi,
-            child: Container(
-              width: radius,
-              height: radius,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget xpNotification() {
-    return AnimatedBuilder(
-      animation: animation,
-      builder: (context, child) {
-        final scale = 1.0 + 0.05 * animation.value;
-        return Transform.scale(
-          scale: scale,
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.05),
-              shape: BoxShape.circle,
-            ),
-            child: Text(
-              'XP +12',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(color: Colors.white70),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget quickStatsCard({
-    required String title,
-    required String value,
-  }) {
-    return Container(
-      width: 240,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            title,
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: Colors.white70),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: Theme.of(context)
-                .textTheme
-                .titleLarge
-                ?.copyWith(color: Colors.white),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget overviewCard({
-    required String title,
-    required Widget content,
-  }) {
-    return Container(
-      width: 240,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            title,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(color: Colors.white),
-          ),
-          const SizedBox(height: 8),
-          content,
-        ],
-      ),
-    );
-  }
-
-  Widget budgetsOverviewCard() {
-    return overviewCard(
-      title: 'Budgets',
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '3 Active, 1 Over',
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: Colors.white70),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            height: 8,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: FractionallySizedBox(
-              widthFactor: 0.7,
-              alignment: Alignment.centerLeft,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.redAccent.withOpacity(0.7),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget transactionsOverviewCard() {
-    return overviewCard(
-      title: 'Transactions',
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'Recent: 12, Total: 265',
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: Colors.white70),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.06),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              '+ \$210 today',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: Colors.white70),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget stocksOverviewCard() {
-    return overviewCard(
-      title: 'Stocks',
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '4 Positions',
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: Colors.white70),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            height: 8,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: FractionallySizedBox(
-              widthFactor: 0.5,
-              alignment: Alignment.centerLeft,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.greenAccent.withOpacity(0.7),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget watchlistOverviewCard() {
-    return overviewCard(
-      title: 'Watchlist',
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '7 Items',
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: Colors.white70),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.06),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              '2% up overall',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: Colors.white70),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget analysisOverviewCard() {
-    return overviewCard(
-      title: 'Analysis',
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'Trend: Positive',
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: Colors.white70),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            height: 40,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.06),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Center(
-              child: Text(
-                'Last 30 Days Up 6%',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: Colors.white70),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget newsOverviewCard() {
-    return overviewCard(
-      title: 'News',
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '3 Unread Articles',
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: Colors.white70),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.06),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              'Market Rally Continues...',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: Colors.white70),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget notificationsCard() {
-    return Container(
-      width: 240,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.07),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Center(
-        child: Text(
-          '3 Notifications',
-          style: Theme.of(context)
-              .textTheme
-              .bodyMedium
-              ?.copyWith(color: Colors.white70),
+  Widget build(BuildContext ctx) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      _Glyph(text[0], size: big),
+      ...text.substring(1).split('').map(
+            (c) => Padding(
+          padding: EdgeInsets.only(left: spacing),
+          child: _Glyph(c, size: small),
         ),
       ),
-    );
+    ],
+  );
+}
+
+class _Word32 extends StatelessWidget {
+  final String w;
+  const _Word32(this.w);
+  @override
+  Widget build(BuildContext ctx) =>
+      _FontString(w, big: 32, small: 32, spacing: 1);
+}
+
+/* ───────────── slanted frame ────────────────────────────────────── */
+
+class _Slanted extends StatelessWidget {
+  final double w, h;
+  final Widget child;
+  const _Slanted({required this.w, required this.h, required this.child});
+  @override
+  Widget build(BuildContext ctx) => CustomPaint(
+    painter: _Painter(),
+    child: SizedBox(width: w, height: h, child: child),
+  );
+}
+
+class _Painter extends CustomPainter {
+  @override
+  void paint(Canvas c, Size s) {
+    final p = Path()
+      ..moveTo(0, 0)
+      ..lineTo(s.width - s.height / 2, 0)
+      ..lineTo(s.width, s.height / 2)
+      ..lineTo(s.width, s.height)
+      ..lineTo(s.height / 2, s.height)
+      ..lineTo(0, s.height - s.height / 2)
+      ..close();
+    c.drawPath(p, Paint()..color = const Color(0xFF1E2B3F));
   }
 
-  Widget calendarOverviewCard() {
-    return Container(
-      width: 240,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.07),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Center(
-        child: Text(
-          'Upcoming Events: 2',
-          style: Theme.of(context)
-              .textTheme
-              .bodyMedium
-              ?.copyWith(color: Colors.white70),
-        ),
-      ),
-    );
-  }
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
 
-  Widget achievements() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.emoji_events, color: Colors.yellowAccent, size: 24),
-        const SizedBox(width: 8),
-        Icon(Icons.workspace_premium, color: Colors.orangeAccent, size: 24),
-        const SizedBox(width: 8),
-        Icon(Icons.military_tech, color: Colors.blueAccent, size: 24),
-      ],
-    );
-  }
+/* ───────────── building tile ────────────────────────────────────── */
 
-  Widget multipliers() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.trending_up, color: Colors.redAccent, size: 24),
-        const SizedBox(width: 16),
-        Icon(Icons.trending_up, color: Colors.greenAccent, size: 24),
-      ],
-    );
-  }
+class _BuildingTile extends StatelessWidget {
+  final String label, pop, path;
+  const _BuildingTile(
+      {required this.label, required this.pop, required this.path});
+  @override
+  Widget build(BuildContext ctx) => Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Text(label,
+          style: const TextStyle(
+              color: Colors.white, fontWeight: FontWeight.w600)),
+      Text('Pop. $pop',
+          style: const TextStyle(color: Colors.white70, fontSize: 12)),
+      const SizedBox(height: 4),
+      SvgPicture.asset(path, width: 56, height: 56),
+    ],
+  );
+}
 
-  Widget profileSummary() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'Wallet: \$2,350',
-            style: Theme.of(context)
-                .textTheme
-                .titleLarge
-                ?.copyWith(color: Colors.white),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 12),
-          achievements(),
-          const SizedBox(height: 12),
-          multipliers(),
-        ],
-      ),
-    );
-  }
+/* ───────────── HQ screen ───────────────────────────────────────── */
 
-  Widget modulesGrid() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Your Modules',
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(color: Colors.white),
-          ),
-          const SizedBox(height: 12),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: modulesData.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 3,
-            ),
-            itemBuilder: (context, index) {
-              return ModuleCard(data: modulesData[index]);
-            },
-          ),
-        ],
-      ),
-    );
-  }
+class HQDashboardScreen extends StatelessWidget {
+  const HQDashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final store = context.watch<NavigationStore>();
-    final isDashboard = store.hqView == HQView.Dashboard;
+    final s = MediaQuery.of(context).size;
+    final colW = s.width / 48, rowH = s.height / 27;
+
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          // Background gradient + floating bubbles
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF141E30), Color(0xFF243B55)],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
+      body: Stack(children: [
+        Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(colors: [Color(0xFF0B1323), Color(0xFF1B2D46)],
+                begin: Alignment.topCenter, end: Alignment.bottomCenter),
           ),
-          bubble(Colors.cyanAccent, bubbleSize, 0.3),
-          bubble(Colors.purpleAccent, bubbleSize * 1.3, 0.6),
-          bubble(Colors.white, bubbleSize * 0.7, 0.8),
+        ),
 
-          SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'HQ Dashboard',
-                    style: Theme.of(context)
-                        .textTheme
-                        .headlineMedium
-                        ?.copyWith(color: Colors.white),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Aggregated User Profile',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(color: Colors.white70),
-                  ),
-                  const SizedBox(height: 20),
-                  xpNotification(),
-                  const SizedBox(height: 20),
-
-                  // Wrap everything in one layout so it lines up nicely
-                  Wrap(
-                    spacing: 16,
-                    runSpacing: 16,
-                    children: [
-                      // Quick stats
-                      quickStatsCard(title: 'Net Worth', value: '\$18,900'),
-                      quickStatsCard(title: 'Monthly Gain', value: '\$1,450'),
-
-                      budgetsOverviewCard(),
-                      transactionsOverviewCard(),
-                      stocksOverviewCard(),
-                      watchlistOverviewCard(),
-                      analysisOverviewCard(),
-                      newsOverviewCard(),
-                      notificationsCard(),
-                      calendarOverviewCard(),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  profileSummary(),
-                  const SizedBox(height: 20),
-                  modulesGrid(),
-                  const SizedBox(height: 24),
-                  if (isDashboard)
-                    Center(
-                      child: Text(
-                        'Swipe Up/Down or Pinch to switch.',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(color: Colors.white54),
-                      ),
-                    ),
-                ],
-              ),
+        /* main grid */
+        Positioned.fill(
+          child: Row(children: [
+            /* left metrics */
+            SizedBox(
+              width: colW * 7,
+              child: Column(children: [
+                _metric(colW, rowH, 'STREAK', '2333'),
+                _metric(colW, rowH, 'RANK', '15'),
+                _metric(colW, rowH, 'MULT', '1.48'),
+                _metric(colW, rowH, 'EXP', '5846/7025'),
+              ]),
             ),
-          ),
-        ],
-      ),
+
+            /* middle column */
+            SizedBox(
+              width: colW * 24,
+              child: Column(children: [
+                SizedBox(
+                    height: rowH,
+                    child: Center(
+                        child: SvgPicture.asset(
+                            '${_svgPrefix}template_svgs/HQ_font.svg',
+                            height: rowH))),
+                Row(children: [
+                  /* tasks column */
+                  Expanded(
+                    child: Column(children: [
+                      _panel(colW * 12, rowH * 3, const [
+                        _Word32('TASKS'),
+                        _Word32('DONE')
+                      ]),
+                      _panelBody(colW * 12, rowH * 7,
+                          const Center(child: _FontString('12'))),
+                      SizedBox(height: rowH * .5),
+                      _panel(colW * 12, rowH * 3, const [
+                        _Word32('TASK'),
+                        _Word32('HISTORY')
+                      ]),
+                      _panelBody(colW * 12, rowH * 7, const SizedBox()),
+                    ]),
+                  ),
+                  const SizedBox(width: 8),
+                  /* badges/custom column */
+                  Expanded(
+                    child: Column(children: [
+                      _panel(colW * 11, rowH * 3, const [_Word32('BADGES')]),
+                      _panelBody(colW * 11, rowH * 6, const SizedBox()),
+                      SizedBox(height: rowH * .5),
+                      _panel(
+                          colW * 11, rowH * 3, const [_Word32('CUSTOMIZATION')]),
+                      _panelBody(colW * 11, rowH * 6, const SizedBox()),
+                    ]),
+                  ),
+                ]),
+                SizedBox(height: rowH * .5),
+
+                /* town */
+                Row(children: [
+                  Expanded(
+                      child: SizedBox(
+                          height: rowH * 10,
+                          child: Stack(fit: StackFit.expand, children: [
+                            SvgPicture.asset(
+                              '${_svgPrefix}buildings/HQ_town_land.svg',
+                              fit: BoxFit.cover,
+                              alignment: Alignment.bottomCenter,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: GridView.count(
+                                physics: const NeverScrollableScrollPhysics(),
+                                crossAxisCount: 3,
+                                mainAxisSpacing: 8,
+                                crossAxisSpacing: 8,
+                                childAspectRatio: 1,
+                                children: const [
+                                  _BuildingTile(
+                                      label: 'Finance',
+                                      pop: '1 014',
+                                      path:
+                                      '${_svgPrefix}buildings/castle/HQ_castle.svg'),
+                                  _BuildingTile(
+                                      label: 'Homelife',
+                                      pop: '430',
+                                      path:
+                                      '${_svgPrefix}buildings/bighouse/HQ_bighouse.svg'),
+                                  _BuildingTile(
+                                      label: 'School',
+                                      pop: '89',
+                                      path:
+                                      '${_svgPrefix}buildings/cabin/HQ_cabin.svg'),
+                                  _BuildingTile(
+                                      label: 'Work',
+                                      pop: '12',
+                                      path:
+                                      '${_svgPrefix}buildings/tent/HQ_tent.svg'),
+                                  _BuildingTile(
+                                      label: 'Guild',
+                                      pop: '54',
+                                      path:
+                                      '${_svgPrefix}buildings/house/HQ_house.svg'),
+                                  _BuildingTile(
+                                      label: 'Tower',
+                                      pop: '8',
+                                      path:
+                                      '${_svgPrefix}buildings/tower/HQ_tower.svg'),
+                                ],
+                              ),
+                            ),
+                          ]))),
+                ]),
+              ]),
+            ),
+
+            /* right column */
+            Expanded(
+                child: Column(children: [
+                  _border(rowH * 13, const _Word32('CALENDAR')),
+                  const SizedBox(height: 8),
+                  Expanded(child: _border(double.infinity, const _Word32('MISC')))
+                ])),
+          ]),
+        ),
+
+        /* XP bubble */
+        Positioned(
+            right: 24,
+            top: rowH * 2,
+            child: Transform.rotate(
+                angle: math.pi / 9,
+                child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(
+                        color: Colors.white24, shape: BoxShape.circle),
+                    child:
+                    const _FontString('XP+12', big: 24, small: 12)))),
+      ]),
     );
   }
+
+  /* helpers */
+  Widget _metric(double cw, double rh, String t, String v) => Column(children: [
+    _Slanted(
+        w: cw * 7,
+        h: rh * 4,
+        child:
+        Padding(padding: const EdgeInsets.only(left: 12), child: _Word32(t))),
+    const SizedBox(height: 4),
+    _FontString(v),
+    SizedBox(height: rh),
+  ]);
+
+  Widget _panel(double w, double h, List<Widget> lines) => _Slanted(
+    w: w,
+    h: h,
+    child: Column(
+        mainAxisAlignment: MainAxisAlignment.center, children: lines),
+  );
+
+  Widget _panelBody(double w, double h, Widget child) =>
+      Container(width: w, height: h, color: const Color(0xFF0E1829), child: child);
+
+  Widget _border(double h, Widget child) => Container(
+    height: h,
+    width: double.infinity,
+    decoration:
+    BoxDecoration(border: Border.all(color: Colors.white, width: 3)),
+    child: Center(child: child),
+  );
 }
