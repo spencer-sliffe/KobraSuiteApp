@@ -32,6 +32,11 @@ class Household(models.Model): # Creates household model
     household_type = models.CharField(max_length=20, choices=HouseholdType.choices, default=HouseholdType.FAMILY)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
+    join_code = models.CharField(
+        max_length=20,
+        unique=True,
+        help_text="Permanent invite code users can enter to join this household."
+    )
 
     def __str__(self):
         return self.name
@@ -288,22 +293,3 @@ class ChildProfile(models.Model): # creates child profile model
 # stores meta data
     class Meta:
         ordering = ['name']
-
-
-class HouseholdInvite(models.Model):
-    """
-    One-time join code tied to a household.
-    """
-    household   = models.ForeignKey(
-        Household,
-        on_delete=models.CASCADE,
-        related_name='invites'
-    )
-    code        = models.CharField(max_length=20, unique=True)
-    created_at  = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return f"{self.code} → {self.household.name}"
-
-    class Meta:
-        ordering = ['-created_at']

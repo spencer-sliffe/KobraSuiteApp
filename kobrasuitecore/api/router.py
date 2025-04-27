@@ -7,7 +7,6 @@ from homelife.views.chore_completion_views import ChoreCompletionViewSet
 from homelife.views.chore_views import ChoreViewSet
 from homelife.views.grocery_item_views import GroceryItemViewSet
 from homelife.views.grocery_list_views import GroceryListViewSet
-from homelife.views.household_invite_views import HouseholdInviteViewSet
 from homelife.views.household_views import HouseholdViewSet, HouseholdMemberViewSet
 from homelife.views.meal_plan_views import MealPlanViewSet
 from homelife.views.medical_appointment_views import MedicalAppointmentViewSet
@@ -91,7 +90,6 @@ budget_router.register('categories', BudgetCategoryViewSet, basename='budget_cat
 # HOMELIFE
 homelife_profile_router = routers.NestedDefaultRouter(profile_router, 'homelife_profile', lookup='homelife_profile')
 homelife_profile_router.register('households', HouseholdViewSet, basename='households')
-homelife_profile_router.register('household_invites', HouseholdInviteViewSet, basename='household_invites')
 
 household_router = routers.NestedDefaultRouter(homelife_profile_router, 'households', lookup='household')
 household_router.register('child_profiles', ChildProfileViewSet, basename='child_profiles')

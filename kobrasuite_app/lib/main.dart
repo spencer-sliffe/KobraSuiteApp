@@ -9,7 +9,6 @@ import 'package:kobrasuite_app/providers/homelife/chore_completion_provider.dart
 import 'package:kobrasuite_app/providers/homelife/chore_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/grocery_item_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/grocery_list_provider.dart';
-import 'package:kobrasuite_app/providers/homelife/household_invite_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/household_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/meal_provider.dart';
 import 'package:kobrasuite_app/providers/homelife/medical_appointment_provider.dart';
@@ -193,15 +192,6 @@ void main() async {
           update: (context, homeLifeProfile, petProvider) {
             petProvider!.update(homeLifeProfile);
             return petProvider;
-          },
-        ),
-        ChangeNotifierProxyProvider<HomeLifeProfileProvider, HouseholdInviteProvider>(
-          create: (context) => HouseholdInviteProvider(
-            homelifeProfileProvider: context.read<HomeLifeProfileProvider>(),
-          ),
-          update: (context, homeLifeProfile, householdInviteProvider) {
-            householdInviteProvider!.update(homeLifeProfile);
-            return householdInviteProvider;
           },
         ),
         ChangeNotifierProxyProvider<HomeLifeProfileProvider, ChildProfileProvider>(
