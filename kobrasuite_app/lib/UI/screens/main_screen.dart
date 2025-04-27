@@ -582,6 +582,13 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       return GlobalGestureDetector(child: const HQNavigationOverlay());
     }
 
+    bool detailActive = false;
+    try {
+      detailActive = (store as dynamic).detailActive as bool? ?? false;
+    } catch (_) {}
+
+    final bool showModuleTabs = _tabs.isNotEmpty && !detailActive;
+
     final isLargeScreen = MediaQuery.of(context).size.width >= 800;
     final activeModule = store.activeModule;
     final modules = store.moduleOrder;
@@ -601,10 +608,11 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               ),
               const SizedBox(width: 8),
               const Text('KobraSuite'),
-              if (_tabs.isNotEmpty) ...[
-                const SizedBox(width: 8),
-                Expanded(child: _inlineTabBar(theme)),
-              ],
+              const SizedBox(width: 8),
+              if (showModuleTabs)
+                Expanded(child: _inlineTabBar(theme))
+              else
+                const Spacer(),
               IconButton(
                 icon: const Icon(Icons.account_circle),
                 onPressed: () => Navigator.pushNamed(context, '/account'),
@@ -627,7 +635,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                   NavigationRail(
                     selectedIndex: modules.indexOf(activeModule),
                     onDestinationSelected: (index) {
-                      context.read<ControlBarProvider>().clearEphemeralButtons();
+                      context
+                          .read<ControlBarProvider>()
+                          .clearEphemeralButtons();
                       store.setActiveModule(modules[index]);
                     },
                     labelType: NavigationRailLabelType.all,
@@ -652,7 +662,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                           .toList(),
                     ),
                   )
-                      : Container(),
+                      : const SizedBox.shrink(),
                 ),
               ],
             ),
