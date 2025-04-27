@@ -29,6 +29,14 @@ class BankAccountProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  BankAccount? byId(int id) {
+    try {
+      return _bankAccounts.firstWhere((a) => a.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// Loads bank accounts using the current profile IDs.
   Future<void> loadBankAccounts() async {
     _isLoading = true;

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../models/detail_target.dart';
+
 enum Module { Finances, HomeLife, School, Work }
 enum HQView { Dashboard, ModuleManager }
 
@@ -10,6 +12,10 @@ class NavigationStore extends ChangeNotifier {
   bool _hqActive = false;
   HQView _hqView = HQView.Dashboard;
   VoidCallback? _refreshCallback;
+
+  DetailTarget? _detailTarget;
+  DetailTarget? get detailTarget => _detailTarget;
+  bool get detailActive => _detailTarget != null;
 
   //Tab Control
   int _activeFinancesTabIndex = 0;
@@ -597,5 +603,16 @@ class NavigationStore extends ChangeNotifier {
       _hqView = view;
       notifyListeners();
     }
+  }
+
+  void showDetail(DetailTarget t) {
+    _clearAllOverlayFlags();
+    _detailTarget = t;
+    notifyListeners();
+  }
+
+  void closeDetail() {
+    _detailTarget = null;
+    notifyListeners();
   }
 }

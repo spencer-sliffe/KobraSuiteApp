@@ -1,7 +1,12 @@
+// lib/UI/screens/modules/finances/tabs/bank_accounts_tab.dart
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../../../models/detail_target.dart';
 import '../../../../../providers/finance/bank_account_provider.dart';
+import '../../../../nav/providers/navigation_store.dart';
+import '../../../../../models/model_kind_enum.dart';
 import '../../../../widgets/cards/finance/bank_account_card.dart';
 
 class BankAccountsTab extends StatefulWidget {
@@ -78,6 +83,7 @@ class _BankAccountsTabState extends State<BankAccountsTab> {
       body: Column(
         children: [
           if (isLoading) const LinearProgressIndicator(),
+          _buildSearchField(),
           Expanded(
             child: RefreshIndicator(
               onRefresh: _onRefresh,
@@ -94,10 +100,29 @@ class _BankAccountsTabState extends State<BankAccountsTab> {
                   ),
                 ],
               )
-                  : _buildAccountsList(context, totalBalance, accountsToDisplay),
+                  : _buildAccountsList(
+                  context, totalBalance, accountsToDisplay),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSearchField() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: TextField(
+        decoration: const InputDecoration(
+          labelText: 'Search accounts',
+          border: OutlineInputBorder(),
+        ),
+        onChanged: (value) {
+          if (_debounce?.isActive ?? false) _debounce!.cancel();
+          _debounce = Timer(const Duration(milliseconds: 400), () {
+            _filterAccounts(value);
+          });
+        },
       ),
     );
   }
@@ -134,6 +159,11 @@ class _BankAccountsTabState extends State<BankAccountsTab> {
         ...accounts.map(
               (acct) => BankAccountCard(
             account: acct,
+            onTap: () {
+              context.read<NavigationStore>().showDetail(
+                DetailTarget(kind: ModelKind.bankAccount, id: acct.id),
+              );
+            },
             onDelete: () {
               // Optionally implement deletion functionality.
             },
