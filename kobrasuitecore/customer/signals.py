@@ -21,6 +21,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
 from hq.models import UserProfile, SchoolProfile, WorkProfile, FinanceProfile, HomeLifeProfile
+from finances.models import StockPortfolio
 
 User = get_user_model()
 
@@ -31,7 +32,8 @@ def create_profiles(sender, instance, created, **kwargs):
         user_profile = UserProfile.objects.create(user=instance)
         SchoolProfile.objects.create(profile=user_profile)
         WorkProfile.objects.create(profile=user_profile)
-        FinanceProfile.objects.create(profile=user_profile)
+        financeprofile=FinanceProfile.objects.create(profile=user_profile)
+        StockPortfolio.objects.create(finance_profile=financeprofile)
         HomeLifeProfile.objects.create(profile=user_profile)
 
 
@@ -45,5 +47,7 @@ def save_profiles(sender, instance, **kwargs):
             instance.profile.work_profile.save()
         if hasattr(instance.profile, 'finance_profile'):
             instance.profile.finance_profile.save()
+            if hasattr(instance.profile.finance_profile, 'stockportfolio'):
+                    instance.profile.finance_profile.stockportfolio.save()
         if hasattr(instance.profile, 'homelife_profile'):
             instance.profile.homelife_profile.save()
