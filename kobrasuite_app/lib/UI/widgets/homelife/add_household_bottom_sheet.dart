@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/homelife/household_provider.dart';
+import '../../../providers/homelife/household_invite_provider.dart';
 import '../../nav/providers/navigation_store.dart';
 
 enum _Mode { create, join }
@@ -40,6 +41,7 @@ class _AddHouseholdBottomSheetState extends State<AddHouseholdBottomSheet> {
     setState(() { _state = _State.working; _error = ''; });
 
     final householdProv = context.read<HouseholdProvider>();
+    final inviteProv    = context.read<HouseholdInviteProvider>();
 
     bool ok = false;
 
