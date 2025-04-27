@@ -598,9 +598,11 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               const Text('KobraSuite'),
               if (_tabs.isNotEmpty) ...[
                 const SizedBox(width: 8),
-                _inlineTabBar(theme),
+                // ↙ NEW
+                Expanded(
+                    child: _inlineTabBar(theme),
+                ),
               ],
-              const Spacer(),
               IconButton(
                 icon: const Icon(Icons.account_circle),
                 onPressed: () => Navigator.pushNamed(context, '/account'),
