@@ -53,6 +53,7 @@ import 'UI/screens/account/account_screen.dart';
 import 'UI/screens/auth/forgot_password_screen.dart';
 import 'UI/screens/auth/password_reset_confirm_screen.dart';
 import 'UI/screens/main_screen.dart';
+import 'UI/widgets/detail/finance/bank_account_detail_widget.dart';
 import 'auth_wrapper.dart';
 
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
@@ -61,6 +62,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await setupServiceLocator();
   await serviceLocator<AuthService>().initialize();
+  BankAccountDetailSheet.register();
+
   runApp(
     MultiProvider(
       providers: [

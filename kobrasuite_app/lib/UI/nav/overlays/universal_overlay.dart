@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kobrasuite_app/UI/nav/overlays/universal_detail_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:kobrasuite_app/UI/nav/providers/navigation_store.dart';
 
@@ -28,6 +29,9 @@ class UniversalOverlay extends StatelessWidget {
   const UniversalOverlay({Key? key}) : super(key: key);
 
   Widget? _buildOverlay(NavigationStore navStore) {
+    if (navStore.detailActive) {
+      return UniversalDetailOverlay(target: navStore.detailTarget!);
+    }
     // Define the priority order (only the first active flag returns an overlay)
     if (navStore.searchUniversityActive) {
     } else if (navStore.addCourseActive) {
