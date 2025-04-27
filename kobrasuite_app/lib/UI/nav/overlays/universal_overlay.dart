@@ -8,7 +8,6 @@ import 'finance/add_bank_account_overlay.dart';
 import 'finance/add_budget_category_overlay.dart';
 import 'finance/add_budget_overlay.dart';
 import 'finance/add_portfolio_stock_overlay.dart';
-import 'finance/add_stock_portfolio_overlay.dart';
 import 'finance/add_transaction_overlay.dart';
 import 'homelife/add_calendar_event_overlay.dart';
 import 'homelife/add_child_profile_overlay.dart';
@@ -72,8 +71,6 @@ class UniversalOverlay extends StatelessWidget {
       return const AddTransactionOverlay();
     } else if (navStore.addStockActive) {
       return const AddPortfolioStockOverlay();
-    } else if (navStore.addStockPortfolioActive) {
-      return const AddStockPortfolioOverlay();
     } else if (navStore.addWatchlistStockActive) {
       return const AddWatchlistStockOverlay();
     } else if (navStore.addWorkoutRoutineActive) {

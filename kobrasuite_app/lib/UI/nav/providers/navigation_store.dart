@@ -45,7 +45,6 @@ class NavigationStore extends ChangeNotifier {
   bool _refreshFinanceNewsActive = false;
   bool _aiChatActive = false;
   bool _runFinanceAnalysisActive = false;
-  bool _addStockPortfolioActive = false;
   bool _addTopicStudyDocumentActive = false;
   bool _addCourseTopicActive = false;
   bool _addAssignmentSubmissionActive = false;
@@ -90,7 +89,6 @@ class NavigationStore extends ChangeNotifier {
   bool get refreshFinanceNewsActive => _refreshFinanceNewsActive;
   bool get aiChatActive => _aiChatActive;
   bool get runFinanceAnalysisActive => _runFinanceAnalysisActive;
-  bool get addStockPortfolioActive => _addStockPortfolioActive;
   bool get addTopicStudyDocumentActive => _addTopicStudyDocumentActive;
   bool get addCourseTopicActive => _addCourseTopicActive;
   bool get addAssignmentSubmissionActive => _addAssignmentSubmissionActive;
@@ -125,7 +123,6 @@ class NavigationStore extends ChangeNotifier {
     _syncStocksActive = false;
     _refreshFinanceNewsActive = false;
     _runFinanceAnalysisActive = false;
-    _addStockPortfolioActive = false;
     _addTopicStudyDocumentActive = false;
     _addCourseTopicActive = false;
     _addAssignmentSubmissionActive = false;
@@ -441,18 +438,6 @@ class NavigationStore extends ChangeNotifier {
     {
       _clearAllOverlayFlags();
       _runFinanceAnalysisActive = !_runFinanceAnalysisActive;
-    }
-    notifyListeners();
-  }
-
-  void setAddStockPortfolioActive() {
-    if (_addStockPortfolioActive) {
-      _addStockPortfolioActive = !_addStockPortfolioActive;
-    }
-    else
-    {
-      _clearAllOverlayFlags();
-      _addStockPortfolioActive = !_addStockPortfolioActive;
     }
     notifyListeners();
   }
