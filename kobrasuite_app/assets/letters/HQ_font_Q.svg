@@ -1,0 +1,7 @@
+<!-- assets/letters/HQ_font_Q.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8" shape-rendering="crispEdges">
+    <path fill="currentColor" fill-rule="evenodd"
+          d="M0 0 H6 L8 1 V8 H2 L0 6 Z
+           M2 2 H4 L6 3 V6 H4 L2 4 Z"/>
+    <path fill="currentColor" d="M4.5 5.5 L8 8 H6 L2.5 5.5 Z"/>
+</svg>

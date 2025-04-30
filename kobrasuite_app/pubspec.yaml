@@ -100,6 +100,7 @@ flutter:
     - assets/special/
     - assets/template_svgs/
     - assets/buildings/
+    - assets/images/UI_MOCKUP.png
 
   # Fonts configuration (example)
   fonts:
