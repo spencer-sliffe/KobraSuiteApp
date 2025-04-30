@@ -212,13 +212,6 @@ class _HomelifePersonalTabState extends State<HomelifePersonalTab> {
                 ),
               ],
             ),
-            trailing: Checkbox(
-              value: false,
-              onChanged: (_) {
-                // TODO: hit “log-dose” endpoint when backend available
-              },
-              shape: const CircleBorder(),
-            ),
           ),
         );
       },

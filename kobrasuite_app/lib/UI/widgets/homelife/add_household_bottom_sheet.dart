@@ -53,22 +53,23 @@ class _AddHouseholdBottomSheetState extends State<AddHouseholdBottomSheet> {
       );
 
       // 2. grab the freshly-created id
-      final hhId = householdProv.household?.id;
-
-      // 3. create invite with that id
-      if (ok && hhId != null) {
-        ok = await inviteProv.create(
-          householdPk: hhId,
-          code: _codeCtrl.text.trim(),
-        );
+      // final hhId = householdProv.household?.id;
+      //
+      // // 3. create invite with that id
+      // if (ok && hhId != null) {
+      //   ok = await inviteProv.create(
+      //     householdPk: hhId,
+      //     code: _codeCtrl.text.trim(),
+      //   );
       } else {
         ok = false;
       }
-    } else {
-      // join
-      ok = await inviteProv.redeem(_codeCtrl.text.trim());
-      if (ok) await householdProv.loadHousehold();
-    }
+    // } else {
+    //   // join
+    //   ok = await inviteProv.redeem(_codeCtrl.text.trim());
+    //   if (ok) await householdProv.loadHousehold();
+    // }
+
 
     setState(() => _state = ok ? _State.done : _State.idle);
     if (!ok) {
