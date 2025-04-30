@@ -1,57 +1,50 @@
+// lib/providers/finance/transaction_provider.dart
 import 'package:flutter/foundation.dart';
 import '../../../services/finance/banking_service.dart';
 import '../../../services/service_locator.dart';
 import '../../../models/finance/transaction.dart';
+import '../general/finance_profile_provider.dart';
 
 class TransactionProvider extends ChangeNotifier {
   final BankingService _service;
-  int _userPk;
-  int _userProfilePk;
-  int _financeProfilePk;
+  FinanceProfileProvider _financeProfileProvider;
 
   bool _isLoading = false;
   String _errorMessage = '';
   List<Transaction> _transactions = [];
 
-  TransactionProvider({
-    required int userPk,
-    required int userProfilePk,
-    required int financeProfilePk,
-  })  : _userPk = userPk,
-        _userProfilePk = userProfilePk,
-        _financeProfilePk = financeProfilePk,
+  TransactionProvider({required FinanceProfileProvider financeProfileProvider})
+      : _financeProfileProvider = financeProfileProvider,
         _service = serviceLocator<BankingService>();
 
-  bool get isLoading => _isLoading;
-  String get errorMessage => _errorMessage;
+  /* ─── getters ───────────────────────────────────────────────── */
+  bool   get isLoading       => _isLoading;
+  String get errorMessage    => _errorMessage;
   List<Transaction> get transactions => _transactions;
 
-  int get userPk => _userPk;
-  int get userProfilePk => _userProfilePk;
-  int get financeProfilePk => _financeProfilePk;
+  int get userPk            => _financeProfileProvider.userPk;
+  int get userProfilePk     => _financeProfileProvider.userProfilePk;
+  int get financeProfilePk  => _financeProfileProvider.financeProfilePk;
 
-  void update({
-    required int newUserPk,
-    required int newUserProfilePk,
-    required int newFinanceProfilePk,
-  }) {
-    _userPk = newUserPk;
-    _userProfilePk = newUserProfilePk;
-    _financeProfilePk = newFinanceProfilePk;
+  /* ─── syncing with FinanceProfileProvider ───────────────────── */
+  void update(FinanceProfileProvider newFinanceProfileProvider) {
+    final bool changed = newFinanceProfileProvider.financeProfilePk != financeProfilePk;
+    _financeProfileProvider = newFinanceProfileProvider;
     notifyListeners();
+    if (changed) loadTransactions();
   }
 
+  /* ─── read all ──────────────────────────────────────────────── */
   Future<void> loadTransactions() async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
     try {
-      final list = await _service.getTransactions(
-        userPk: _userPk,
-        userProfilePk: _userProfilePk,
-        financeProfilePk: _financeProfilePk,
+      _transactions = await _service.getTransactions(
+        userPk: userPk,
+        userProfilePk: userProfilePk,
+        financeProfilePk: financeProfilePk,
       );
-      _transactions = list;
     } catch (e) {
       _errorMessage = 'Error loading transactions: $e';
     }
@@ -59,6 +52,7 @@ class TransactionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /* ─── create ────────────────────────────────────────────────── */
   Future<bool> createTransaction({
     required String transactionType,
     required double amount,
@@ -71,10 +65,10 @@ class TransactionProvider extends ChangeNotifier {
     _errorMessage = '';
     notifyListeners();
     try {
-      final success = await _service.createTransaction(
-        userPk: _userPk,
-        userProfilePk: _userProfilePk,
-        financeProfilePk: _financeProfilePk,
+      final ok = await _service.createTransaction(
+        userPk: userPk,
+        userProfilePk: userProfilePk,
+        financeProfilePk: financeProfilePk,
         transactionType: transactionType,
         amount: amount,
         bankAccountId: bankAccountId,
@@ -82,10 +76,8 @@ class TransactionProvider extends ChangeNotifier {
         description: description,
         dateIso: dateIso,
       );
-      if (success) {
-        await loadTransactions();
-      }
-      return success;
+      if (ok) await loadTransactions();
+      return ok;
     } catch (e) {
       _errorMessage = 'Error creating transaction: $e';
       return false;
@@ -95,21 +87,20 @@ class TransactionProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> deleteTransaction(int transactionId) async {
+  /* ─── delete ────────────────────────────────────────────────── */
+  Future<bool> deleteTransaction(int id) async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
     try {
-      final success = await _service.deleteTransaction(
-        userPk: _userPk,
-        userProfilePk: _userProfilePk,
-        financeProfilePk: _financeProfilePk,
-        transactionId: transactionId,
+      final ok = await _service.deleteTransaction(
+        userPk: userPk,
+        userProfilePk: userProfilePk,
+        financeProfilePk: financeProfilePk,
+        transactionId: id,
       );
-      if (success) {
-        _transactions.removeWhere((t) => t.id == transactionId);
-      }
-      return success;
+      if (ok) _transactions.removeWhere((t) => t.id == id);
+      return ok;
     } catch (e) {
       _errorMessage = 'Error deleting transaction: $e';
       return false;

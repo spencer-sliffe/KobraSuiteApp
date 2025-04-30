@@ -62,8 +62,8 @@ class KobraDrawer extends StatelessWidget {
         return Icons.home;
       case Module.School:
         return Icons.school;
-      case Module.Work:
-        return Icons.work;
+      // case Module.Work:
+      //   return Icons.work;
     }
   }
 }

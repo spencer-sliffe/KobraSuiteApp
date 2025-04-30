@@ -1,8 +1,12 @@
+// lib/UI/screens/modules/finances/tabs/budgets_tab.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../../providers/finance/budget_provider.dart';
 import '../../../../widgets/cards/finance/budget_card.dart';
+import '../../../../nav/providers/navigation_store.dart';
+import '../../../../../models/detail_target.dart';
+import '../../../../../models/model_kind_enum.dart';
 
 class BudgetsTab extends StatefulWidget {
   const BudgetsTab({Key? key}) : super(key: key);
@@ -12,7 +16,6 @@ class BudgetsTab extends StatefulWidget {
 }
 
 class _BudgetsTabState extends State<BudgetsTab> {
-  // Local list used for filtering.
   List _filteredBudgets = [];
   Timer? _debounce;
   String _searchQuery = '';
@@ -20,9 +23,7 @@ class _BudgetsTabState extends State<BudgetsTab> {
   @override
   void initState() {
     super.initState();
-    // Optionally initialize the filtered list with the current provider value.
-    final provider = Provider.of<BudgetProvider>(context, listen: false);
-    _filteredBudgets = List.from(provider.budgets);
+    _filteredBudgets = List.from(context.read<BudgetProvider>().budgets);
   }
 
   @override
@@ -31,73 +32,50 @@ class _BudgetsTabState extends State<BudgetsTab> {
     super.dispose();
   }
 
-  /// Pull-to-refresh callback (if you want to manually refresh in this view).
-  Future<void> _onRefresh() async {
-    // Optionally, you can trigger a refresh in the provider.
-    final provider = Provider.of<BudgetProvider>(context, listen: false);
-    await provider.loadBudgets();
-  }
+  Future<void> _onRefresh() => context.read<BudgetProvider>().loadBudgets();
 
-  /// Filter budgets based on the entered query.
-  Future<void> _filterBudgets(String query) async {
-    final provider = Provider.of<BudgetProvider>(context, listen: false);
-    final lowerQuery = query.toLowerCase();
-
-    final results = provider.budgets.where((budget) {
-      return budget.name.toLowerCase().contains(lowerQuery);
-    }).toList();
-
-    if (!mounted) return;
+  void _filterBudgets(String q) {
+    final provider = context.read<BudgetProvider>();
+    final lower = q.toLowerCase();
+    final res = provider.budgets.where((b) => b.name.toLowerCase().contains(lower)).toList();
     setState(() {
-      _searchQuery = query;
-      _filteredBudgets = results;
+      _searchQuery = q;
+      _filteredBudgets = res;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final budgetProvider = context.watch<BudgetProvider>();
-    final isLoading = budgetProvider.isLoading;
-    final errorMessage = budgetProvider.errorMessage ?? '';
-    // Use either the filtered list if there's a search query, or all budgets.
-    final budgetsToDisplay =
-    _searchQuery.isEmpty ? budgetProvider.budgets : _filteredBudgets;
-
-    final totalBudgetAmount = budgetProvider.budgets.fold<double>(
-      0.0,
-          (prev, budget) => prev + budget.totalAmount,
-    );
+    final bp = context.watch<BudgetProvider>();
+    final isLoading = bp.isLoading;
+    final err = bp.errorMessage ?? '';
+    final budgets = _searchQuery.isEmpty ? bp.budgets : _filteredBudgets;
+    final total = bp.budgets.fold<double>(0.0, (p, b) => p + b.totalAmount);
 
     return Scaffold(
       body: Column(
         children: [
           if (isLoading) const LinearProgressIndicator(),
-          // Simple summary header.
           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Total Budget: \$${totalBudgetAmount.toStringAsFixed(2)}',
-              style: Theme.of(context).textTheme.headlineSmall,
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              decoration: const InputDecoration(labelText: 'Search budgets', border: OutlineInputBorder()),
+              onChanged: (v) {
+                _debounce?.cancel();
+                _debounce = Timer(const Duration(milliseconds: 400), () => _filterBudgets(v));
+              },
             ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text('Total Budget: \$${total.toStringAsFixed(2)}', style: Theme.of(context).textTheme.headlineSmall),
           ),
           Expanded(
             child: RefreshIndicator(
               onRefresh: _onRefresh,
-              child: errorMessage.isNotEmpty
-                  ? ListView(
-                children: [
-                  const SizedBox(height: 16),
-                  Center(
-                    child: Text(
-                      'Error: $errorMessage',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                  ),
-                ],
-              )
-                  : _buildBudgetsList(budgetsToDisplay),
+              child: err.isNotEmpty
+                  ? ListView(children: [const SizedBox(height: 16), Center(child: Text('Error: $err', style: TextStyle(color: Theme.of(context).colorScheme.error)) ) ])
+                  : _listView(context, budgets),
             ),
           ),
         ],
@@ -105,25 +83,18 @@ class _BudgetsTabState extends State<BudgetsTab> {
     );
   }
 
-  Widget _buildBudgetsList(List budgets) {
+  Widget _listView(BuildContext ctx, List budgets) {
     if (budgets.isEmpty) {
-      return ListView(
-        children: const [
-          SizedBox(height: 16),
-          Center(child: Text('No budgets found.')),
-        ],
-      );
+      return ListView(children: const [SizedBox(height: 16), Center(child: Text('No budgets found.'))]);
     }
-
     return ListView(
-      children: budgets
-          .map((budget) => BudgetCard(
-        budget: budget,
-        onDelete: () {
-          // Optionally, implement deletion via the provider.
-        },
-      ))
-          .toList(),
+      children: budgets.map<Widget>((b) => BudgetCard(
+        budget: b,
+        onTap: () => ctx.read<NavigationStore>().showDetail(
+          DetailTarget(kind: ModelKind.budget, id: b.id),
+        ),
+        onDelete: () {/* optional */},
+      )).toList(),
     );
   }
 }

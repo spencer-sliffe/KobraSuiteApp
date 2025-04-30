@@ -1,178 +1,68 @@
+// lib/UI/widgets/bottomsheets/finance/add_transaction_bottom_sheet.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../providers/finance/transaction_provider.dart';
 import '../../nav/providers/navigation_store.dart';
 
 enum AddTransactionState { initial, adding, added }
 
 class AddTransactionBottomSheet extends StatefulWidget {
-  const AddTransactionBottomSheet({Key? key}) : super(key: key);
+  const AddTransactionBottomSheet({super.key});
 
   @override
-  State<AddTransactionBottomSheet> createState() =>
-      _AddTransactionBottomSheetState();
+  State<AddTransactionBottomSheet> createState() => _AddTransactionBottomSheetState();
 }
 
 class _AddTransactionBottomSheetState extends State<AddTransactionBottomSheet> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
-  // Controllers for fields.
-  final TextEditingController _transactionTypeController =
-  TextEditingController();
-  final TextEditingController _amountController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _dateController = TextEditingController();
+  final _typeCtrl = TextEditingController();
+  final _amountCtrl = TextEditingController();
+  final _descCtrl = TextEditingController();
+  DateTime? _date;
 
   AddTransactionState _state = AddTransactionState.initial;
-  String _errorFeedback = "";
+  String _error = '';
 
   @override
   void dispose() {
-    _transactionTypeController.dispose();
-    _amountController.dispose();
-    _descriptionController.dispose();
-    _dateController.dispose();
+    _typeCtrl.dispose();
+    _amountCtrl.dispose();
+    _descCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _addTransaction() async {
+  Future<void> _pickDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: now,
+      firstDate: now.subtract(const Duration(days: 365 * 2)),
+      lastDate: now.add(const Duration(days: 365 * 2)),
+    );
+    if (picked != null) setState(() => _date = picked);
+  }
+
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
       _state = AddTransactionState.adding;
-      _errorFeedback = "";
+      _error = '';
     });
 
-    // Simulate an asynchronous service call. Replace this with your actual API call.
-    await Future.delayed(const Duration(seconds: 1));
-    final success = true; // Replace with actual success state.
-
-    if (success) {
-      setState(() {
-        _state = AddTransactionState.added;
-      });
-    } else {
-      setState(() {
-        _errorFeedback = 'Failed to add transaction.';
-        _state = AddTransactionState.initial;
-      });
-    }
-  }
-
-  Widget _buildContent() {
-    if (_state == AddTransactionState.adding) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              CircularProgressIndicator(),
-              SizedBox(width: 16),
-              Text('Adding transaction...'),
-            ],
-          ),
-        ),
-      );
-    }
-    if (_state == AddTransactionState.added) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            'Transaction added successfully.',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-        ),
-      );
-    }
-    return Form(
-      key: _formKey,
-      child: SingleChildScrollView(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 16,
-          right: 16,
-          top: 16,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Transaction Type
-            TextFormField(
-              controller: _transactionTypeController,
-              decoration:
-              const InputDecoration(labelText: 'Transaction Type'),
-              validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Enter transaction type' : null,
-            ),
-            const SizedBox(height: 12),
-            // Amount
-            TextFormField(
-              controller: _amountController,
-              decoration: const InputDecoration(labelText: 'Amount'),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) return 'Enter amount';
-                if (double.tryParse(value.trim()) == null) return 'Enter a valid number';
-                return null;
-              },
-            ),
-            const SizedBox(height: 12),
-            // Description (optional)
-            TextFormField(
-              controller: _descriptionController,
-              decoration:
-              const InputDecoration(labelText: 'Description (optional)'),
-            ),
-            const SizedBox(height: 12),
-            // Date field (e.g., transaction date)
-            TextFormField(
-              controller: _dateController,
-              decoration: const InputDecoration(
-                labelText: 'Transaction Date (YYYY-MM-DD)',
-              ),
-              validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Enter transaction date' : null,
-            ),
-            if (_errorFeedback.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Text(
-                  _errorFeedback,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.red),
-                ),
-              ),
-          ],
-        ),
-      ),
+    final ok = await context.read<TransactionProvider>().createTransaction(
+      transactionType: _typeCtrl.text.trim(),
+      amount: double.parse(_amountCtrl.text.trim()),
+      description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
+      dateIso: _date?.toIso8601String().substring(0, 10),
     );
-  }
 
-  List<Widget> _buildActions() {
-    if (_state == AddTransactionState.added) {
-      return [
-        TextButton(
-          onPressed: ()
-          => context.read<NavigationStore>().setAddTransactionActive(),
-          child: const Text('Close'),
-        ),
-      ];
-    }
-    if (_state == AddTransactionState.initial) {
-      return [
-        TextButton(
-          onPressed: ()
-          => context.read<NavigationStore>().setAddTransactionActive(),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: _addTransaction,
-          child: const Text('Add Transaction'),
-        ),
-      ];
-    }
-    return [];
+    setState(() {
+      _state = ok ? AddTransactionState.added : AddTransactionState.initial;
+      if (!ok) _error = 'Failed to add transaction.';
+    });
   }
 
   @override
@@ -185,11 +75,67 @@ class _AddTransactionBottomSheetState extends State<AddTransactionBottomSheet> {
           children: [
             Text('Add New Transaction', style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 16),
-            _buildContent(),
+            if (_state == AddTransactionState.adding)
+              const Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator())
+            else if (_state == AddTransactionState.added)
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text('Transaction added.', style: Theme.of(context).textTheme.titleLarge),
+              )
+            else
+              Form(
+                key: _formKey,
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _typeCtrl,
+                        decoration: const InputDecoration(labelText: 'Transaction type'),
+                        validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _amountCtrl,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration: const InputDecoration(labelText: 'Amount'),
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) return 'Enter amount';
+                          return double.tryParse(v.trim()) == null ? 'Enter number' : null;
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _descCtrl,
+                        decoration: const InputDecoration(labelText: 'Description (optional)'),
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          labelText: 'Date',
+                          suffixIcon: IconButton(icon: const Icon(Icons.calendar_today), onPressed: _pickDate),
+                        ),
+                        controller: TextEditingController(text: _date == null ? '' : _date!.toIso8601String().substring(0, 10)),
+                        validator: (_) => _date == null ? 'Pick a date' : null,
+                      ),
+                      if (_error.isNotEmpty)
+                        Padding(padding: const EdgeInsets.only(top: 12), child: Text(_error, style: const TextStyle(color: Colors.red))),
+                    ],
+                  ),
+                ),
+              ),
             const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
-              children: _buildActions(),
+              children: [
+                if (_state != AddTransactionState.adding)
+                  TextButton(onPressed: () => context.read<NavigationStore>().setAddTransactionActive(), child: const Text('Cancel')),
+                if (_state == AddTransactionState.initial)
+                  ElevatedButton(onPressed: _submit, child: const Text('Add Transaction')),
+                if (_state == AddTransactionState.added)
+                  ElevatedButton(onPressed: () => context.read<NavigationStore>().setAddTransactionActive(), child: const Text('Close')),
+              ],
             ),
           ],
         ),

@@ -1,24 +1,28 @@
-// lib/UI/nav/overlays/details/bank_account_detail_sheet.dart
-import 'package:flutter/material.dart';
+// lib/UI/nav/overlays/details/budget_detail_sheet.dartimport 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../models/model_kind_enum.dart';
-import '../../../../providers/finance/bank_account_provider.dart';
+import '../../../../providers/finance/budget_provider.dart';
 import '../../../nav/providers/detail_delagate_registry.dart';
 import '../../../nav/providers/navigation_store.dart';
+import 'package:flutter/material.dart';
 
-class BankAccountDetailSheet extends StatelessWidget {
+class BudgetDetailSheet extends StatelessWidget {
   final int id;
-  const BankAccountDetailSheet({super.key, required this.id});
+  const BudgetDetailSheet({super.key, required this.id});
 
   @override
   Widget build(BuildContext context) {
-    final account = context.select<BankAccountProvider, dynamic>((p) => p.byId(id));
-    if (account == null) return const Center(child: CircularProgressIndicator());
+    final budget = context.select<BudgetProvider, dynamic>((p) => p.byId(id));
+    if (budget == null) return const Center(child: CircularProgressIndicator());
 
     final theme = Theme.of(context);
+    final spent = budget.totalAmount ?? 0.0;
+    final remaining = budget.totalAmount - spent;
+    final double remainingPercent = ((remaining / budget.totalAmount).clamp(0.0, 1.0)) as double;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(account.accountName),
+        title: Text(budget.name),
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
@@ -37,21 +41,16 @@ class BankAccountDetailSheet extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(account.institutionName, style: theme.textTheme.titleMedium),
+                  Text('Allocated', style: theme.textTheme.labelLarge),
                   const SizedBox(height: 4),
-                  Text(account.accountNumber, style: theme.textTheme.bodyMedium),
+                  Text('\$${budget.totalAmount.toStringAsFixed(2)}', style: theme.textTheme.displaySmall),
                   const SizedBox(height: 16),
-                  Text('Balance', style: theme.textTheme.labelLarge),
-                  const SizedBox(height: 4),
-                  Text(
-                    "${account.balance?.toStringAsFixed(2) ?? '—'} ${account.currency}",
-                    style: theme.textTheme.displaySmall,
-                  ),
+                  LinearProgressIndicator(value: (1.0 - remainingPercent).clamp(0.0, 1.0)),                  const SizedBox(height: 8),
+                  Text('Remaining: \$${remaining.toStringAsFixed(2)}', style: theme.textTheme.bodyMedium),
                 ],
               ),
             ),
           ),
-          ListTile(title: const Text('Last Synced'), subtitle: Text(account.lastSynced ?? '—')),
         ],
       ),
     );
@@ -59,8 +58,8 @@ class BankAccountDetailSheet extends StatelessWidget {
 
   static void register() {
     DetailDelegateRegistry.register(
-      ModelKind.bankAccount,
-          (_, t) => BankAccountDetailSheet(id: t.id),
+      ModelKind.budget,
+          (_, t) => BudgetDetailSheet(id: t.id),
     );
   }
 }

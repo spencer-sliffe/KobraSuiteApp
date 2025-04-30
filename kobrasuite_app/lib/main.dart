@@ -54,6 +54,8 @@ import 'UI/screens/auth/forgot_password_screen.dart';
 import 'UI/screens/auth/password_reset_confirm_screen.dart';
 import 'UI/screens/main_screen.dart';
 import 'UI/widgets/detail/finance/bank_account_detail_widget.dart';
+import 'UI/widgets/detail/finance/budget_detail_widget.dart';
+import 'UI/widgets/detail/finance/transaction_detail_widget.dart';
 import 'auth_wrapper.dart';
 
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
@@ -63,6 +65,8 @@ void main() async {
   await setupServiceLocator();
   await serviceLocator<AuthService>().initialize();
   BankAccountDetailSheet.register();
+  BudgetDetailSheet.register();
+  TransactionDetailSheet.register();
 
   runApp(
     MultiProvider(
@@ -305,15 +309,12 @@ void main() async {
             return categoryProvider;
           },
         ),
-        ChangeNotifierProxyProvider2<AuthProvider, FinanceProfileProvider, TransactionProvider>(
-          create: (_) => TransactionProvider(userPk: 0, userProfilePk: 0, financeProfilePk: 0),
-          update: (_, auth, financeProfile, transactionProvider) {
-            transactionProvider!.update(
-              newUserPk: auth.userPk,
-              newUserProfilePk: auth.userProfilePk,
-              newFinanceProfilePk: financeProfile.financeProfile?.id ?? 0,
-            );
-            return transactionProvider;
+        ChangeNotifierProxyProvider<FinanceProfileProvider, TransactionProvider>(
+          create: (context) => TransactionProvider(
+              financeProfileProvider: context.read<FinanceProfileProvider>()),
+          update: (context, financeProfile, tp) {
+            tp!.update(financeProfile);
+            return tp;
           },
         ),
         ChangeNotifierProvider<NavigationStore>(create: (_) => NavigationStore()),

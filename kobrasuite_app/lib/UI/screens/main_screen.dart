@@ -129,13 +129,13 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 store.setActiveHomeLifeTabIndex(newIndex),
           );
           break;
-        case Module.Work:
-          _setupTabController(
-            activeIndex: store.activeWorkTabIndex,
-            updateStoreIndex: (newIndex) =>
-                store.setActiveWorkTabIndex(newIndex),
-          );
-          break;
+        // case Module.Work:
+        //   _setupTabController(
+        //     activeIndex: store.activeWorkTabIndex,
+        //     updateStoreIndex: (newIndex) =>
+        //         store.setActiveWorkTabIndex(newIndex),
+        //   );
+        //   break;
       }
     } else {
       // Module has not changed. Animate tab index transitions if needed.
@@ -150,9 +150,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         case Module.HomeLife:
           newIndex = store.activeHomeLifeTabIndex;
           break;
-        case Module.Work:
-          newIndex = store.activeWorkTabIndex;
-          break;
+        // case Module.Work:
+        //   newIndex = store.activeWorkTabIndex;
+        //   break;
       }
       if (_tabController != null && _tabController!.index != newIndex) {
         _tabController!.animateTo(newIndex,
@@ -166,19 +166,19 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     switch (module) {
       case Module.School:
         return ['University', 'Courses'];
-      case Module.Work:
-        return ['Projects', 'Teams', 'Tasks'];
+      // case Module.Work:
+      //   return ['Projects', 'Teams', 'Tasks'];
       case Module.Finances:
         return [
           'Overview',
           'Accounts',
           'Budgets',
-          'Categories',
-          'Transactions',
+          //'Categories',
+          //'Transactions',
           'Stocks',
-          'Watchlist',
-          'Analysis',
-          'News',
+          //'Watchlist',
+          //'Analysis',
+          //'News',
         ];
       case Module.HomeLife:
         return ['Household', 'Personal', 'Chores', 'Meals'];
@@ -232,56 +232,56 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         default:
           return Container();
       }
-    } else if (module == Module.Work) {
-      switch (tab) {
-        case 'Projects':
-          return ControlBarRegistrar(
-            workTabIndex: 0,
-            buttons: [
-              ControlBarButtonModel(
-                id: 'work_project_add',
-                icon: Icons.add,
-                label: 'Project',
-                onPressed: () {
-                  context.read<NavigationStore>().setAddProjectActive();
-                },
-              ),
-            ],
-            child: const WorkProjectsTab(),
-          );
-        case 'Teams':
-          return ControlBarRegistrar(
-            workTabIndex: 1,
-            buttons: [
-              ControlBarButtonModel(
-                id: 'work_team_add',
-                icon: Icons.add,
-                label: 'Team',
-                onPressed: () {
-                  context.read<NavigationStore>().setAddTeamActive();
-                },
-              ),
-            ],
-            child: const WorkTeamsTab(),
-          );
-        case 'Tasks':
-          return ControlBarRegistrar(
-            workTabIndex: 2,
-            buttons: [
-              ControlBarButtonModel(
-                id: 'work_task_add',
-                icon: Icons.add,
-                label: 'Task',
-                onPressed: () {
-                  context.read<NavigationStore>().setAddTaskActive();
-                },
-              ),
-            ],
-            child: const WorkTasksTab(),
-          );
-        default:
-          return Container();
-      }
+    // } else if (module == Module.Work) {
+    //   switch (tab) {
+    //     case 'Projects':
+    //       return ControlBarRegistrar(
+    //         workTabIndex: 0,
+    //         buttons: [
+    //           ControlBarButtonModel(
+    //             id: 'work_project_add',
+    //             icon: Icons.add,
+    //             label: 'Project',
+    //             onPressed: () {
+    //               context.read<NavigationStore>().setAddProjectActive();
+    //             },
+    //           ),
+    //         ],
+    //         child: const WorkProjectsTab(),
+    //       );
+    //     case 'Teams':
+    //       return ControlBarRegistrar(
+    //         workTabIndex: 1,
+    //         buttons: [
+    //           ControlBarButtonModel(
+    //             id: 'work_team_add',
+    //             icon: Icons.add,
+    //             label: 'Team',
+    //             onPressed: () {
+    //               context.read<NavigationStore>().setAddTeamActive();
+    //             },
+    //           ),
+    //         ],
+    //         child: const WorkTeamsTab(),
+    //       );
+    //     case 'Tasks':
+    //       return ControlBarRegistrar(
+    //         workTabIndex: 2,
+    //         buttons: [
+    //           ControlBarButtonModel(
+    //             id: 'work_task_add',
+    //             icon: Icons.add,
+    //             label: 'Task',
+    //             onPressed: () {
+    //               context.read<NavigationStore>().setAddTaskActive();
+    //             },
+    //           ),
+    //         ],
+    //         child: const WorkTasksTab(),
+    //       );
+    //     default:
+    //       return Container();
+    //   }
     } else if (module == Module.HomeLife) {
       switch (tab) {
         case 'Household':
@@ -456,36 +456,36 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             ],
             child: const BudgetsTab(),
           );
-        case 'Categories':
-          return ControlBarRegistrar(
-            financeTabIndex: 3,
-            buttons: [
-              ControlBarButtonModel(
-                id: 'finances_category_add',
-                icon: Icons.add,
-                label: 'Category',
-                onPressed: () {
-                  context.read<NavigationStore>().setAddCategoryActive();
-                },
-              ),
-            ],
-            child: const BudgetCategoriesTab(),
-          );
-        case 'Transactions':
-          return ControlBarRegistrar(
-            financeTabIndex: 4,
-            buttons: [
-              ControlBarButtonModel(
-                id: 'finances_transaction_add',
-                icon: Icons.add,
-                label: 'Transaction',
-                onPressed: () {
-                  context.read<NavigationStore>().setAddTransactionActive();
-                },
-              ),
-            ],
-            child: const TransactionsTab(),
-          );
+        // case 'Categories':
+        //   return ControlBarRegistrar(
+        //     financeTabIndex: 3,
+        //     buttons: [
+        //       ControlBarButtonModel(
+        //         id: 'finances_category_add',
+        //         icon: Icons.add,
+        //         label: 'Category',
+        //         onPressed: () {
+        //           context.read<NavigationStore>().setAddCategoryActive();
+        //         },
+        //       ),
+        //     ],
+        //     child: const BudgetCategoriesTab(),
+        //   );
+        // case 'Transactions':
+        //   return ControlBarRegistrar(
+        //     financeTabIndex: 4,
+        //     buttons: [
+        //       ControlBarButtonModel(
+        //         id: 'finances_transaction_add',
+        //         icon: Icons.add,
+        //         label: 'Transaction',
+        //         onPressed: () {
+        //           context.read<NavigationStore>().setAddTransactionActive();
+        //         },
+        //       ),
+        //     ],
+        //     child: const TransactionsTab(),
+        //   );
         case 'Stocks':
           return ControlBarRegistrar(
             financeTabIndex: 5,
@@ -501,51 +501,51 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             ],
             child: const StocksTab(),
           );
-        case 'Watchlist':
-          return ControlBarRegistrar(
-            financeTabIndex: 6,
-            buttons: [
-              ControlBarButtonModel(
-                id: 'finances_watchlist_add',
-                icon: Icons.add_alert,
-                label: 'Add to Watchlist',
-                onPressed: () {
-                  context.read<NavigationStore>().setAddWatchlistStockActive();
-                },
-              ),
-            ],
-            child: const WatchlistTab(),
-          );
-        case 'Analysis':
-          return ControlBarRegistrar(
-            financeTabIndex: 7,
-            buttons: [
-              ControlBarButtonModel(
-                id: 'finances_analysis_run',
-                icon: Icons.analytics,
-                label: 'Run Analysis',
-                onPressed: () {
-                  context.read<NavigationStore>().setRunFinanceAnalysisActive();
-                },
-              ),
-            ],
-            child: const AnalysisTab(),
-          );
-        case 'News':
-          return ControlBarRegistrar(
-            financeTabIndex: 8,
-            buttons: [
-              ControlBarButtonModel(
-                id: 'finances_news_refresh',
-                icon: Icons.newspaper,
-                label: 'Refresh News',
-                onPressed: () {
-                  context.read<NavigationStore>().setRefreshFinanceNewsActive();
-                },
-              ),
-            ],
-            child: const NewsTab(),
-          );
+        // case 'Watchlist':
+        //   return ControlBarRegistrar(
+        //     financeTabIndex: 6,
+        //     buttons: [
+        //       ControlBarButtonModel(
+        //         id: 'finances_watchlist_add',
+        //         icon: Icons.add_alert,
+        //         label: 'Add to Watchlist',
+        //         onPressed: () {
+        //           context.read<NavigationStore>().setAddWatchlistStockActive();
+        //         },
+        //       ),
+        //     ],
+        //     child: const WatchlistTab(),
+        //   );
+        // case 'Analysis':
+        //   return ControlBarRegistrar(
+        //     financeTabIndex: 7,
+        //     buttons: [
+        //       ControlBarButtonModel(
+        //         id: 'finances_analysis_run',
+        //         icon: Icons.analytics,
+        //         label: 'Run Analysis',
+        //         onPressed: () {
+        //           context.read<NavigationStore>().setRunFinanceAnalysisActive();
+        //         },
+        //       ),
+        //     ],
+        //     child: const AnalysisTab(),
+        //   );
+        // case 'News':
+        //   return ControlBarRegistrar(
+        //     financeTabIndex: 8,
+        //     buttons: [
+        //       ControlBarButtonModel(
+        //         id: 'finances_news_refresh',
+        //         icon: Icons.newspaper,
+        //         label: 'Refresh News',
+        //         onPressed: () {
+        //           context.read<NavigationStore>().setRefreshFinanceNewsActive();
+        //         },
+        //       ),
+        //     ],
+        //     child: const NewsTab(),
+        //   );
         default:
           return Container();
       }
@@ -561,8 +561,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         return Icons.home;
       case Module.School:
         return Icons.school;
-      case Module.Work:
-        return Icons.work;
+      // case Module.Work:
+      //   return Icons.work;
     }
   }
 

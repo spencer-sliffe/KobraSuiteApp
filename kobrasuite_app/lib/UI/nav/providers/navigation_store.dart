@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../models/detail_target.dart';
 
-enum Module { Finances, HomeLife, School, Work }
+enum Module { Finances, HomeLife, School}
+  //Work }
 enum HQView { Dashboard, ModuleManager }
 
 class NavigationStore extends ChangeNotifier {

@@ -30,6 +30,14 @@ class BudgetProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Budget? byId(int id) {
+    try {
+      return _budgets.firstWhere((a) => a.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// Load all budgets for the current FinanceProfile
   Future<void> loadBudgets() async {
     _isLoading = true;

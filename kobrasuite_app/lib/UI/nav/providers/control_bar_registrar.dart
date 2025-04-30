@@ -110,8 +110,8 @@ class _ControlBarRegistrarState extends State<ControlBarRegistrar> {
     switch (_nav.activeModule) {
       case Module.Finances:
         return widget.financeTabIndex == _nav.activeFinancesTabIndex;
-      case Module.Work:
-        return widget.workTabIndex == _nav.activeWorkTabIndex;
+      // case Module.Work:
+      //   return widget.workTabIndex == _nav.activeWorkTabIndex;
       case Module.HomeLife:
         return widget.homelifeTabIndex == _nav.activeHomeLifeTabIndex;
       case Module.School:
