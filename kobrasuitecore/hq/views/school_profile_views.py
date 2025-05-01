@@ -1,4 +1,3 @@
-# File: hq/views/school_profile_views.py
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -10,6 +9,7 @@ from school.models import University
 from school.serializers.university_serializers import SetUniversitySerializer
 from asgiref.sync import async_to_sync
 from school.services.university_service import add_university_to_db
+
 
 class SchoolProfileViewSet(viewsets.ModelViewSet):
     queryset = SchoolProfile.objects.select_related('profile__user', 'university').prefetch_related('courses')
@@ -40,11 +40,6 @@ class SchoolProfileViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=True, url_path='set_university')
     def set_university(self, request, user_pk=None, profile_pk=None, pk=None):
-        """
-        Example usage:
-        POST /.../school_profile/<pk>/set_university/ 
-        { "name": "Some University", "country": "US" }
-        """
         school_profile = self.get_object()
         serializer = SetUniversitySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

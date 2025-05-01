@@ -1,27 +1,3 @@
-"""
-------------------Prologue--------------------
-File Name: module_symbols.py
-Path: kobrasuitecore/kobrasuitecore/task_config/module_symbols.py
-
-Date Created:
-2025-03-16
-
-Date Updated:
-2025-03-16
-
-Description:
-(TEMP) The module dynamically loads symbols from a JSON configuration file into a custom module namespace. This allows for flexible configuration management by external files.
-
-Input:
-(TEMP) The input is the JSON configuration file located at the specified path, which defines module symbols in a dictionary format.
-
-Output:
-(TEMP) The output is a module object containing the dynamically loaded symbols, accessible via the ModuleSymbols attribute.
-
-Collaborators: JAKE BERNARD, QWQ 32B
----------------------------------------------
-"""
-
 import json
 import sys
 from types import ModuleType

@@ -1,5 +1,3 @@
-# customer/tests/test_auth.py
-
 import pytest
 from django.urls import reverse
 from customer.tests.factories import UserFactory

@@ -1,29 +1,9 @@
-# """
-# ------------------Prologue--------------------
-# File Name: banking_serializers.py
-# Path: kobrasuitecore\finances\serializers\banking_serializers.py
-#
-# Description:
-# Converts Django models into JSON for a sendable format.
-#
-# Input:
-# Django models
-#
-# Output:
-# JSON representations of Django models
-#
-# Collaborators: SPENCER SLIFFE, Charlie Gillund
-# ---------------------------------------------
-# """
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from finances.models import BankAccount, Budget, BudgetCategory, Transaction
 
 
 class BankAccountSerializer(serializers.ModelSerializer):
-    """
-    Serializer for BankAccount model.
-    """
     class Meta:
         model = BankAccount
         fields = [

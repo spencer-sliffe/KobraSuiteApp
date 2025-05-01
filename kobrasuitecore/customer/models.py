@@ -1,22 +1,3 @@
-"""
-------------------Prologue--------------------
-File Name: models.py
-Path: kobrasuitecore/customer/models.py
-
-Description:
-Contains custom extensions to the default User model and related classes such as Role, MFAConfig,
-and SecureDocument. Facilitates role-based permissions, multi-factor authentication, and secure
-file storage.
-
-Input:
-None directly; populated and queried by application logic.
-
-Output:
-Database structures representing users, roles, MFA configurations, and stored documents.
-
-Collaborators: SPENCER SLIFFE
----------------------------------------------
-"""
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Permission
 from django.core.validators import RegexValidator

@@ -1,22 +1,3 @@
-"""
-------------------Prologue--------------------
-File Name: image_generation_service.py
-Path: kobrasuitecore/ai/services/image_generation_service.py
-
-Description:
-Handles the generation of banner color palettes by querying the OpenAI API, parsing JSON responses,
-and providing fallback defaults if prompts or configurations are invalid.
-
-Input:
-Color generation prompts from user requests.
-
-Output:
-Lists of hex color codes representing a color palette.
-
-Collaborators: SPENCER SLIFFE
----------------------------------------------
-"""
-# File: ai/services/image_generation_service.py
 import json
 import logging
 import re

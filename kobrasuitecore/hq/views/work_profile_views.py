@@ -1,9 +1,9 @@
-# File: hq/views/work_profile_viewset.py
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from hq.models import UserProfile, WorkProfile
 from hq.serializers.work_profile_serializers import WorkProfileSerializer
+
 
 class WorkProfileViewSet(viewsets.ModelViewSet):
     queryset = WorkProfile.objects.select_related('profile__user').all()
@@ -11,10 +11,6 @@ class WorkProfileViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """
-        Nested route:
-        /users/<user_pk>/profile/<profile_pk>/work_profile/<work_profile_pk>/
-        """
         user_pk = self.kwargs.get('user_pk')
         profile_pk = self.kwargs.get('profile_pk')
         return self.queryset.filter(

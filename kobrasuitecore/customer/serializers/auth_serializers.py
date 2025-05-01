@@ -1,30 +1,9 @@
-"""
-------------------Prologue--------------------
-File Name: auth_serializers.py
-Path: kobrasuitecore/customer/serializers/auth_serializers.py
-
-Description:
-Provides serialization logic for user registration and login, including JWT token handling
-and password validation.
-
-Input:
-User registration details and login credentials.
-
-Output:
-Validated user data, JWT tokens, and error messages for authentication flows.
-
-Collaborators: SPENCER SLIFFE
----------------------------------------------
-"""
-
 from django.contrib.auth import get_user_model, authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
-
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
-
 from customer.serializers.user_serializers import UserSerializer
 from kobrasuitecore import settings
 

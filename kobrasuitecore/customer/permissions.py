@@ -1,21 +1,3 @@
-"""
-------------------Prologue--------------------
-File Name: permissions.py
-Path: kobrasuitecore/customer/permissions.py
-
-Description:
-Declares permission classes controlling object-level access. Allows owners or administrators
-to manage resources, ensuring security for sensitive data.
-
-Input:
-HTTP requests evaluated against user roles, ownership, or admin status.
-
-Output:
-Permission grants or denials for resource access.
-
-Collaborators: SPENCER SLIFFE
----------------------------------------------
-"""
 from rest_framework import permissions
 
 
