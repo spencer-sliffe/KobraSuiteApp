@@ -88,15 +88,7 @@ final ThemeData blueDarkTheme = ThemeData(
       borderRadius: BorderRadius.circular(16),
     ),
   ),
-  cardTheme: CardTheme(
-    color: const Color(0xFF1E1E1E),
-    elevation: 2,
-    shadowColor: Colors.black45,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(16),
-    ),
-    margin: const EdgeInsets.all(8),
-  ),
+
   navigationRailTheme: NavigationRailThemeData(
     backgroundColor: const Color(0xFF121212),
     selectedIconTheme: const IconThemeData(
