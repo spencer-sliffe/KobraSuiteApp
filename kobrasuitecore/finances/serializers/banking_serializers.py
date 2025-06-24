@@ -4,7 +4,6 @@ from finances.models import BankAccount, Budget, BudgetCategory, Transaction
 
 
 class BankAccountSerializer(serializers.ModelSerializer):
-    
     class Meta:
         model = BankAccount
         fields = [
