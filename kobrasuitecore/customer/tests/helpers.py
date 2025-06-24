@@ -1,5 +1,3 @@
-# customer/helpers.py
-
 from rest_framework.test import APIClient
 from django.urls import reverse
 from rest_framework import status

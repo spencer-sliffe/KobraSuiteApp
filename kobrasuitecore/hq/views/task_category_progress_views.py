@@ -1,29 +1,3 @@
-"""
-------------------Prologue--------------------
-File Name: task_category_progress_views.py
-Path: kobrasuitecore/hq/views/task_category_progress_views.py
-
-Date Created:
-2025-03-12
-
-Date Updated:
-2025-03-16
-
-Description:
-(TEMP) Manages task category progress for users, handling completion and reward application
-
-Input:
-(TEMP) User authentication, module/task parameters, and optional task data
-
-Output:
-(TEMP) Updated task progress records and reward application status responses
-
-Collaborators: JAKE BERNARD, QWQ 32B
----------------------------------------------
-"""
-
-from django.shortcuts import get_object_or_404
-from django.contrib.auth import get_user_model
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly

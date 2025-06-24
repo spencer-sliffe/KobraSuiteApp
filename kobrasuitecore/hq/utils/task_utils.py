@@ -1,30 +1,3 @@
-"""
-------------------Prologue--------------------
-File Name: task_utils.py
-Path: kobrasuitecore/hq/utils/task_utils.py
-
-Date Created:
-2025-03-08
-
-Date Updated:
-2025-03-16
-
-Description:
-Defines utility functions for dealing with the backend task handling system, including:
-- applying task rewards
-- calculating task performance
-- allocating and deallocating task slots
-
-Input:
-Varies by utility function
-
-Output:
-
-
-Collaborators: JAKE BERNARD, SPENCER SLIFFE, CHATGPT from "OPEN"AI
----------------------------------------------
-"""
-# importing python libs
 import datetime
 import json
 import logging

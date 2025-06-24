@@ -1,27 +1,3 @@
-"""
-------------------Prologue--------------------
-File Name: task_map.py
-Path: kobrasuitecore/kobrasuitecore/task_config/task_map.py
-
-Date Created:
-2025-03-16
-
-Date Updated:
-2025-03-16
-
-Description:
-(TEMP) This file maps task configurations to their respective evaluation functions based on module categories. It reads task configurations from a JSON file and initializes TaskCategoryConfig objects with appropriate evaluation functions.
-
-Input:
-(TEMP) Input is the task_config.json file containing task configurations for different modules.
-
-Output:
-(TEMP) Output is a dynamically created module containing the TaskMap dictionary with processed task configurations.
-
-Collaborators: JAKE BERNARD, QWQ 32B
----------------------------------------------
-"""
-
 import json
 import sys
 from types import ModuleType

@@ -1,21 +1,3 @@
-"""
-------------------Prologue--------------------
-File Name: chatgpt_views.py
-Path: kobrasuitecore/ai/views/chatgpt_views.py
-
-Description:
-Contains ViewSets to manage user-chatbot interactions and course verification endpoints.
-Allows retrieval of conversation history and processing of new chat messages.
-
-Input:
-User messages and course verification data from incoming requests.
-
-Output:
-Chat responses, verified course results, or validation errors.
-
-Collaborators: SPENCER SLIFFE
----------------------------------------------
-"""
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response

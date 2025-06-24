@@ -1,5 +1,4 @@
 from rest_framework_nested import routers
-
 from customer.views.auth_views import AuthViewSet
 from customer.views.user_views import UserViewSet
 from homelife.views.child_profile_views import ChildProfileViewSet
@@ -44,6 +43,7 @@ router.register('image-generation', ImageGenerationViewSet, basename='image_gene
 # USER
 user_router = routers.NestedDefaultRouter(router, 'users', lookup='user')
 user_router.register('profile', UserProfileViewSet, basename='profile')
+
 
 # PROFILE
 profile_router = routers.NestedDefaultRouter(user_router, 'profile', lookup='profile')
@@ -92,7 +92,6 @@ budget_router.register('categories', BudgetCategoryViewSet, basename='budget_cat
 homelife_profile_router = routers.NestedDefaultRouter(profile_router, 'homelife_profile', lookup='homelife_profile')
 homelife_profile_router.register('households', HouseholdViewSet, basename='households')
 homelife_profile_router.register('household_invites', HouseholdInviteViewSet, basename='household_invites')
-
 household_router = routers.NestedDefaultRouter(homelife_profile_router, 'households', lookup='household')
 household_router.register('child_profiles', ChildProfileViewSet, basename='child_profiles')
 household_router.register('pets', PetViewSet, basename='pets')
@@ -104,10 +103,8 @@ household_router.register('medications', MedicationViewSet, basename='medication
 household_router.register('medical_appointments', MedicalAppointmentViewSet, basename='medical_appointments')
 household_router.register('workout_routines', WorkoutRoutineViewSet, basename='workout_routines')
 household_router.register('household_members', HouseholdMemberViewSet, basename='household_members')
-
 chore_router = routers.NestedDefaultRouter(household_router, 'chores', lookup='chore')
 chore_router.register('completions', ChoreCompletionViewSet, basename='chore_completions')
-
 grocery_router = routers.NestedDefaultRouter(household_router, 'grocery_lists', lookup='grocery_list')
 grocery_router.register('grocery_items', GroceryItemViewSet, basename='grocery_items')
 

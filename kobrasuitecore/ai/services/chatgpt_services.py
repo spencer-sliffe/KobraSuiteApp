@@ -1,21 +1,3 @@
-"""
-------------------Prologue--------------------
-File Name: chatgpt_services.py
-Path: kobrasuitecore/ai/services/chatgpt_services.py
-
-Description:
-Implements logic to interface with the OpenAI API, including assembling conversation histories,
-managing cached responses, and verifying course data via JSON responses.
-
-Input:
-User messages, request data for course verification.
-
-Output:
-API calls to OpenAI and structured responses containing AI-generated data.
-
-Collaborators: SPENCER SLIFFE
----------------------------------------------
-"""
 import json
 import logging
 import re

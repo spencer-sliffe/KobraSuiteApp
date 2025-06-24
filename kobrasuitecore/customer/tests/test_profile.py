@@ -4,8 +4,9 @@ import pytest
 from django.urls import reverse
 from rest_framework import status
 from customer.tests.factories import UserFactory
+from hq.models import UserProfile
 from school.tests.factories import UniversityFactory
-from customer.models import UserProfile
+
 from .helpers import get_authenticated_client
 
 

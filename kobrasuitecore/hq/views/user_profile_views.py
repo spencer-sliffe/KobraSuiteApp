@@ -24,6 +24,5 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         serializer.save(user=user)
 
     def perform_update(self, serializer):
-        # Keep the existing user relationship
         instance = self.get_object()
         serializer.save(user=instance.user)

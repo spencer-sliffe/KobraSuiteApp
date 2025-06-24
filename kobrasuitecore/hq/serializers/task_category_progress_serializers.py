@@ -1,26 +1,3 @@
-"""
-------------------Prologue--------------------
-File Name: task_category_progress_serializers.py
-Path: kobrasuitecore/hq/serializers/task_category_progress_serializers.py
-
-Date Created:
-2025-03-15
-
-Date Updated:
-2025-03-16
-
-Description:
-(TEMP) This file contains Django REST Framework serializers for tracking user progress in task categories. It serializes TaskCategoryProgress model instances into JSON representations and vice versa.
-
-Input:
-(TEMP) TaskCategoryProgress model instances with profile, module, category ID, completion counts, and renewal timestamps.
-
-Output:
-(TEMP) Serialized JSON data containing progress metrics for task categories, including profile associations and completion statuses.
-
-Collaborators: JAKE BERNARD, QWQ 32B
----------------------------------------------
-"""
 from rest_framework import serializers
 from hq.models import TaskCategoryProgress
 

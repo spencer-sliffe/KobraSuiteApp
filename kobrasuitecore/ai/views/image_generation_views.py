@@ -1,22 +1,3 @@
-"""
-------------------Prologue--------------------
-File Name: image_generation_viewset.py
-Path: kobrasuitecore/ai/views/image_generation_viewset.py
-
-Description:
-Defines a ViewSet that accepts prompts for generating banner color palettes. Integrates with
-the underlying image generation service to produce an array of color codes.
-
-Input:
-Prompt data for color scheme generation.
-
-Output:
-A JSON array of hex color codes.
-
-Collaborators: SPENCER SLIFFE
----------------------------------------------
-"""
-# File: ai/views/image_generation_viewset.py
 import logging
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -27,10 +8,8 @@ from ai.services.image_generation_service import generate_banner_colors
 
 logger = logging.getLogger(__name__)
 
+
 class ImageGenerationViewSet(viewsets.ViewSet):
-    """
-    ViewSet for generating abstract banner color palettes using ChatGPT.
-    """
     parser_classes = [JSONParser]
 
     @action(detail=False, methods=['post'], url_path='generate')
