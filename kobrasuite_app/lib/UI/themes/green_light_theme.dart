@@ -138,15 +138,7 @@ final ThemeData greenLightTheme = ThemeData(
       borderRadius: BorderRadius.circular(16),
     ),
   ),
-  cardTheme: CardTheme(
-    color: const Color(0xFF1E1E1E),
-    elevation: 4,
-    shadowColor: Colors.black87,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(16),
-    ),
-    margin: const EdgeInsets.all(10),
-  ),
+
 
   // -------------------------------------------------------------------------
   // 6. NAVIGATION COMPONENTS

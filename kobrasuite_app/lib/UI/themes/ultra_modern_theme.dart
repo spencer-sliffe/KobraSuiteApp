@@ -113,15 +113,7 @@ final ThemeData ultraModernTheme = ThemeData(
       borderRadius: BorderRadius.circular(24),
     ),
   ),
-  cardTheme: CardTheme(
-    color: Colors.white,
-    elevation: 8,
-    shadowColor: Colors.black26,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(24),
-    ),
-    margin: const EdgeInsets.all(12),
-  ),
+
   chipTheme: ChipThemeData(
     backgroundColor: const Color(0xFFE0F7FF),
     labelStyle: const TextStyle(color: Colors.black87),
